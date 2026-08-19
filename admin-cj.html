@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CJ Legend - لوحة الإدارة الشاملة</title>
+
+  <style>
+    :root {
+      --bg: #050505;
+      --card: #121212;
+      --accent: #facc15;
+      --accent-hover: #eab308;
+      --text: #f8fafc;
+      --border: #27272a;
+      --muted: #a1a1aa;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; }
+    
+    .container { max-width: 600px; width: 100%; }
+    
+    header { text-align: center; margin-bottom: 20px; }
+    .brand { color: var(--accent); font-size: 2.2rem; font-weight: 900; letter-spacing: 2px; }
+    .sub-brand { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .card-title { color: var(--accent); font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .form-group { margin-bottom: 15px; text-align: right; }
+    label { display: block; color: var(--muted); font-size: 0.85rem; margin-bottom: 6px; }
+    input[type="text"], input[type="password"], textarea { width: 100%; padding: 12px; background: #000000; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; outline: none; direction: ltr; text-align: left; }
+    textarea { height: 120px; font-family: monospace; font-size: 0.85rem; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.2s; margin-top: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-main { background: var(--accent); color: #000; }
+    .btn-main:hover { background: var(--accent-hover); }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.8rem; padding: 6px 10px; width: auto; margin-top: 0; }
+
+    .status-msg { padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; display: none; text-align: center; font-weight: 500; line-break: anywhere; }
+    .status-success { background: #166534; color: #4ade80; border: 1px solid #22c55e; }
+    .status-danger { background: #991b1b; color: #fca5a5; border: 1px solid #ef4444; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 10px; background: var(--card); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; text-align: center; }
+    .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.85rem; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--accent); background: #000; }
+    td { direction: ltr; text-align: left; }
+    .action-btns { display: flex; gap: 5px; justify-content: flex-end; }
+    .sm-btn { padding: 4px 8px; border-radius: 4px; border: none; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="brand">ATT/DES</div>
+    <div class="sub-brand">CJ Legend - لوحة الإدارة والتحكم الشاملة</div>
+  </header>
+
+  <!-- بطاقة إدخال اسم المستخدم والتوكن -->
+  <div class="card" id="configCard">
+    <div class="card-title">🔑 إعدادات حساب GitHub</div>
+    
+    <div class="form-group">
+      <label>GitHub Username (اسم المستخدم)</label>
+      <input type="text" id="userInput" value="attackndestroy" placeholder="اسم مستخدم GitHub">
+    </div>
+
+    <div class="form-group">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="userToken" placeholder="github_pat_...">
+    </div>
+
+    <div id="authStatusMsg" class="status-msg"></div>
+
+    <button class="btn btn-main" onclick="saveAuth()">تسجيل الدخول والربط 🚀</button>
+  </div>
+
+  <!-- اللوحة الرئيسية بعد تسجيل الدخول -->
+  <div id="mainDashboard" style="display: none;">
+    
+    <div class="tabs">
+      <div class="tab-btn active" id="tab1" onclick="switchTab('add')">➕ إضافة مود</div>
+      <div class="tab-btn" id="tab2" onclick="switchTab('list')">📋 المودات المرفوعة</div>
+      <div class="tab-btn" id="tab3" onclick="switchTab('raw')">⚙️ محرر Raw JSON</div>
+    </div>
+
+    <div id="statusMsg" class="status-msg"></div>
+
+    <!-- 1. قسم إضافة مود -->
+    <div class="card tab-content" id="contentAdd">
+      <div class="card-title">
+        <span>📦 إضافة مود جديد</span>
+        <button class="btn btn-reset" onclick="resetAuth()">خروج 🚪</button>
+      </div>
+      
+      <div class="form-group">
+        <label>رقم المود (ID)</label>
+        <input type="text" id="modId" placeholder="مثال: 1">
+      </div>
+
+      <div class="form-group">
+        <label>الرابط المباشر الأصلي للمود (MediaFire / Mega...)</label>
+        <input type="text" id="modUrl" placeholder="https://...">
+      </div>
+
+      <button class="btn btn-main" id="saveBtn" onclick="uploadMod()">رفع وإضافة المود 🔥</button>
+    </div>
+
+    <!-- 2. قسم قائمة المودات -->
+    <div class="card tab-content" id="contentList" style="display: none;">
+      <div class="card-title">📋 جميع المودات المرفوعة</div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%;">ID</th>
+              <th style="width: 55%;">الرابط المباشر الأصلي</th>
+              <th style="width: 30%; text-align: center;">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="modsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. قسم محرر RAW JSON -->
+    <div class="card tab-content" id="contentRaw" style="display: none;">
+      <div class="card-title">⚙️ التعديل المباشر على ملف mod.json</div>
+      <div class="form-group">
+        <label>كود JSON الحالي:</label>
+        <textarea id="rawJsonArea"></textarea>
+      </div>
+      <button class="btn btn-blue" id="saveRawBtn" onclick="saveRawJson()">حفظ التعديلات على GitHub 💾</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  /* ===================================================
+     الإعدادات العامة
+     =================================================== */
+  const GITHUB_REPO  = 'cjlegend';        
+  const DOMAIN_URL   = 'https://cj.attdes.online';
+
+  let GITHUB_USER  = localStorage.getItem('cj_gh_user') || 'attackndestroy';
+  let GITHUB_TOKEN = localStorage.getItem('cj_gh_token') || '';
+  
+  let dbData = {};
+  let fileSha = "";
+
+  window.onload = function() {
+    if (GITHUB_USER && GITHUB_TOKEN) {
+      document.getElementById('configCard').style.display = 'none';
+      document.getElementById('mainDashboard').style.display = 'block';
+      initGitHubData();
+    } else {
+      document.getElementById('userInput').value = GITHUB_USER;
+    }
+  };
+
+  function saveAuth() {
+    const user = document.getElementById('userInput').value.trim();
+    const token = document.getElementById('userToken').value.trim();
+
+    if (!user || !token) {
+      showAuthStatus('يرجى إدخال اسم المستخدم والتوكن كلاهما!', 'danger');
+      return;
+    }
+
+    localStorage.setItem('cj_gh_user', user);
+    localStorage.setItem('cj_gh_token', token);
+
+    GITHUB_USER = user;
+    GITHUB_TOKEN = token;
+
+    document.getElementById('configCard').style.display = 'none';
+    document.getElementById('mainDashboard').style.display = 'block';
+    initGitHubData();
+  }
+
+  function resetAuth() {
+    localStorage.removeItem('cj_gh_user');
+    localStorage.removeItem('cj_gh_token');
+    location.reload();
+  }
+
+  function initGitHubData() {
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/mod.json`;
+
+    fetch(url, {
+      headers: { 
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    })
+    .then(res => {
+      if(!res.ok) throw new Error("اسم المستخدم أو التوكن غير صحيح، أو لم يتم العثور على المستودع/الملف");
+      return res.json();
+    })
+    .then(data => {
+      fileSha = data.sha;
+      const content = decodeBase64UTF8(data.content);
+      dbData = JSON.parse(content);
+      
+      autoSuggestId();
+      renderTable();
+      document.getElementById('rawJsonArea').value = JSON.stringify(dbData, null, 2);
+    })
+    .catch(err => {
+      showStatus(`خطأ: ${err.message}`, 'danger');
+    });
+  }
+
+  function uploadMod() {
+    const id = document.getElementById('modId').value.trim();
+    const url = document.getElementById('modUrl').value.trim();
+
+    if (!id || !url) {
+      showStatus('يرجى إدخال ID المود ورابط التحميل!', 'danger');
+      return;
+    }
+
+    dbData[id] = encodeBase64(url);
+    pushToGitHub(`إضافة المود #${id}`, id);
+  }
+
+  function deleteMod(id) {
+    if (confirm(`هل أنت تأكد من حذف المود رقم #${id}؟`)) {
+      delete dbData[id];
+      pushToGitHub(`حذف المود #${id}`);
+    }
+  }
+
+  function saveRawJson() {
+    try {
+      const parsed = JSON.parse(document.getElementById('rawJsonArea').value);
+      dbData = parsed;
+      pushToGitHub("تعديل ملف JSON يدويًا");
+    } catch (e) {
+      showStatus("تنسيق JSON غير صحيح، يرجى التأكد من الكود!", "danger");
+    }
+  }
+
+  function pushToGitHub(commitMsg, copiedId = null) {
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = 'جاري التحديث... ⏳'; }
+
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/mod.json`;
+    const updatedContent = encodeBase64UTF8(JSON.stringify(dbData, null, 2));
+
+    const bodyData = {
+      message: `${commitMsg} - CJ Legend`,
+      content: updatedContent,
+      sha: fileSha
+    };
+
+    fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify(bodyData)
+    })
+    .then(res => {
+      if(!res.ok) throw new Error("فشل الرفع إلى GitHub");
+      return res.json();
+    })
+    .then(data => {
+      fileSha = data.content.sha;
+      
+      if (copiedId) {
+        const finalLink = `${DOMAIN_URL}/?id=${copiedId}`;
+        copyToClipboard(finalLink);
+        showStatus(`تم الرفع بنجاح! 🚀<br>تم نسخ الرابط النهائي تلقائياً:<br><b>${finalLink}</b>`, 'success');
+      } else {
+        showStatus(`تمت العملية والتحديث بنجاح! 🚀`, 'success');
+      }
+
+      document.getElementById('modUrl').value = '';
+      autoSuggestId();
+      renderTable();
+      document.getElementById('rawJsonArea').value = JSON.stringify(dbData, null, 2);
+    })
+    .catch(err => {
+      showStatus(`خطأ أثناء العملية: ${err.message}`, 'danger');
+    })
+    .finally(() => {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = 'رفع وإضافة المود 🔥'; }
+    });
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('modsTableBody');
+    tbody.innerHTML = '';
+
+    Object.keys(dbData).forEach(id => {
+      const originalUrl = decodeBase64(dbData[id]);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:bold; color:var(--accent);">${id}</td>
+        <td style="word-break: break-all;"><a href="${originalUrl}" target="_blank" style="color:var(--text); text-decoration:none;">${originalUrl.substring(0, 30)}...</a></td>
+        <td class="action-btns">
+          <button class="sm-btn btn-blue" onclick="copyToClipboard('${DOMAIN_URL}/?id=${id}')">نسخ</button>
+          <button class="sm-btn btn-danger" onclick="deleteMod('${id}')">حذف</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+
+    if (tab === 'add') {
+      document.getElementById('tab1').classList.add('active');
+      document.getElementById('contentAdd').style.display = 'block';
+    } else if (tab === 'list') {
+      document.getElementById('tab2').classList.add('active');
+      document.getElementById('contentList').style.display = 'block';
+    } else if (tab === 'raw') {
+      document.getElementById('tab3').classList.add('active');
+      document.getElementById('contentRaw').style.display = 'block';
+    }
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text);
+      alert("تم نسخ الرابط بنجاح: " + text);
+    } else {
+      let textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+      alert("تم نسخ الرابط بنجاح: " + text);
+    }
+  }
+
+  function autoSuggestId() {
+    const keys = Object.keys(dbData).map(k => parseInt(k)).filter(n => !isNaN(n));
+    document.getElementById('modId').value = keys.length > 0 ? Math.max(...keys) + 1 : 1;
+  }
+
+  function encodeBase64(str) {
+    try { return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m, p1) => String.fromCharCode('0x' + p1))); } 
+    catch (e) { return str; }
+  }
+
+  function decodeBase64(str) {
+    try { return decodeURIComponent(escape(atob(str.replace(/\n/g, '')))); } 
+    catch (e) { return str; }
+  }
+
+  function encodeBase64UTF8(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function decodeBase64UTF8(str) {
+    return decodeURIComponent(escape(atob(str.replace(/\n/g, ''))));
+  }
+
+  function showStatus(msg, type) {
+    const statusEl = document.getElementById('statusMsg');
+    statusEl.innerHTML = msg;
+    statusEl.className = `status-msg status-${type}`;
+    statusEl.style.display = 'block';
+  }
+
+  function showAuthStatus(msg, type) {
+    const statusEl = document.getElementById('authStatusMsg');
+    statusEl.innerHTML = msg;
+    statusEl.className = `status-msg status-${type}`;
+    statusEl.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

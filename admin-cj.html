@@ -75,7 +75,7 @@
     <div class="card-title">🔑 إعدادات حساب GitHub</div>
     
     <div class="form-group">
-      <label>GitHub Username (اسم المستخدم)</label>
+      <label>GitHub Username</label>
       <input type="text" id="userInput" value="attackndestroy" placeholder="اسم مستخدم GitHub">
     </div>
 
@@ -155,7 +155,7 @@
   /* ===================================================
      الإعدادات العامة
      =================================================== */
-  const GITHUB_REPO  = 'cjlegend';        
+  const GITHUB_REPO  = 'CJ-Legend'; // تم تصحيح اسم المستودع بالشرطة (-)       
   const DOMAIN_URL   = 'https://cj.attdes.online';
 
   let GITHUB_USER  = localStorage.getItem('cj_gh_user') || 'attackndestroy';
@@ -209,11 +209,20 @@
         'Accept': 'application/vnd.github.v3+json'
       }
     })
-    .then(res => {
-      if(!res.ok) throw new Error("اسم المستخدم أو التوكن غير صحيح، أو لم يتم العثور على المستودع/الملف");
+    .then(async res => {
+      if (res.status === 404) {
+        // إذا لم يكن ملف mod.json موجوداً يتم إنشاؤه تلقائياً
+        dbData = {};
+        return pushToGitHub("إنشاء ملف mod.json تلقائياً");
+      }
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "خطأ في الاتصال بـ GitHub");
+      }
       return res.json();
     })
     .then(data => {
+      if (!data) return;
       fileSha = data.sha;
       const content = decodeBase64UTF8(data.content);
       dbData = JSON.parse(content);
@@ -221,9 +230,11 @@
       autoSuggestId();
       renderTable();
       document.getElementById('rawJsonArea').value = JSON.stringify(dbData, null, 2);
+      showStatus("تم الاتصال بمستودع CJ-Legend بنجاح! 🟢", "success");
+      setTimeout(() => { document.getElementById('statusMsg').style.display = 'none'; }, 3000);
     })
     .catch(err => {
-      showStatus(`خطأ: ${err.message}`, 'danger');
+      showStatus(`خطأ: ${err.message}<br><small>تأكد من صلاحيات التوكن (repo scope) واضغط خروج للإعادة.</small>`, 'danger');
     });
   }
 
@@ -266,11 +277,12 @@
 
     const bodyData = {
       message: `${commitMsg} - CJ Legend`,
-      content: updatedContent,
-      sha: fileSha
+      content: updatedContent
     };
 
-    fetch(apiUrl, {
+    if (fileSha) { bodyData.sha = fileSha; }
+
+    return fetch(apiUrl, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -280,7 +292,7 @@
       body: JSON.stringify(bodyData)
     })
     .then(res => {
-      if(!res.ok) throw new Error("فشل الرفع إلى GitHub");
+      if(!res.ok) throw new Error("فشل الرفع إلى GitHub - تحقق من صلاحية التوكن");
       return res.json();
     })
     .then(data => {

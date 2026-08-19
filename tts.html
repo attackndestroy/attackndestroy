@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولّد كود Edge-TTS مع Metadata ورفع الصوت</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: #181825;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            text-align: center;
+            color: #89b4fa;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #a6adc8;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #45475a;
+            background: #313244;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            background-color: #89b4fa;
+            color: #11111b;
+            border: none;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #b4befe;
+        }
+        .output-box {
+            position: relative;
+            margin-top: 20px;
+        }
+        pre {
+            background: #11111b;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #45475a;
+            overflow-x: auto;
+            color: #a6e3a1;
+            font-size: 13px;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: auto;
+            padding: 6px 14px;
+            font-size: 12px;
+            margin-top: 0;
+            background: #45475a;
+            color: #fff;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background: #585b70;
+        }
+        .copy-btn.copied {
+            background: #a6e3a1;
+            color: #11111b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔊 مولّد كود Edge-TTS (مضخم الصوت x3)</h2>
+    
+    <label for="text">📝 النص المراد تحويله لصوت:</label>
+    <textarea id="text" placeholder="ضع النص هنا..."></textarea>
+
+    <label for="filename">📄 اسم الملف (بدون .mp3):</label>
+    <input type="text" id="filename" placeholder="مثال: Alert2">
+
+    <label for="track">🔢 رقم المسار (Track Number):</label>
+    <input type="number" id="track" value="1" min="1">
+
+    <button onclick="generateCode()">⚡ إنشاء الأوامر</button>
+
+    <div class="output-box">
+        <button id="copyBtn" class="copy-btn" onclick="copyCode()">📋 نسخ الأوامر</button>
+        <pre id="output">سيظهر الكود الناتج هنا...</pre>
+    </div>
+</div>
+
+<script>
+function generateCode() {
+    const rawText = document.getElementById('text').value.trim();
+    const rawFilename = document.getElementById('filename').value.trim() || 'audio_output';
+    const track = document.getElementById('track').value || '1';
+
+    const cleanText = rawText.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const cleanFilename = rawFilename.replace(/"/g, '').replace(/'/g, '');
+
+    const scriptContent = `import os
+import subprocess
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, COMM, APIC, TCON, TDRC, TRCK
+
+TEXT = """${cleanText}"""
+FILENAME = "${cleanFilename}"
+TRACK_NUM = "${track}"
+
+VOICE = "ar-SA-HamedNeural"
+TARGET_DIR = "/sdcard/Attack N Destroy/Audio"
+COVER_PATH = "/sdcard/Attack N Destroy/cover.jpg"
+
+os.makedirs(TARGET_DIR, exist_ok=True)
+output_path = os.path.join(TARGET_DIR, f"{FILENAME}.mp3")
+
+print(f"⏳ جاري إنشاء الصوت بمستوى مضاعف x3: {FILENAME}.mp3 ...")
+
+cmd = ["edge-tts", "--voice", VOICE, "--volume=+300%", "--text", TEXT, "--write-media", output_path]
+result = subprocess.run(cmd, capture_output=True, text=True)
+
+if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+    print("❌ فشل إنشاء الصوت! تأكد من تثبيت edge-tts واتصال الإنترنت.")
+    if result.stderr:
+        print("خطأ النظام:", result.stderr)
+else:
+    print("🏷️ جاري إضافة الـ Metadata والصورة...")
+    try:
+        try:
+            audio = ID3(output_path)
+        except Exception:
+            audio = ID3()
+
+        audio.add(TIT2(encoding=3, text=FILENAME))
+        audio.add(TPE1(encoding=3, text="Attack N Destroy"))
+        audio.add(TALB(encoding=3, text="ModsLib"))
+        audio.add(COMM(encoding=3, lang="eng", desc="Comment", text="Copyright © 2026 Attack N Destroy — ModsLib. All rights reserved."))
+        audio.add(TCON(encoding=3, text="tts"))
+        audio.add(TDRC(encoding=3, text="2026"))
+        audio.add(TRCK(encoding=3, text=TRACK_NUM))
+
+        if os.path.exists(COVER_PATH):
+            with open(COVER_PATH, "rb") as albumart:
+                audio.add(APIC(
+                    encoding=3,
+                    mime="image/jpeg",
+                    type=3,
+                    desc="Cover",
+                    data=albumart.read()
+                ))
+
+        audio.save(output_path)
+        print(f"✅ تم حفظ الملف بنجاح في: {output_path}")
+    except Exception as e:
+        print(f"⚠️ تم إنشاء الصوت ولكن حدث خطأ في الـ Metadata: {e}")
+`;
+
+    const fullCommand = `cat << 'EOF' > run.py\n${scriptContent}\nEOF\npython run.py`;
+
+    document.getElementById('output').textContent = fullCommand;
+}
+
+function copyCode() {
+    const codeText = document.getElementById('output').textContent;
+    const btn = document.getElementById('copyBtn');
+
+    navigator.clipboard.writeText(codeText).then(() => {
+        btn.textContent = '✓ تم النسخ!';
+        btn.classList.add('copied');
+
+        setTimeout(() => {
+            btn.textContent = '📋 نسخ الأوامر';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+</script>
+
+</body>
+</html>

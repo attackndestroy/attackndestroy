@@ -37,6 +37,11 @@
     textarea { height: 120px; font-family: monospace; font-size: 0.85rem; resize: vertical; }
     input:focus, textarea:focus { border-color: var(--accent); }
     
+    /* تنسيق الخيار الجديد (Checkbox) */
+    .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; margin-bottom: 15px; cursor: pointer; user-select: none; }
+    .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+    .checkbox-group span { font-size: 0.85rem; color: var(--text); }
+
     .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.2s; margin-top: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-main { background: var(--accent); color: #000; }
     .btn-main:hover { background: var(--accent-hover); }
@@ -59,6 +64,7 @@
     td { direction: ltr; text-align: left; }
     .action-btns { display: flex; gap: 5px; justify-content: flex-end; }
     .sm-btn { padding: 4px 8px; border-radius: 4px; border: none; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+    .badge-opt { background: #16a34a; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-right: 5px; }
   </style>
 </head>
 <body>
@@ -67,7 +73,7 @@
 
   <header>
     <div class="brand">ATT/DES</div>
-    <div class="sub-brand">CJ Legend - لوحة الإدارة والتحكم الشاملة</div>
+    <div class="sub-brand">CJ Legend - لوحة الإدارة <span class="badge-opt">Optimization 1</span></div>
   </header>
 
   <!-- بطاقة إدخال اسم المستخدم والتوكن -->
@@ -117,6 +123,12 @@
         <input type="text" id="modUrl" placeholder="https://...">
       </div>
 
+      <!-- الخاصية الجديدة: استبدال آخر حرف/رقم بـ 1 -->
+      <label class="checkbox-group">
+        <input type="checkbox" id="replaceEndChar" checked>
+        <span>تعديل الرابط تلقائياً (استبدال آخر حرف/رقم بـ <b>1</b>)</span>
+      </label>
+
       <button class="btn btn-main" id="saveBtn" onclick="uploadMod()">رفع وإضافة المود 🔥</button>
     </div>
 
@@ -152,10 +164,7 @@
 </div>
 
 <script>
-  /* ===================================================
-     الإعدادات العامة
-     =================================================== */
-  const GITHUB_REPO  = 'CJ-Legend'; // تم تصحيح اسم المستودع بالشرطة (-)       
+  const GITHUB_REPO  = 'CJ-Legend';
   const DOMAIN_URL   = 'https://cj.attdes.online';
 
   let GITHUB_USER  = localStorage.getItem('cj_gh_user') || 'attackndestroy';
@@ -211,7 +220,6 @@
     })
     .then(async res => {
       if (res.status === 404) {
-        // إذا لم يكن ملف mod.json موجوداً يتم إنشاؤه تلقائياً
         dbData = {};
         return pushToGitHub("إنشاء ملف mod.json تلقائياً");
       }
@@ -230,7 +238,7 @@
       autoSuggestId();
       renderTable();
       document.getElementById('rawJsonArea').value = JSON.stringify(dbData, null, 2);
-      showStatus("تم الاتصال بمستودع CJ-Legend بنجاح! 🟢", "success");
+      showStatus("تم الاتصال بنجاح وتفعيل [Optimization 1] 🟢", "success");
       setTimeout(() => { document.getElementById('statusMsg').style.display = 'none'; }, 3000);
     })
     .catch(err => {
@@ -238,15 +246,48 @@
     });
   }
 
-  function uploadMod() {
-    const id = document.getElementById('modId').value.trim();
-    const url = document.getElementById('modUrl').value.trim();
+  function isValidUrl(string) {
+    try {
+      const url = new URL(string);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+      return false;  
+    }
+  }
 
+  function uploadMod() {
+    const idInput = document.getElementById('modId');
+    const urlInput = document.getElementById('modUrl');
+    const replaceCheckbox = document.getElementById('replaceEndChar');
+
+    const id = idInput.value.trim();
+    let url = urlInput.value.trim();
+
+    // 1. التحقق من إدخال القيم
     if (!id || !url) {
       showStatus('يرجى إدخال ID المود ورابط التحميل!', 'danger');
       return;
     }
 
+    // 2. التحقق من أن الرابط هو URL صحيح
+    if (!isValidUrl(url)) {
+      showStatus('عذراً، الرابط المدخل غير صالح! يجب أن يبدأ بـ http:// أو https://', 'danger');
+      return;
+    }
+
+    // 3. تطبيق ميزة استبدال آخر حرف/رقم بـ 1 إذا كان الخيار مفتاحاً
+    if (replaceCheckbox && replaceCheckbox.checked) {
+      url = url.slice(0, -1) + '1';
+    }
+
+    // 4. التنبيه في حالة وجود ID مكرر
+    if (dbData.hasOwnProperty(id)) {
+      if (!confirm(`رقم المود #${id} موجود بالفعل! هل تريد استبدال الرابط القديم بالجديد؟`)) {
+        return;
+      }
+    }
+
+    // 5. تشفير الرابط بـ Base64
     dbData[id] = encodeBase64(url);
     pushToGitHub(`إضافة المود #${id}`, id);
   }

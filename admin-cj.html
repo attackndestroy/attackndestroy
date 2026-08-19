@@ -165,7 +165,7 @@
 
 <script>
   const GITHUB_REPO  = 'CJ-Legend';
-  const DOMAIN_URL   = 'https://cj.attdes.online';
+  const DOMAIN_URL   = 'https://cj.attdes.online/mod.html';
 
   let GITHUB_USER  = localStorage.getItem('cj_gh_user') || 'attackndestroy';
   let GITHUB_TOKEN = localStorage.getItem('cj_gh_token') || '';
@@ -340,7 +340,7 @@
       fileSha = data.content.sha;
       
       if (copiedId) {
-        const finalLink = `${DOMAIN_URL}/?id=${copiedId}`;
+        const finalLink = `${DOMAIN_URL}?id=${copiedId}`;
         copyToClipboard(finalLink);
         showStatus(`تم الرفع بنجاح! 🚀<br>تم نسخ الرابط النهائي تلقائياً:<br><b>${finalLink}</b>`, 'success');
       } else {
@@ -371,7 +371,7 @@
         <td style="font-weight:bold; color:var(--accent);">${id}</td>
         <td style="word-break: break-all;"><a href="${originalUrl}" target="_blank" style="color:var(--text); text-decoration:none;">${originalUrl.substring(0, 30)}...</a></td>
         <td class="action-btns">
-          <button class="sm-btn btn-blue" onclick="copyToClipboard('${DOMAIN_URL}/?id=${id}')">نسخ</button>
+          <button class="sm-btn btn-blue" onclick="copyToClipboard('${DOMAIN_URL}?id=${id}', true)">نسخ</button>
           <button class="sm-btn btn-danger" onclick="deleteMod('${id}')">حذف</button>
         </td>
       `;
@@ -395,21 +395,28 @@
     }
   }
 
-  function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text);
-      alert("تم نسخ الرابط بنجاح: " + text);
-    } else {
-      let textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      document.execCommand('copy');
-      textArea.remove();
-      alert("تم نسخ الرابط بنجاح: " + text);
+  function copyToClipboard(text, notify = false) {
+    const doCopy = (str) => {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(str);
+      } else {
+        let textArea = document.createElement("textarea");
+        textArea.value = str;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+      }
+    };
+
+    doCopy(text);
+
+    if (notify) {
+      showStatus(`تم نسخ الرابط بنجاح: <b>${text}</b>`, 'success');
+      setTimeout(() => { document.getElementById('statusMsg').style.display = 'none'; }, 3000);
     }
   }
 

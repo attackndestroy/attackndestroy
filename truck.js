@@ -40,11 +40,11 @@
 
   let visitorId = localStorage.getItem("attdes_visitor_id");
   if (!visitorId) {
-    visitorId = "v_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    visitorId = "v_" + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
     localStorage.setItem("attdes_visitor_id", visitorId);
   }
 
-  const currentDomain = window.location.hostname;
+  const currentDomain = window.location.hostname || "localhost";
   let siteId = null;
   let sessionId = null;
   let startTime = Date.now();
@@ -67,7 +67,7 @@
   async function initTracking() {
     try {
       let sites = await api(`sites?domain=eq.${currentDomain}`);
-      if (sites.length === 0) {
+      if (!Array.isArray(sites) || sites.length === 0) {
         sites = await api("sites", "POST", { domain: currentDomain, name: currentDomain });
       }
       siteId = sites[0].site_id;
@@ -78,15 +78,19 @@
         device: getDevice(),
         browser: getBrowser(),
         os: getOS(),
-        language: navigator.language,
-        referrer: document.referrer || "Direct",
-        utm: getUTM()
+        language: navigator.language || "en",
+        referrer: document.referrer || "Direct / None",
+        utm: getUTM(),
+        duration: 0,
+        last_ping: new Date().toISOString()
       };
+
       const sessionRes = await api("sessions", "POST", sessionData);
       sessionId = sessionRes[0].session_id;
 
       logEvent("pageview", window.location.href, document.title, "page_load");
 
+      // Ping كل 10 ثوانٍ لتحديث مدة البقاء وتتبع التفاعل
       setInterval(() => {
         if (!sessionId) return;
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
@@ -102,10 +106,10 @@
             duration: durationSeconds
           })
         });
-      }, 15000);
+      }, 10000);
 
     } catch (err) {
-      console.error("ATT/DES Analytics Error:", err);
+      console.error("ATT/DES Tracking Error:", err);
     }
   }
 
@@ -122,9 +126,9 @@
   }
 
   document.addEventListener("click", function (e) {
-    const target = e.target.closest("a, button");
+    const target = e.target.closest("a, button, input, div");
     if (target) {
-      const label = target.innerText.trim() || target.getAttribute("aria-label") || target.tagName;
+      const label = target.innerText.trim().substring(0, 30) || target.getAttribute("aria-label") || target.tagName;
       logEvent("click", window.location.href, document.title, label);
     }
   });

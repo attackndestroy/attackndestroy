@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ATT/DES Analytics - Full Control 🚚</title>
+  <title>ATT/DES Analytics 🚚</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -30,14 +30,6 @@
       padding-bottom: 15px;
       margin-bottom: 20px;
       border-bottom: 1px solid var(--border-color);
-    }
-
-    .header-img {
-      max-width: 100%;
-      height: auto;
-      max-height: 120px;
-      object-fit: contain;
-      margin-bottom: 8px;
     }
 
     .empire-title {
@@ -136,14 +128,6 @@
       font-weight: 600;
     }
 
-    .badge-event {
-      background: #1e293b;
-      color: #38bdf8;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-
     .btn-filter {
       background: var(--accent-yellow);
       color: #000;
@@ -159,7 +143,6 @@
 <body>
 
   <header>
-    <img src="https://attdes.online/header.png" alt="ATT/DES Header" class="header-img" onerror="this.style.display='none'">
     <p class="empire-title">دامت الإمبراطورية خالدة 👑🔥</p>
     <div class="status-bar">
       <span style="color: var(--text-muted); font-size: 0.85rem;">ATT/DES Analytics 🚚</span>
@@ -167,29 +150,26 @@
     </div>
   </header>
 
-  <!-- الكروت العامة -->
   <div class="kpi-grid">
     <div class="card">
       <div class="card-title">إجمالي الجلسات</div>
       <div class="card-value" id="stat-sessions">0</div>
     </div>
     <div class="card">
-      <div class="card-title">المواقع</div>
+      <div class="card-title">الم مواقع</div>
       <div class="card-value" id="stat-sites">0</div>
     </div>
     <div class="card">
-      <div class="card-title">الأحداث والنقرات</div>
+      <div class="card-title">الأحداث</div>
       <div class="card-value" id="stat-events">0</div>
     </div>
   </div>
 
-  <!-- رسم بياني للجلسات -->
   <div class="chart-container">
     <div class="section-title">📊 نشاط الجلسات عبر الزمن</div>
     <canvas id="trafficChart" height="120"></canvas>
   </div>
 
-  <!-- جدول المواقع (sites) -->
   <div class="section-box">
     <div class="section-title">🌐 المواقع المسجلة (sites)</div>
     <div class="table-container">
@@ -206,25 +186,22 @@
     </div>
   </div>
 
-  <!-- جدول الجلسات التفصيلي (sessions) -->
   <div class="section-box">
     <div class="section-title">
       <span>👥 تحليلات الجلسات والزوار (sessions)</span>
-      <button class="btn-filter" onclick="loadDashboard()">إعادة ضبط الفلتر</button>
+      <button class="btn-filter" onclick="loadDashboard()">إعادة ضبط</button>
     </div>
     <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th>Session ID</th>
-            <th>النطاق</th>
+            <th>ID الجلسة</th>
             <th>المعرف (Visitor ID)</th>
             <th>الجهاز</th>
             <th>المتصفح</th>
             <th>النظام</th>
             <th>اللغة</th>
-            <th>المصدر (Referrer)</th>
-            <th>حملات التسويق (UTM)</th>
+            <th>المصدر</th>
             <th>المدة</th>
             <th>التاريخ</th>
             <th>التتبع</th>
@@ -235,14 +212,13 @@
     </div>
   </div>
 
-  <!-- جدول الأحداث والنقرات (events) -->
   <div class="section-box">
     <div class="section-title">⚡ الأحداث والنقرات المباشرة (events)</div>
     <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th>Session ID</th>
+            <th>ID الجلسة</th>
             <th>نوع الحدث</th>
             <th>العنصر المستهدف</th>
             <th>عنوان الصفحة</th>
@@ -304,7 +280,7 @@
     }
 
     function filterEventsBySession(sessionId) {
-      const filtered = allEvents.filter(e => e.session_id === sessionId);
+      const filtered = allEvents.filter(e => String(e.session_id) === String(sessionId));
       renderEvents(filtered);
     }
 
@@ -315,34 +291,33 @@
         events.forEach(e => {
           eventsTbody.innerHTML += `<tr>
             <td>${e.session_id}</td>
-            <td><span class="badge-event">${e.event_type}</span></td>
-            <td class="highlight">${e.target_label || '---'}</td>
+            <td class="highlight">${e.event_type}</td>
+            <td>${e.target_label || '---'}</td>
             <td>${e.page_title || '---'}</td>
             <td><a href="${e.page_url}" target="_blank" style="color:var(--text-muted); text-decoration:none;">${e.page_url}</a></td>
             <td>${new Date(e.created_at).toLocaleTimeString('ar-EG')}</td>
           </tr>`;
         });
       } else {
-        eventsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد أحداث لهذا الزائر</td></tr>`;
+        eventsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد أحداث مسجلة</td></tr>`;
       }
     }
 
     async function loadDashboard() {
       try {
         const [sessions, sites, events] = await Promise.all([
-          fetchREST("sessions?select=*,sites(domain)&order=created_at.desc"),
+          fetchREST("sessions?select=*&order=created_at.desc"),
           fetchREST("sites?select=*"),
           fetchREST("events?select=*&order=created_at.desc")
         ]);
 
-        allEvents = events || [];
+        allEvents = Array.isArray(events) ? events : [];
 
-        // 1. التحديث العددي
         document.getElementById('stat-sessions').innerText = Array.isArray(sessions) ? sessions.length : 0;
         document.getElementById('stat-sites').innerText = Array.isArray(sites) ? sites.length : 0;
-        document.getElementById('stat-events').innerText = Array.isArray(events) ? events.length : 0;
+        document.getElementById('stat-events').innerText = allEvents.length;
 
-        // 2. جدول المواقع
+        // 1. المواقع
         const sitesTbody = document.getElementById('sites-list');
         sitesTbody.innerHTML = '';
         if (Array.isArray(sites) && sites.length > 0) {
@@ -355,7 +330,7 @@
           });
         }
 
-        // 3. جدول الجلسات
+        // 2. الجلسات
         const timeMap = {};
         const sessionsTbody = document.getElementById('sessions-list');
         sessionsTbody.innerHTML = '';
@@ -365,30 +340,28 @@
             const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
             timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
 
-            const utmStr = s.utm ? Object.entries(s.utm).filter(([_, v]) => v).map(([k, v]) => `${k}:${v}`).join(', ') : '---';
-
             sessionsTbody.innerHTML += `<tr>
               <td>${s.session_id}</td>
-              <td class="highlight">${s.sites ? s.sites.domain : 'attdes.online'}</td>
-              <td>${s.visitor_id ? s.visitor_id.substring(0, 10) : '---'}</td>
+              <td class="highlight">${s.visitor_id || '---'}</td>
               <td>${s.device || 'Mobile'}</td>
-              <td>${s.browser || 'Chrome'}</td>
-              <td>${s.os || 'Android'}</td>
+              <td>${s.browser || 'Browser'}</td>
+              <td>${s.os || 'OS'}</td>
               <td>${s.language || 'ar'}</td>
               <td>${s.referrer || 'Direct'}</td>
-              <td>${utmStr || '---'}</td>
               <td>${s.duration || 0}ث</td>
               <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
-              <td><button class="btn-filter" onclick="filterEventsBySession(${s.session_id})">عرض نقراته ⚡</button></td>
+              <td><button class="btn-filter" onclick="filterEventsBySession('${s.session_id}')">تتبع ⚡</button></td>
             </tr>`;
           });
+        } else {
+          sessionsTbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد جلسات حتى الآن</td></tr>`;
         }
 
         const labels = Object.keys(timeMap).reverse();
         const chartData = Object.values(timeMap).reverse();
         initChart(labels.length ? labels : ['الآن'], chartData.length ? chartData : [0]);
 
-        // 4. جدول الأحداث العام
+        // 3. الأحداث
         renderEvents(allEvents);
 
       } catch (err) {
@@ -397,7 +370,7 @@
     }
 
     loadDashboard();
-    setInterval(loadDashboard, 15000);
+    setInterval(loadDashboard, 10000);
   </script>
 </body>
 </html>

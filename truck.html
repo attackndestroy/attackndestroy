@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ATT/DES Analytics - Truck Dashboard 🚚</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>ATT/DES Analytics</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -27,28 +26,40 @@
     }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
       padding-bottom: 15px;
       margin-bottom: 20px;
       border-bottom: 1px solid var(--border-color);
     }
 
-    h1 {
-      font-size: 1.4rem;
-      margin: 0;
+    .header-img {
+      max-width: 100%;
+      height: auto;
+      max-height: 120px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .empire-title {
+      font-size: 1.1rem;
+      font-weight: 800;
       color: var(--accent-yellow);
+      margin: 0 0 10px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .status-bar {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      margin-top: 10px;
     }
 
     .live-badge {
       background: rgba(245, 158, 11, 0.15);
       color: var(--accent-yellow-light);
       border: 1px solid var(--accent-yellow);
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: bold;
@@ -56,7 +67,7 @@
 
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -75,7 +86,7 @@
     }
 
     .card-value {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: var(--accent-yellow-light);
     }
@@ -86,7 +97,6 @@
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 20px;
-      position: relative;
     }
 
     .chart-title {
@@ -133,8 +143,12 @@
 <body>
 
   <header>
-    <h1>ATT/DES Analytics 🚚</h1>
-    <span class="live-badge">● مباشر</span>
+    <img src="https://attdes.online/header.png" alt="ATT/DES Header" class="header-img" onerror="this.style.display='none'">
+    <p class="empire-title">دامت الإمبراطورية خالدة 👑🔥</p>
+    <div class="status-bar">
+      <span style="color: var(--text-muted); font-size: 0.85rem;">ATT/DES Analytics 🚚</span>
+      <span class="live-badge">● مباشر</span>
+    </div>
   </header>
 
   <div class="kpi-grid">
@@ -178,9 +192,18 @@
   <script>
     const SUPABASE_URL = "https://jphbbwvncyxwaforfrnx.supabase.co";
     const SUPABASE_KEY = "sb_publishable_OgE_7eKXWZzYqeRe1uLKWQ_z9kzwJEY";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let trafficChart;
+
+    async function fetchREST(endpoint) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`
+        }
+      });
+      return res.json();
+    }
 
     function initChart(labels, data) {
       const ctx = document.getElementById('trafficChart').getContext('2d');
@@ -194,11 +217,11 @@
             label: 'الجلسات',
             data: data,
             borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
             fill: true,
             tension: 0.4,
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: 4,
             pointBackgroundColor: '#fbbf24'
           }]
         },
@@ -214,41 +237,54 @@
     }
 
     async function loadDashboard() {
-      const { data: sessions } = await supabaseClient.from('sessions').select('*, sites(domain)').order('created_at', { ascending: false });
-      const { data: sites } = await supabaseClient.from('sites').select('site_id');
-      const { data: events } = await supabaseClient.from('events').select('event_id');
+      try {
+        const [sessions, sites, events] = await Promise.all([
+          fetchREST("sessions?select=*,sites(domain)&order=created_at.desc"),
+          fetchREST("sites?select=site_id"),
+          fetchREST("events?select=event_id")
+        ]);
 
-      document.getElementById('stat-sessions').innerText = sessions ? sessions.length : 0;
-      document.getElementById('stat-sites').innerText = sites ? sites.length : 0;
-      document.getElementById('stat-events').innerText = events ? events.length : 0;
+        document.getElementById('stat-sessions').innerText = Array.isArray(sessions) ? sessions.length : 0;
+        document.getElementById('stat-sites').innerText = Array.isArray(sites) ? sites.length : 0;
+        document.getElementById('stat-events').innerText = Array.isArray(events) ? events.length : 0;
 
-      const timeMap = {};
-      (sessions || []).forEach(s => {
-        const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-        timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
-      });
+        const timeMap = {};
+        if (Array.isArray(sessions)) {
+          sessions.forEach(s => {
+            const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
+          });
+        }
 
-      const labels = Object.keys(timeMap).reverse();
-      const chartData = Object.values(timeMap).reverse();
-      initChart(labels, chartData);
+        const labels = Object.keys(timeMap).reverse();
+        const chartData = Object.values(timeMap).reverse();
+        initChart(labels.length ? labels : ['الآن'], chartData.length ? chartData : [0]);
 
-      const tbody = document.getElementById('sessions-list');
-      tbody.innerHTML = '';
-      (sessions || []).forEach(s => {
-        tbody.innerHTML += `<tr>
-          <td class="highlight">${s.sites ? s.sites.domain : 'Main'}</td>
-          <td>${s.visitor_id.substring(0, 8)}</td>
-          <td>${s.device}</td>
-          <td>${s.browser}</td>
-          <td>${s.os}</td>
-          <td>${s.duration}ث</td>
-          <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
-        </tr>`;
-      });
+        const tbody = document.getElementById('sessions-list');
+        tbody.innerHTML = '';
+
+        if (Array.isArray(sessions) && sessions.length > 0) {
+          sessions.forEach(s => {
+            tbody.innerHTML += `<tr>
+              <td class="highlight">${s.sites ? s.sites.domain : 'attdes.online'}</td>
+              <td>${s.visitor_id ? s.visitor_id.substring(0, 8) : '---'}</td>
+              <td>${s.device || 'Mobile'}</td>
+              <td>${s.browser || 'Chrome'}</td>
+              <td>${s.os || 'Android'}</td>
+              <td>${s.duration || 0}ث</td>
+              <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
+            </tr>`;
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">لا توجد جلسات مسجلة بعد</td></tr>`;
+        }
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      }
     }
 
     loadDashboard();
-    setInterval(loadDashboard, 30000);
+    setInterval(loadDashboard, 15000); // تحديث تلقائي كل 15 ثانية
   </script>
 </body>
 </html>

@@ -10,7 +10,7 @@
     if (ua.includes("Edge")) return "Edge";
     if (ua.includes("Chrome")) return "Chrome";
     if (ua.includes("Safari")) return "Safari";
-    return "Unknown";
+    return "Browser";
   }
 
   function getOS() {
@@ -20,7 +20,7 @@
     if (ua.includes("Linux")) return "Linux";
     if (ua.includes("Android")) return "Android";
     if (ua.includes("like Mac")) return "iOS";
-    return "Unknown";
+    return "OS";
   }
 
   function getDevice() {
@@ -30,21 +30,19 @@
   function getUTM() {
     const params = new URLSearchParams(window.location.search);
     return {
-      utm_source: params.get("utm_source") || null,
-      utm_medium: params.get("utm_medium") || null,
-      utm_campaign: params.get("utm_campaign") || null,
-      utm_term: params.get("utm_term") || null,
-      utm_content: params.get("utm_content") || null
+      utm_source: params.get("utm_source") || "",
+      utm_medium: params.get("utm_medium") || "",
+      utm_campaign: params.get("utm_campaign") || ""
     };
   }
 
   let visitorId = localStorage.getItem("attdes_visitor_id");
   if (!visitorId) {
-    visitorId = "v_" + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+    visitorId = "v_" + Math.random().toString(36).substring(2, 9);
     localStorage.setItem("attdes_visitor_id", visitorId);
   }
 
-  const currentDomain = window.location.hostname || "localhost";
+  const currentDomain = window.location.hostname || "attdes.online";
   let siteId = null;
   let sessionId = null;
   let startTime = Date.now();
@@ -78,19 +76,19 @@
         device: getDevice(),
         browser: getBrowser(),
         os: getOS(),
-        language: navigator.language || "en",
-        referrer: document.referrer || "Direct / None",
+        language: navigator.language || "ar",
+        referrer: document.referrer || "Direct",
         utm: getUTM(),
         duration: 0,
         last_ping: new Date().toISOString()
       };
 
       const sessionRes = await api("sessions", "POST", sessionData);
-      sessionId = sessionRes[0].session_id;
+      if (Array.isArray(sessionRes) && sessionRes.length > 0) {
+        sessionId = sessionRes[0].session_id;
+        logEvent("pageview", window.location.href, document.title, "زيارة صفحة");
+      }
 
-      logEvent("pageview", window.location.href, document.title, "page_load");
-
-      // Ping كل 10 ثوانٍ لتحديث مدة البقاء وتتبع التفاعل
       setInterval(() => {
         if (!sessionId) return;
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
@@ -109,7 +107,7 @@
       }, 10000);
 
     } catch (err) {
-      console.error("ATT/DES Tracking Error:", err);
+      console.error("Tracking Error:", err);
     }
   }
 
@@ -126,9 +124,9 @@
   }
 
   document.addEventListener("click", function (e) {
-    const target = e.target.closest("a, button, input, div");
+    const target = e.target.closest("a, button, input");
     if (target) {
-      const label = target.innerText.trim().substring(0, 30) || target.getAttribute("aria-label") || target.tagName;
+      const label = target.innerText.trim().substring(0, 20) || target.tagName;
       logEvent("click", window.location.href, document.title, label);
     }
   });

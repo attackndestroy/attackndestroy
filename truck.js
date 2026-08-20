@@ -1,6 +1,6 @@
 (function () {
-  const SUPABASE_URL = "YOUR_SUPABASE_URL";
-  const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
+  const SUPABASE_URL = "https://jphbbwvncyxwaforfrnx.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_OgE_7eKXWZzYqeRe1uLKWQ_z9kzwJEY";
 
   function getBrowser() {
     const ua = navigator.userAgent;

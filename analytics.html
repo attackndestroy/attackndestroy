@@ -1,37 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ATT/DES Analytics</title>
 
+<script src="https://cdn.jsdelivr.net/npm/appwrite@23.0.0"></script>
+
 <style>
+
 * {
     box-sizing: border-box;
 }
 
 :root {
     --bg: #070709;
-    --panel: #101014;
-    --panel2: #15151b;
+    --panel: #0e0e12;
+    --panel2: #131318;
     --border: #24242c;
     --text: #f5f5f7;
     --muted: #92929d;
     --accent: #ff315f;
-    --green: #35d07f;
+    --green: #32d583;
     --blue: #5b8cff;
     --yellow: #f5c451;
+    --purple: #a879ff;
     --danger: #ff526f;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: Inter, Arial, sans-serif;
+    font-family:
+        Arial,
+        "Segoe UI",
+        sans-serif;
 }
 
 button,
+select,
 input {
     font: inherit;
 }
@@ -44,151 +58,158 @@ button {
     display: none !important;
 }
 
-.login {
-    min-height: 100vh;
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    height: 70px;
+
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
+    justify-content: space-between;
 
-.login-box {
-    width: 100%;
-    max-width: 420px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 32px;
-    box-shadow: 0 20px 80px rgba(0,0,0,.45);
+    padding: 0 28px;
+
+    background: rgba(7, 7, 9, .92);
+    backdrop-filter: blur(18px);
+
+    border-bottom:
+        1px solid var(--border);
 }
 
 .logo {
-    font-size: 27px;
+    font-size: 21px;
     font-weight: 900;
-    margin-bottom: 7px;
+    letter-spacing: -.5px;
 }
 
 .logo span {
     color: var(--accent);
 }
 
-.login-subtitle {
-    color: var(--muted);
-    margin-bottom: 28px;
-}
-
-.field {
-    margin-bottom: 15px;
-}
-
-.field label {
-    display: block;
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 7px;
-}
-
-.field input {
-    width: 100%;
-    background: #09090c;
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 13px 14px;
-    outline: none;
-}
-
-.field input:focus {
-    border-color: var(--accent);
-}
-
-.primary {
-    width: 100%;
-    border: 0;
-    border-radius: 11px;
-    padding: 13px;
-    background: var(--accent);
-    color: white;
-    font-weight: 800;
-}
-
-.error {
-    color: var(--danger);
-    font-size: 13px;
-    margin-top: 12px;
-}
-
-.app {
-    min-height: 100vh;
-}
-
-.topbar {
-    height: 72px;
-    border-bottom: 1px solid var(--border);
+.header-right {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    background: rgba(7,7,9,.92);
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    backdrop-filter: blur(14px);
+    gap: 12px;
 }
 
-.brand {
-    font-weight: 900;
-    font-size: 20px;
-}
-
-.brand span {
-    color: var(--accent);
-}
-
-.top-actions {
-    display: flex;
-    gap: 9px;
-    align-items: center;
-}
-
-.status {
+.live {
     display: flex;
     align-items: center;
     gap: 7px;
+
     color: var(--muted);
     font-size: 12px;
 }
 
-.dot {
+.live-dot {
     width: 8px;
     height: 8px;
+
     border-radius: 50%;
+
     background: var(--green);
+    box-shadow:
+        0 0 12px rgba(50, 213, 131, .7);
 }
 
-.action {
+.refresh {
+    border:
+        1px solid var(--border);
+
     background: var(--panel2);
-    border: 1px solid var(--border);
     color: var(--text);
+
+    padding: 9px 14px;
+
     border-radius: 9px;
-    padding: 9px 13px;
 }
 
-.logout {
-    color: #ff7188;
-}
+/* =========================
+   LAYOUT
+========================= */
 
-.container {
-    max-width: 1500px;
-    margin: auto;
-    padding: 28px;
-}
-
-.header {
+.layout {
     display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+.sidebar {
+    width: 230px;
+
+    flex-shrink: 0;
+
+    border-left:
+        1px solid var(--border);
+
+    background: #09090c;
+
+    padding: 20px 14px;
+
+    position: sticky;
+    top: 70px;
+
+    height: calc(100vh - 70px);
+}
+
+.nav-title {
+    color: var(--muted);
+    font-size: 11px;
+
+    margin:
+        7px 10px 10px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav a {
+    text-decoration: none;
+
+    color: var(--muted);
+
+    padding: 11px 12px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+}
+
+.nav a:hover {
+    background: var(--panel2);
+    color: var(--text);
+}
+
+.main {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 28px;
+
+    max-width: 1600px;
+}
+
+/* =========================
+   TOP
+========================= */
+
+.top {
+    display: flex;
+
     justify-content: space-between;
+    align-items: flex-end;
+
     gap: 20px;
-    align-items: end;
+
     margin-bottom: 25px;
 }
 
@@ -199,146 +220,267 @@ button {
 
 .subtitle {
     color: var(--muted);
-    margin-top: 5px;
-    font-size: 14px;
+
+    margin-top: 6px;
+
+    font-size: 13px;
 }
 
-.site-select {
-    background: var(--panel);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 11px 14px;
-    min-width: 210px;
+.controls {
+    display: flex;
+    gap: 8px;
 }
+
+select {
+    background: var(--panel);
+
+    color: var(--text);
+
+    border:
+        1px solid var(--border);
+
+    padding: 10px 13px;
+
+    border-radius: 9px;
+
+    outline: none;
+}
+
+/* =========================
+   CARDS
+========================= */
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+
     margin-bottom: 18px;
 }
 
 .card {
     background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 15px;
+
+    padding: 19px;
+
+    min-height: 135px;
+}
+
+.card-top {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
 }
 
 .card-label {
     color: var(--muted);
-    font-size: 13px;
+
+    font-size: 12px;
+}
+
+.card-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: var(--panel2);
+
+    font-size: 15px;
 }
 
 .card-value {
-    font-size: 30px;
+    margin-top: 13px;
+
+    font-size: 29px;
+
     font-weight: 900;
-    margin-top: 9px;
 }
 
-.card-small {
+.card-note {
     color: var(--muted);
-    font-size: 12px;
-    margin-top: 6px;
+
+    margin-top: 5px;
+
+    font-size: 11px;
 }
+
+/* =========================
+   PANELS
+========================= */
 
 .grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 18px;
-    margin-bottom: 18px;
+
+    grid-template-columns:
+        2fr 1fr;
+
+    gap: 16px;
+
+    margin-bottom: 17px;
+}
+
+.grid-equal {
+    grid-template-columns:
+        1fr 1fr;
 }
 
 .panel {
     background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 15px;
+
     overflow: hidden;
 }
 
 .panel-head {
-    padding: 17px 19px;
-    border-bottom: 1px solid var(--border);
+    min-height: 58px;
+
+    padding: 0 18px;
+
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid var(--border);
 }
 
 .panel-title {
+    font-size: 14px;
     font-weight: 800;
 }
 
-.panel-body {
-    padding: 19px;
+.panel-sub {
+    color: var(--muted);
+
+    font-size: 11px;
 }
 
+.panel-body {
+    padding: 18px;
+}
+
+/* =========================
+   CHART
+========================= */
+
 .chart {
-    width: 100%;
     height: 280px;
-    position: relative;
 }
 
 .chart svg {
     width: 100%;
     height: 100%;
-    overflow: visible;
 }
 
 .chart-line {
     fill: none;
-    stroke: var(--accent);
+
+    stroke:
+        var(--accent);
+
     stroke-width: 3;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
 }
 
 .chart-area {
-    fill: rgba(255,49,95,.08);
+    fill:
+        rgba(255, 49, 95, .08);
 }
 
 .chart-point {
-    fill: var(--accent);
+    fill:
+        var(--accent);
 }
 
-.legend {
-    display: flex;
-    gap: 18px;
-    color: var(--muted);
-    font-size: 12px;
+.chart-label {
+    fill:
+        var(--muted);
+
+    font-size: 10px;
 }
+
+/* =========================
+   BREAKDOWN
+========================= */
 
 .breakdown {
     display: flex;
+
     flex-direction: column;
+
     gap: 14px;
 }
 
 .break-row {
     display: grid;
-    grid-template-columns: 110px 1fr 45px;
-    gap: 10px;
+
+    grid-template-columns:
+        105px 1fr 45px;
+
+    gap: 9px;
+
     align-items: center;
-    font-size: 13px;
+
+    font-size: 12px;
 }
 
 .break-name {
-    white-space: nowrap;
     overflow: hidden;
+
+    white-space: nowrap;
+
     text-overflow: ellipsis;
 }
 
 .bar {
     height: 7px;
+
+    background:
+        #222229;
+
     border-radius: 20px;
-    background: #22222a;
+
     overflow: hidden;
 }
 
 .bar i {
     display: block;
+
     height: 100%;
-    background: var(--accent);
+
     border-radius: inherit;
+
+    background:
+        var(--accent);
 }
+
+/* =========================
+   TABLE
+========================= */
 
 .table-wrap {
     overflow-x: auto;
@@ -346,20 +488,29 @@ button {
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
+
+    min-width: 900px;
+
+    border-collapse:
+        collapse;
 }
 
 th,
 td {
-    text-align: left;
-    padding: 13px 17px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
+    text-align: right;
+
+    padding:
+        13px 16px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    font-size: 12px;
 }
 
 th {
     color: var(--muted);
+
     font-weight: 600;
 }
 
@@ -367,396 +518,760 @@ td {
     color: #dedee5;
 }
 
+tr:last-child td {
+    border-bottom: 0;
+}
+
 .badge {
     display: inline-flex;
+
+    padding:
+        5px 9px;
+
     border-radius: 30px;
-    padding: 5px 9px;
-    font-size: 11px;
+
+    background:
+        var(--panel2);
+
+    font-size: 10px;
+
     font-weight: 700;
-    background: #202027;
 }
 
-.badge.download {
-    color: #77a0ff;
+.pageview {
+    color: var(--green);
 }
 
-.badge.click {
-    color: #f5c451;
+.click {
+    color: var(--yellow);
 }
 
-.badge.pageview {
-    color: #35d07f;
+.download {
+    color: var(--blue);
 }
 
-.badge.ping {
-    color: #b28cff;
+.ping {
+    color: var(--purple);
 }
 
-.empty {
-    padding: 45px 20px;
+/* =========================
+   STATUS
+========================= */
+
+.empty,
+.loading,
+.error {
+    padding: 40px 20px;
+
     text-align: center;
+
     color: var(--muted);
 }
 
-.loading {
-    padding: 30px;
-    text-align: center;
-    color: var(--muted);
+.error {
+    color: var(--danger);
 }
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 1050px) {
-    .cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
-    .grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 650px) {
-    .topbar {
-        padding: 0 15px;
-    }
-
-    .status {
+    .sidebar {
         display: none;
     }
 
-    .container {
-        padding: 18px 13px;
+    .cards {
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
+    .grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+@media (max-width: 650px) {
+
     .header {
-        align-items: stretch;
+        padding:
+            0 14px;
+    }
+
+    .main {
+        padding:
+            17px 12px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .top {
         flex-direction: column;
+
+        align-items:
+            stretch;
+    }
+
+    .controls {
+        width: 100%;
+    }
+
+    .controls select {
+        flex: 1;
     }
 
     .cards {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 9px;
     }
 
     .card {
-        padding: 15px;
+        padding: 14px;
+
+        min-height: 120px;
     }
 
     .card-value {
-        font-size: 24px;
+        font-size: 23px;
     }
+
+    .header-right .live {
+        display: none;
+    }
+
 }
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #292930;
+    border-radius: 20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<section id="login" class="login">
-    <div class="login-box">
-        <div class="logo">ATT/<span>DES</span></div>
-        <div class="login-subtitle">Analytics Control Center</div>
+<header class="header">
 
-        <div class="field">
-            <label>Email</label>
-            <input id="email" type="email" autocomplete="username">
+    <div class="logo">
+        ATT/<span>DES</span> Analytics
+    </div>
+
+    <div class="header-right">
+
+        <div class="live">
+            <span class="live-dot"></span>
+            Live
         </div>
 
-        <div class="field">
-            <label>Password</label>
-            <input id="password" type="password" autocomplete="current-password">
-        </div>
-
-        <button id="loginButton" class="primary">
-            Sign in
+        <button
+            id="refresh"
+            class="refresh"
+        >
+            تحديث
         </button>
 
-        <div id="loginError" class="error"></div>
     </div>
-</section>
 
-<section id="app" class="app hidden">
+</header>
 
-    <header class="topbar">
-        <div class="brand">
-            ATT/<span>DES</span> Analytics
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="nav-title">
+            ANALYTICS
         </div>
 
-        <div class="top-actions">
-            <div class="status">
-                <span class="dot"></span>
-                Connected
-            </div>
+        <nav class="nav">
 
-            <button id="refreshButton" class="action">
-                Refresh
-            </button>
+            <a href="#overview">
+                نظرة عامة
+            </a>
 
-            <button id="logoutButton" class="action logout">
-                Logout
-            </button>
-        </div>
-    </header>
+            <a href="#activity">
+                النشاط
+            </a>
 
-    <main class="container">
+            <a href="#websites">
+                المواقع
+            </a>
 
-        <div class="header">
+            <a href="#audience">
+                الجمهور
+            </a>
+
+            <a href="#traffic">
+                مصادر الزيارات
+            </a>
+
+            <a href="#events">
+                الأحداث
+            </a>
+
+            <a href="#sessions">
+                الجلسات
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <section
+            id="overview"
+            class="top"
+        >
+
             <div>
-                <div class="title">Analytics Overview</div>
-                <div class="subtitle">
-                    ATT/DES Analytics — live database data
+
+                <div class="title">
+                    لوحة التحليلات
                 </div>
+
+                <div class="subtitle">
+                    ATT/DES Analytics
+                    — جميع المواقع
+                </div>
+
             </div>
 
-            <select id="siteSelect" class="site-select">
-                <option value="all">All websites</option>
-            </select>
-        </div>
+            <div class="controls">
+
+                <select id="siteFilter">
+                    <option value="all">
+                        جميع المواقع
+                    </option>
+                </select>
+
+                <select id="rangeFilter">
+
+                    <option value="24">
+                        آخر 24 ساعة
+                    </option>
+
+                    <option value="7">
+                        آخر 7 أيام
+                    </option>
+
+                    <option value="30">
+                        آخر 30 يوما
+                    </option>
+
+                    <option value="all">
+                        كل البيانات
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
 
         <section class="cards">
 
             <div class="card">
-                <div class="card-label">Pageviews</div>
-                <div id="pageviews" class="card-value">—</div>
-                <div class="card-small">Tracked page views</div>
-            </div>
 
-            <div class="card">
-                <div class="card-label">Visitors</div>
-                <div id="visitors" class="card-value">—</div>
-                <div class="card-small">Unique visitor IDs</div>
-            </div>
+                <div class="card-top">
 
-            <div class="card">
-                <div class="card-label">Sessions</div>
-                <div id="sessions" class="card-value">—</div>
-                <div class="card-small">Recorded sessions</div>
-            </div>
-
-            <div class="card">
-                <div class="card-label">Downloads</div>
-                <div id="downloads" class="card-value">—</div>
-                <div class="card-small">Tracked downloads</div>
-            </div>
-
-        </section>
-
-        <section class="grid">
-
-            <div class="panel">
-                <div class="panel-head">
-                    <div class="panel-title">Activity</div>
-                    <div class="legend">
-                        <span>Last loaded data</span>
+                    <div class="card-label">
+                        المشاهدات
                     </div>
+
+                    <div class="card-icon">
+                        👁
+                    </div>
+
                 </div>
 
-                <div class="panel-body">
-                    <div id="activityChart" class="chart"></div>
+                <div
+                    id="pageviews"
+                    class="card-value"
+                >
+                    —
                 </div>
+
+                <div class="card-note">
+                    Pageviews
+                </div>
+
             </div>
 
-            <div class="panel">
-                <div class="panel-head">
-                    <div class="panel-title">Event Types</div>
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-label">
+                        الزوار
+                    </div>
+
+                    <div class="card-icon">
+                        👥
+                    </div>
+
                 </div>
 
-                <div id="eventBreakdown" class="panel-body breakdown"></div>
+                <div
+                    id="visitors"
+                    class="card-value"
+                >
+                    —
+                </div>
+
+                <div class="card-note">
+                    Unique visitors
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-label">
+                        الجلسات
+                    </div>
+
+                    <div class="card-icon">
+                        🟢
+                    </div>
+
+                </div>
+
+                <div
+                    id="sessions"
+                    class="card-value"
+                >
+                    —
+                </div>
+
+                <div class="card-note">
+                    Sessions
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-label">
+                        التحميلات
+                    </div>
+
+                    <div class="card-icon">
+                        📥
+                    </div>
+
+                </div>
+
+                <div
+                    id="downloads"
+                    class="card-value"
+                >
+                    —
+                </div>
+
+                <div class="card-note">
+                    Downloads
+                </div>
+
             </div>
 
         </section>
 
-        <section class="grid">
+        <section
+            id="activity"
+            class="grid"
+        >
 
             <div class="panel">
+
                 <div class="panel-head">
-                    <div class="panel-title">Websites</div>
+
+                    <div>
+                        <div class="panel-title">
+                            النشاط
+                        </div>
+
+                        <div class="panel-sub">
+                            توزيع الأحداث حسب الساعة
+                        </div>
+                    </div>
+
                 </div>
 
-                <div id="sitesBreakdown" class="panel-body breakdown"></div>
+                <div
+                    id="chart"
+                    class="panel-body chart"
+                ></div>
+
             </div>
 
             <div class="panel">
+
                 <div class="panel-head">
-                    <div class="panel-title">Devices</div>
+
+                    <div>
+                        <div class="panel-title">
+                            أنواع الأحداث
+                        </div>
+                    </div>
+
                 </div>
 
-                <div id="deviceBreakdown" class="panel-body breakdown"></div>
+                <div
+                    id="eventTypes"
+                    class="panel-body breakdown"
+                ></div>
+
             </div>
 
         </section>
 
-        <section class="panel">
+        <section
+            id="websites"
+            class="grid grid-equal"
+        >
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        المواقع
+                    </div>
+
+                </div>
+
+                <div
+                    id="sites"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        الصفحات الأكثر نشاطا
+                    </div>
+
+                </div>
+
+                <div
+                    id="pages"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+        </section>
+
+        <section
+            id="audience"
+            class="grid"
+        >
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        الأجهزة
+                    </div>
+
+                </div>
+
+                <div
+                    id="devices"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        أنظمة التشغيل
+                    </div>
+
+                </div>
+
+                <div
+                    id="os"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+        </section>
+
+        <section
+            id="traffic"
+            class="grid"
+        >
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        المتصفحات
+                    </div>
+
+                </div>
+
+                <div
+                    id="browsers"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+
+                    <div class="panel-title">
+                        مصادر الزيارات
+                    </div>
+
+                </div>
+
+                <div
+                    id="referrers"
+                    class="panel-body breakdown"
+                ></div>
+
+            </div>
+
+        </section>
+
+        <section
+            id="sessions"
+            class="panel"
+        >
+
             <div class="panel-head">
-                <div class="panel-title">Latest Events</div>
+
+                <div>
+
+                    <div class="panel-title">
+                        الجلسات
+                    </div>
+
+                    <div class="panel-sub">
+                        أحدث جلسات المستخدمين
+                    </div>
+
+                </div>
+
             </div>
 
-            <div id="eventsContainer" class="table-wrap">
-                <div class="loading">Loading...</div>
+            <div
+                id="sessionsTable"
+                class="table-wrap"
+            ></div>
+
+        </section>
+
+        <br>
+
+        <section
+            id="events"
+            class="panel"
+        >
+
+            <div class="panel-head">
+
+                <div>
+
+                    <div class="panel-title">
+                        آخر الأحداث
+                    </div>
+
+                    <div class="panel-sub">
+                        الأحداث المسجلة بواسطة TRUCK.JS
+                    </div>
+
+                </div>
+
             </div>
+
+            <div
+                id="eventsTable"
+                class="table-wrap"
+            ></div>
+
         </section>
 
     </main>
-</section>
 
-<script src="https://cdn.jsdelivr.net/npm/appwrite@23.0.0"></script>
+</div>
 
 <script>
+
 "use strict";
 
+/* =========================================
+   APPWRITE CONFIG
+========================================= */
+
 const CONFIG = {
-    endpoint: "https://fra.cloud.appwrite.io/v1",
-    projectId: "6a864872000d5c2e73fa",
-    databaseId: "6a864b5700077be988ef",
-    eventsTable: "events",
-    sessionsTable: "sessions",
-    limit: 500
+
+    endpoint:
+        "https://fra.cloud.appwrite.io/v1",
+
+    /*
+       ضع Project ID الحقيقي هنا
+       إذا كان مختلفا عن القيمة السابقة.
+    */
+
+    projectId:
+        "6a864872000d5c2e73fa",
+
+    databaseId:
+        "6a864b5700077be988ef",
+
+    eventsTable:
+        "events",
+
+    sessionsTable:
+        "sessions"
+
 };
 
-let client;
-let account;
-let tablesDB;
 
-let events = [];
-let sessions = [];
+/* =========================================
+   STATE
+========================================= */
 
-const $ = id => document.getElementById(id);
+let tablesDB = null;
 
-function formatNumber(value) {
-    return Number(value || 0).toLocaleString();
-}
+let allEvents = [];
 
-function formatDate(value) {
-    if (!value) return "—";
+let allSessions = [];
 
-    const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
-        return "—";
-    }
+/* =========================================
+   ELEMENT
+========================================= */
 
-    return date.toLocaleString();
-}
+const $ = id =>
+    document.getElementById(id);
 
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
 
-function badge(type) {
-    let cls = "";
-
-    if (type === "download") cls = "download";
-    else if (type === "click") cls = "click";
-    else if (type === "pageview") cls = "pageview";
-    else if (type === "session_ping") cls = "ping";
-
-    return `
-        <span class="badge ${cls}">
-            ${escapeHTML(type)}
-        </span>
-    `;
-}
+/* =========================================
+   APPWRITE
+========================================= */
 
 function initAppwrite() {
-    client = new Appwrite.Client();
+
+    const client =
+        new Appwrite.Client();
 
     client
-        .setEndpoint(CONFIG.endpoint)
-        .setProject(CONFIG.projectId);
+        .setEndpoint(
+            CONFIG.endpoint
+        )
+        .setProject(
+            CONFIG.projectId
+        );
 
-    account = new Appwrite.Account(client);
-    tablesDB = new Appwrite.TablesDB(client);
+    tablesDB =
+        new Appwrite.TablesDB(
+            client
+        );
 }
 
-async function getCurrentUser() {
-    try {
-        return await account.get();
-    } catch {
-        return null;
-    }
-}
 
-async function login() {
-    const email = $("email").value.trim();
-    const password = $("password").value;
+/* =========================================
+   LOAD ROWS
+========================================= */
 
-    $("loginError").textContent = "";
+async function loadRows(tableId) {
 
-    if (!email || !password) {
-        $("loginError").textContent =
-            "Enter your email and password.";
-        return;
-    }
+    const result = [];
 
-    $("loginButton").disabled = true;
-    $("loginButton").textContent = "Signing in...";
-
-    try {
-        await account.createEmailPasswordSession({
-            email,
-            password
-        });
-
-        showDashboard();
-
-    } catch (error) {
-        $("loginError").textContent =
-            error.message || "Login failed.";
-    }
-
-    $("loginButton").disabled = false;
-    $("loginButton").textContent = "Sign in";
-}
-
-async function logout() {
-    try {
-        await account.deleteSession({
-            sessionId: "current"
-        });
-    } catch {}
-
-    $("app").classList.add("hidden");
-    $("login").classList.remove("hidden");
-}
-
-function showDashboard() {
-    $("login").classList.add("hidden");
-    $("app").classList.remove("hidden");
-    loadData();
-}
-
-async function listAllRows(tableId) {
-    const rows = [];
     let cursor = null;
 
     while (true) {
+
         const queries = [
-            Appwrite.Query.orderDesc("$createdAt"),
-            Appwrite.Query.limit(100)
+
+            Appwrite.Query
+                .orderDesc("$createdAt"),
+
+            Appwrite.Query
+                .limit(100)
+
         ];
 
         if (cursor) {
+
             queries.push(
-                Appwrite.Query.cursorAfter(cursor)
+                Appwrite.Query
+                    .cursorAfter(cursor)
             );
+
         }
 
         const response =
             await tablesDB.listRows({
-                databaseId: CONFIG.databaseId,
-                tableId,
-                queries,
-                total: false,
-                ttl: 0
+
+                databaseId:
+                    CONFIG.databaseId,
+
+                tableId:
+                    tableId,
+
+                queries:
+                    queries,
+
+                total:
+                    false
+
             });
 
-        rows.push(...response.rows);
+        if (
+            !response.rows ||
+            !response.rows.length
+        ) {
+            break;
+        }
+
+        result.push(
+            ...response.rows
+        );
 
         if (
-            response.rows.length < 100 ||
-            !response.rows.length
+            response.rows.length < 100
         ) {
             break;
         }
@@ -765,291 +1280,715 @@ async function listAllRows(tableId) {
             response.rows[
                 response.rows.length - 1
             ].$id;
+
     }
 
-    return rows;
+    return result;
 }
 
+
+/* =========================================
+   LOAD ALL
+========================================= */
+
 async function loadData() {
-    $("eventsContainer").innerHTML =
-        '<div class="loading">Loading analytics...</div>';
+
+    setLoading();
 
     try {
-        const results =
+
+        const result =
             await Promise.all([
-                listAllRows(CONFIG.eventsTable),
-                listAllRows(CONFIG.sessionsTable)
+
+                loadRows(
+                    CONFIG.eventsTable
+                ),
+
+                loadRows(
+                    CONFIG.sessionsTable
+                )
+
             ]);
 
-        events = results[0];
-        sessions = results[1];
+        allEvents =
+            result[0];
+
+        allSessions =
+            result[1];
 
         populateSites();
+
         render();
 
     } catch (error) {
-        $("eventsContainer").innerHTML =
-            `<div class="empty">
-                Unable to load analytics.
-                <br><br>
-                ${escapeHTML(error.message || "Permission denied")}
-            </div>`;
+
+        showError(
+            error
+        );
+
     }
+
 }
 
-function getSelectedSite() {
-    return $("siteSelect").value;
-}
+
+/* =========================================
+   FILTER
+========================================= */
 
 function filteredEvents() {
-    const site = getSelectedSite();
 
-    if (site === "all") {
-        return events;
-    }
+    let data =
+        [...allEvents];
 
-    return events.filter(
-        row => row.site_id === site
-    );
-}
+    const site =
+        $("siteFilter").value;
 
-function filteredSessions() {
-    const site = getSelectedSite();
-
-    if (site === "all") {
-        return sessions;
-    }
-
-    return sessions.filter(
-        row => row.site_id === site
-    );
-}
-
-function populateSites() {
-    const select = $("siteSelect");
-    const current = select.value;
-
-    const sites = [
-        ...new Set(
-            events
-                .map(row => row.site_id)
-                .filter(Boolean)
-                .concat(
-                    sessions
-                        .map(row => row.site_id)
-                        .filter(Boolean)
-                )
-        )
-    ].sort();
-
-    select.innerHTML =
-        '<option value="all">All websites</option>';
-
-    sites.forEach(site => {
-        const option =
-            document.createElement("option");
-
-        option.value = site;
-        option.textContent = site;
-
-        select.appendChild(option);
-    });
+    const range =
+        $("rangeFilter").value;
 
     if (
-        current === "all" ||
-        sites.includes(current)
+        site !== "all"
     ) {
-        select.value = current;
+
+        data =
+            data.filter(
+                row =>
+                    row.site_id === site
+            );
+
     }
+
+    if (
+        range !== "all"
+    ) {
+
+        const hours =
+            Number(range) *
+            24;
+
+        const cutoff =
+            Date.now() -
+            hours *
+            60 *
+            60 *
+            1000;
+
+        data =
+            data.filter(
+                row =>
+                    new Date(
+                        row.$createdAt
+                    ).getTime() >=
+                    cutoff
+            );
+
+    }
+
+    return data;
+
 }
 
+
+function filteredSessions() {
+
+    let data =
+        [...allSessions];
+
+    const site =
+        $("siteFilter").value;
+
+    const range =
+        $("rangeFilter").value;
+
+    if (
+        site !== "all"
+    ) {
+
+        data =
+            data.filter(
+                row =>
+                    row.site_id === site
+            );
+
+    }
+
+    if (
+        range !== "all"
+    ) {
+
+        const hours =
+            Number(range) *
+            24;
+
+        const cutoff =
+            Date.now() -
+            hours *
+            60 *
+            60 *
+            1000;
+
+        data =
+            data.filter(
+                row =>
+                    new Date(
+                        row.$createdAt
+                    ).getTime() >=
+                    cutoff
+            );
+
+    }
+
+    return data;
+
+}
+
+
+/* =========================================
+   SITES
+========================================= */
+
+function populateSites() {
+
+    const select =
+        $("siteFilter");
+
+    const current =
+        select.value;
+
+    const sites =
+        new Set();
+
+    allEvents.forEach(
+        row => {
+
+            if (
+                row.site_id
+            ) {
+                sites.add(
+                    row.site_id
+                );
+            }
+
+        }
+    );
+
+    allSessions.forEach(
+        row => {
+
+            if (
+                row.site_id
+            ) {
+                sites.add(
+                    row.site_id
+                );
+            }
+
+        }
+    );
+
+    select.innerHTML =
+        `<option value="all">
+            جميع المواقع
+        </option>`;
+
+    [...sites]
+        .sort()
+        .forEach(
+            site => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    site;
+
+                option.textContent =
+                    site;
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    if (
+        [...sites].includes(
+            current
+        )
+    ) {
+
+        select.value =
+            current;
+
+    }
+
+}
+
+
+/* =========================================
+   RENDER
+========================================= */
+
 function render() {
-    const ev = filteredEvents();
-    const se = filteredSessions();
+
+    const events =
+        filteredEvents();
+
+    const sessions =
+        filteredSessions();
 
     const pageviews =
-        ev.filter(
-            row => row.event_type === "pageview"
+        events.filter(
+            x =>
+                x.event_type ===
+                "pageview"
         ).length;
 
     const downloads =
-        ev.filter(
-            row => row.event_type === "download"
+        events.filter(
+            x =>
+                x.event_type ===
+                "download"
         ).length;
 
     const visitors =
         new Set(
-            se
-                .map(row => row.visitor_id)
+            sessions
+                .map(
+                    x =>
+                        x.visitor_id
+                )
                 .filter(Boolean)
         ).size;
 
-    $("pageviews").textContent =
-        formatNumber(pageviews);
+    $("pageviews")
+        .textContent =
+        formatNumber(
+            pageviews
+        );
 
-    $("visitors").textContent =
-        formatNumber(visitors);
+    $("visitors")
+        .textContent =
+        formatNumber(
+            visitors
+        );
 
-    $("sessions").textContent =
-        formatNumber(se.length);
+    $("sessions")
+        .textContent =
+        formatNumber(
+            sessions.length
+        );
 
-    $("downloads").textContent =
-        formatNumber(downloads);
+    $("downloads")
+        .textContent =
+        formatNumber(
+            downloads
+        );
 
-    renderEventBreakdown(ev);
-    renderSites(ev, se);
-    renderDevices(se);
-    renderChart(ev);
-    renderLatestEvents(ev);
-}
-
-function renderEventBreakdown(rows) {
-    const counts = {};
-
-    rows.forEach(row => {
-        const type =
-            row.event_type || "unknown";
-
-        counts[type] =
-            (counts[type] || 0) + 1;
-    });
-
-    renderBreakdown(
-        $("eventBreakdown"),
-        counts
+    renderEventTypes(
+        events
     );
+
+    renderSites(
+        events
+    );
+
+    renderPages(
+        events
+    );
+
+    renderDevices(
+        sessions
+    );
+
+    renderOS(
+        sessions
+    );
+
+    renderBrowsers(
+        sessions
+    );
+
+    renderReferrers(
+        sessions
+    );
+
+    renderChart(
+        events
+    );
+
+    renderSessions(
+        sessions
+    );
+
+    renderEvents(
+        events
+    );
+
 }
 
-function renderSites(ev, se) {
+
+/* =========================================
+   COUNTERS
+========================================= */
+
+function countBy(
+    rows,
+    key
+) {
+
     const counts = {};
 
-    ev.forEach(row => {
-        if (row.site_id) {
-            counts[row.site_id] =
-                (counts[row.site_id] || 0) + 1;
+    rows.forEach(
+        row => {
+
+            const value =
+                row[key] ||
+                "Unknown";
+
+            counts[value] =
+                (
+                    counts[value] ||
+                    0
+                ) + 1;
+
         }
-    });
-
-    se.forEach(row => {
-        if (row.site_id && !counts[row.site_id]) {
-            counts[row.site_id] = 0;
-        }
-    });
-
-    renderBreakdown(
-        $("sitesBreakdown"),
-        counts
     );
+
+    return counts;
+
 }
 
-function renderDevices(rows) {
-    const counts = {};
 
-    rows.forEach(row => {
-        const device =
-            row.device || "Unknown";
+/* =========================================
+   BREAKDOWN
+========================================= */
 
-        counts[device] =
-            (counts[device] || 0) + 1;
-    });
+function renderBreakdown(
+    id,
+    counts
+) {
 
-    renderBreakdown(
-        $("deviceBreakdown"),
-        counts
-    );
-}
+    const container =
+        $(id);
 
-function renderBreakdown(container, counts) {
     const entries =
-        Object.entries(counts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
+        Object.entries(
+            counts
+        )
+        .sort(
+            (a, b) =>
+                b[1] - a[1]
+        )
+        .slice(
+            0,
+            10
+        );
 
-    if (!entries.length) {
+    if (
+        !entries.length
+    ) {
+
         container.innerHTML =
-            '<div class="empty">No data</div>';
+            `<div class="empty">
+                لا توجد بيانات
+            </div>`;
+
         return;
+
     }
 
     const max =
-        Math.max(...entries.map(x => x[1]), 1);
+        Math.max(
+            ...entries.map(
+                x => x[1]
+            ),
+            1
+        );
 
     container.innerHTML =
-        entries.map(([name, value]) => `
-            <div class="break-row">
-                <div class="break-name">
-                    ${escapeHTML(name)}
+        entries
+        .map(
+            ([name, value]) => `
+
+                <div class="break-row">
+
+                    <div
+                        class="break-name"
+                        title="${escapeHTML(name)}"
+                    >
+                        ${escapeHTML(name)}
+                    </div>
+
+                    <div class="bar">
+
+                        <i
+                            style="
+                                width:
+                                ${
+                                    value /
+                                    max *
+                                    100
+                                }%;
+                            "
+                        ></i>
+
+                    </div>
+
+                    <div>
+                        ${formatNumber(value)}
+                    </div>
+
                 </div>
 
-                <div class="bar">
-                    <i style="width:${(value / max) * 100}%"></i>
-                </div>
+            `
+        )
+        .join("");
 
-                <div>${formatNumber(value)}</div>
-            </div>
-        `).join("");
 }
 
-function renderChart(rows) {
-    const points = new Array(24).fill(0);
 
-    rows.forEach(row => {
-        const value =
-            row.$createdAt;
+/* =========================================
+   SECTIONS
+========================================= */
 
-        if (!value) return;
+function renderEventTypes(
+    events
+) {
 
-        const hour =
-            new Date(value).getHours();
+    renderBreakdown(
+        "eventTypes",
+        countBy(
+            events,
+            "event_type"
+        )
+    );
 
-        if (hour >= 0 && hour < 24) {
-            points[hour]++;
+}
+
+
+function renderSites(
+    events
+) {
+
+    renderBreakdown(
+        "sites",
+        countBy(
+            events,
+            "site_id"
+        )
+    );
+
+}
+
+
+function renderPages(
+    events
+) {
+
+    const counts = {};
+
+    events.forEach(
+        row => {
+
+            const page =
+                row.page_url ||
+                "Unknown";
+
+            counts[page] =
+                (
+                    counts[page] ||
+                    0
+                ) + 1;
+
         }
-    });
+    );
 
-    const width = 900;
-    const height = 260;
-    const padX = 20;
-    const padY = 25;
+    renderBreakdown(
+        "pages",
+        counts
+    );
+
+}
+
+
+function renderDevices(
+    sessions
+) {
+
+    renderBreakdown(
+        "devices",
+        countBy(
+            sessions,
+            "device"
+        )
+    );
+
+}
+
+
+function renderOS(
+    sessions
+) {
+
+    renderBreakdown(
+        "os",
+        countBy(
+            sessions,
+            "os"
+        )
+    );
+
+}
+
+
+function renderBrowsers(
+    sessions
+) {
+
+    renderBreakdown(
+        "browsers",
+        countBy(
+            sessions,
+            "browser"
+        )
+    );
+
+}
+
+
+function renderReferrers(
+    sessions
+) {
+
+    renderBreakdown(
+        "referrers",
+        countBy(
+            sessions,
+            "referrer"
+        )
+    );
+
+}
+
+
+/* =========================================
+   CHART
+========================================= */
+
+function renderChart(
+    events
+) {
+
+    const hours =
+        new Array(24)
+        .fill(0);
+
+    events.forEach(
+        event => {
+
+            const date =
+                new Date(
+                    event.$createdAt
+                );
+
+            const hour =
+                date.getHours();
+
+            if (
+                hour >= 0 &&
+                hour < 24
+            ) {
+
+                hours[hour]++;
+
+            }
+
+        }
+    );
+
+    const width =
+        1000;
+
+    const height =
+        270;
+
+    const paddingX =
+        35;
+
+    const paddingY =
+        25;
 
     const max =
-        Math.max(...points, 1);
+        Math.max(
+            ...hours,
+            1
+        );
 
     const step =
-        (width - padX * 2) / 23;
+        (
+            width -
+            paddingX * 2
+        ) / 23;
 
-    const coords =
-        points.map((value, index) => {
+    const points =
+        hours.map(
+            (value, index) => {
 
-            const x =
-                padX + index * step;
+                const x =
+                    paddingX +
+                    index *
+                    step;
 
-            const y =
-                height -
-                padY -
-                (value / max) *
-                (height - padY * 2);
+                const y =
+                    height -
+                    paddingY -
+                    (
+                        value /
+                        max
+                    ) *
+                    (
+                        height -
+                        paddingY *
+                        2
+                    );
 
-            return [x, y];
-        });
+                return {
+                    x,
+                    y,
+                    value
+                };
+
+            }
+        );
 
     const line =
-        coords
-            .map(
-                p => `${p[0]},${p[1]}`
-            )
-            .join(" ");
+        points
+        .map(
+            p =>
+                `${p.x},${p.y}`
+        )
+        .join(" ");
 
     const area =
-        `${padX},${height-padY} ` +
+        `${paddingX},${height-paddingY} ` +
         line +
-        ` ${width-padX},${height-padY}`;
+        ` ${width-paddingX},${height-paddingY}`;
 
-    $("activityChart").innerHTML = `
+    $("chart").innerHTML = `
+
         <svg
-            viewBox="0 0 ${width} ${height}"
+            viewBox="
+                0 0
+                ${width}
+                ${height}
+            "
             preserveAspectRatio="none"
         >
+
             <polygon
                 class="chart-area"
                 points="${area}"
@@ -1060,136 +1999,662 @@ function renderChart(rows) {
                 points="${line}"
             />
 
-            ${coords.map(
-                p => `
-                    <circle
-                        class="chart-point"
-                        cx="${p[0]}"
-                        cy="${p[1]}"
-                        r="3"
-                    />
-                `
-            ).join("")}
+            ${
+                points
+                .map(
+                    p => `
+
+                        <circle
+                            class="chart-point"
+                            cx="${p.x}"
+                            cy="${p.y}"
+                            r="3"
+                        />
+
+                    `
+                )
+                .join("")
+            }
+
+            ${
+                points
+                .filter(
+                    (_, i) =>
+                        i % 3 === 0
+                )
+                .map(
+                    (p, i) => `
+
+                        <text
+                            class="chart-label"
+                            x="${p.x}"
+                            y="${height - 5}"
+                            text-anchor="middle"
+                        >
+                            ${i * 3}:00
+                        </text>
+
+                    `
+                )
+                .join("")
+            }
+
         </svg>
+
     `;
+
 }
 
-function renderLatestEvents(rows) {
-    const latest =
-        [...rows]
-            .sort(
-                (a, b) =>
-                    new Date(b.$createdAt) -
-                    new Date(a.$createdAt)
-            )
-            .slice(0, 50);
 
-    if (!latest.length) {
-        $("eventsContainer").innerHTML =
-            '<div class="empty">No events yet.</div>';
+/* =========================================
+   EVENTS TABLE
+========================================= */
+
+function renderEvents(
+    events
+) {
+
+    const data =
+        [...events]
+        .sort(
+            (a, b) =>
+                new Date(
+                    b.$createdAt
+                ) -
+                new Date(
+                    a.$createdAt
+                )
+        )
+        .slice(
+            0,
+            100
+        );
+
+    if (
+        !data.length
+    ) {
+
+        $("eventsTable")
+            .innerHTML =
+            `<div class="empty">
+                لا توجد أحداث
+            </div>`;
+
         return;
+
     }
 
-    $("eventsContainer").innerHTML = `
+    $("eventsTable")
+        .innerHTML = `
+
         <table>
+
             <thead>
+
                 <tr>
-                    <th>Time</th>
-                    <th>Type</th>
-                    <th>Website</th>
-                    <th>Page</th>
-                    <th>Target</th>
-                    <th>Session</th>
+
+                    <th>
+                        الوقت
+                    </th>
+
+                    <th>
+                        النوع
+                    </th>
+
+                    <th>
+                        الموقع
+                    </th>
+
+                    <th>
+                        الصفحة
+                    </th>
+
+                    <th>
+                        العنصر
+                    </th>
+
+                    <th>
+                        Session
+                    </th>
+
                 </tr>
+
             </thead>
 
             <tbody>
-                ${latest.map(row => `
-                    <tr>
-                        <td>
-                            ${escapeHTML(
-                                formatDate(row.$createdAt)
-                            )}
-                        </td>
 
-                        <td>
-                            ${badge(
-                                row.event_type ||
-                                "unknown"
-                            )}
-                        </td>
+                ${
+                    data
+                    .map(
+                        row => `
 
-                        <td>
-                            ${escapeHTML(
-                                row.site_id || "—"
-                            )}
-                        </td>
+                            <tr>
 
-                        <td>
-                            ${escapeHTML(
-                                row.page_url || "—"
-                            )}
-                        </td>
+                                <td>
+                                    ${
+                                        formatDate(
+                                            row.$createdAt
+                                        )
+                                    }
+                                </td>
 
-                        <td>
-                            ${escapeHTML(
-                                row.target_label || "—"
-                            )}
-                        </td>
+                                <td>
+                                    ${
+                                        eventBadge(
+                                            row.event_type
+                                        )
+                                    }
+                                </td>
 
-                        <td>
-                            ${escapeHTML(
-                                row.session_id || "—"
-                            )}
-                        </td>
-                    </tr>
-                `).join("")}
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.site_id ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td
+                                    title="${
+                                        escapeHTML(
+                                            row.page_url ||
+                                            ""
+                                        )
+                                    }"
+                                >
+                                    ${
+                                        escapeHTML(
+                                            shorten(
+                                                row.page_url,
+                                                55
+                                            )
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.target_label ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            shorten(
+                                                row.session_id,
+                                                22
+                                            )
+                                        )
+                                    }
+                                </td>
+
+                            </tr>
+
+                        `
+                    )
+                    .join("")
+                }
+
             </tbody>
+
         </table>
+
     `;
+
 }
 
-$("loginButton").addEventListener(
-    "click",
-    login
-);
 
-$("password").addEventListener(
-    "keydown",
-    event => {
-        if (event.key === "Enter") {
-            login();
+/* =========================================
+   SESSIONS TABLE
+========================================= */
+
+function renderSessions(
+    sessions
+) {
+
+    const data =
+        [...sessions]
+        .sort(
+            (a, b) =>
+                new Date(
+                    b.$createdAt
+                ) -
+                new Date(
+                    a.$createdAt
+                )
+        )
+        .slice(
+            0,
+            100
+        );
+
+    if (
+        !data.length
+    ) {
+
+        $("sessionsTable")
+            .innerHTML =
+            `<div class="empty">
+                لا توجد جلسات
+            </div>`;
+
+        return;
+
+    }
+
+    $("sessionsTable")
+        .innerHTML = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        الوقت
+                    </th>
+
+                    <th>
+                        الموقع
+                    </th>
+
+                    <th>
+                        الجهاز
+                    </th>
+
+                    <th>
+                        النظام
+                    </th>
+
+                    <th>
+                        المتصفح
+                    </th>
+
+                    <th>
+                        اللغة
+                    </th>
+
+                    <th>
+                        المصدر
+                    </th>
+
+                    <th>
+                        المدة
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${
+                    data
+                    .map(
+                        row => `
+
+                            <tr>
+
+                                <td>
+                                    ${
+                                        formatDate(
+                                            row.$createdAt
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.site_id ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.device ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.os ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.browser ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            row.language ||
+                                            "—"
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        escapeHTML(
+                                            shorten(
+                                                row.referrer,
+                                                35
+                                            )
+                                        )
+                                    }
+                                </td>
+
+                                <td>
+                                    ${
+                                        row.duration == null
+                                            ? "—"
+                                            : formatNumber(
+                                                row.duration
+                                            ) + "s"
+                                    }
+                                </td>
+
+                            </tr>
+
+                        `
+                    )
+                    .join("")
+                }
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+/* =========================================
+   EVENT BADGE
+========================================= */
+
+function eventBadge(
+    type
+) {
+
+    const safe =
+        escapeHTML(
+            type ||
+            "unknown"
+        );
+
+    let cls = "";
+
+    if (
+        type === "pageview"
+    ) {
+        cls = "pageview";
+    }
+
+    if (
+        type === "click"
+    ) {
+        cls = "click";
+    }
+
+    if (
+        type === "download"
+    ) {
+        cls = "download";
+    }
+
+    if (
+        type === "session_ping"
+    ) {
+        cls = "ping";
+    }
+
+    return `
+        <span
+            class="
+                badge
+                ${cls}
+            "
+        >
+            ${safe}
+        </span>
+    `;
+
+}
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function formatNumber(
+    value
+) {
+
+    return Number(
+        value || 0
+    ).toLocaleString(
+        "en-US"
+    );
+
+}
+
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "—";
+    }
+
+    return date.toLocaleString(
+        "ar-MA",
+        {
+            dateStyle:
+                "short",
+            timeStyle:
+                "short"
         }
-    }
-);
+    );
 
-$("refreshButton").addEventListener(
-    "click",
-    loadData
-);
-
-$("logoutButton").addEventListener(
-    "click",
-    logout
-);
-
-$("siteSelect").addEventListener(
-    "change",
-    render
-);
-
-async function boot() {
-    initAppwrite();
-
-    const user =
-        await getCurrentUser();
-
-    if (user) {
-        showDashboard();
-    }
 }
 
-boot();
+
+function shorten(
+    value,
+    length
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const text =
+        String(value);
+
+    if (
+        text.length <= length
+    ) {
+        return text;
+    }
+
+    return (
+        text.slice(
+            0,
+            length
+        ) +
+        "…"
+    );
+
+}
+
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replaceAll(
+        "&",
+        "&amp;"
+    )
+    .replaceAll(
+        "<",
+        "&lt;"
+    )
+    .replaceAll(
+        ">",
+        "&gt;"
+    )
+    .replaceAll(
+        '"',
+        "&quot;"
+    )
+    .replaceAll(
+        "'",
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================
+   STATES
+========================================= */
+
+function setLoading() {
+
+    const ids = [
+        "eventTypes",
+        "sites",
+        "pages",
+        "devices",
+        "os",
+        "browsers",
+        "referrers"
+    ];
+
+    ids.forEach(
+        id => {
+
+            $(id).innerHTML =
+                `<div class="loading">
+                    جاري التحميل...
+                </div>`;
+
+        }
+    );
+
+    $("eventsTable")
+        .innerHTML =
+        `<div class="loading">
+            جاري تحميل الأحداث...
+        </div>`;
+
+    $("sessionsTable")
+        .innerHTML =
+        `<div class="loading">
+            جاري تحميل الجلسات...
+        </div>`;
+
+}
+
+
+function showError(
+    error
+) {
+
+    const message =
+        error &&
+        error.message
+            ? error.message
+            : "Failed to fetch";
+
+    const html =
+        `<div class="error">
+            تعذر الاتصال بـ Appwrite
+            <br><br>
+            ${escapeHTML(message)}
+        </div>`;
+
+    $("eventsTable")
+        .innerHTML =
+        html;
+
+    $("sessionsTable")
+        .innerHTML =
+        html;
+
+}
+
+
+/* =========================================
+   EVENTS
+========================================= */
+
+$("refresh")
+    .addEventListener(
+        "click",
+        loadData
+    );
+
+$("siteFilter")
+    .addEventListener(
+        "change",
+        render
+    );
+
+$("rangeFilter")
+    .addEventListener(
+        "change",
+        render
+    );
+
+
+/* =========================================
+   START
+========================================= */
+
+initAppwrite();
+
+loadData();
+
 </script>
 
 </body>

@@ -96,13 +96,6 @@
       font-weight: bold;
     }
 
-    .breakdown-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
     .table-container {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -144,7 +137,6 @@
     <span class="live-badge">● مباشر</span>
   </header>
 
-  <!-- الكروت الرئيسية GA style -->
   <div class="kpi-grid">
     <div class="card">
       <div class="card-title">إجمالي الجلسات</div>
@@ -160,13 +152,11 @@
     </div>
   </div>
 
-  <!-- رسم بياني لعدد الجلسات -->
   <div class="chart-container">
     <div class="chart-title">نشاط الجلسات عبر الزمن</div>
     <canvas id="trafficChart" height="120"></canvas>
   </div>
 
-  <!-- الجداول والتوزيع السريع -->
   <div class="table-container">
     <div class="chart-title">سجل الجلسات المباشرة</div>
     <table>
@@ -186,8 +176,8 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "https://jphbbwvncyxwaforfrnx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OgE_7eKXWZzYqeRe1uLKWQ_z9kzwJEY";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let trafficChart;
@@ -232,7 +222,6 @@
       document.getElementById('stat-sites').innerText = sites ? sites.length : 0;
       document.getElementById('stat-events').innerText = events ? events.length : 0;
 
-      // تجميع البيانات للرسم البياني
       const timeMap = {};
       (sessions || []).forEach(s => {
         const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
@@ -243,7 +232,6 @@
       const chartData = Object.values(timeMap).reverse();
       initChart(labels, chartData);
 
-      // بناء الجدول
       const tbody = document.getElementById('sessions-list');
       tbody.innerHTML = '';
       (sessions || []).forEach(s => {
@@ -260,7 +248,7 @@
     }
 
     loadDashboard();
-    setInterval(loadDashboard, 30000); // تحديث تلقائي كل 30 ثانية
+    setInterval(loadDashboard, 30000);
   </script>
 </body>
 </html>

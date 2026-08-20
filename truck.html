@@ -2,9 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <title>ATT/DES Analytics - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ATT/DES Analytics - Truck Dashboard 🚚</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
@@ -15,81 +14,48 @@
     table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
     th, td { padding: 12px; border-bottom: 1px solid #334155; text-align: right; }
     th { background: #0f172a; color: #94a3b8; }
-    .auth-box { background: #1e293b; padding: 20px; max-width: 350px; margin: 50px auto; border-radius: 8px; border: 1px solid #334155; }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #334155; }
-    input { background: #0f172a; color: white; }
-    button { background: #0284c7; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background: #0369a1; }
   </style>
 </head>
 <body>
 
-  <!-- شاشة تسجيل الدخول لحماية اللوحة -->
-  <div id="login-sec" class="auth-box">
-    <h2>ATT/DES Admin</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
-    <input type="password" id="password" placeholder="كلمة المرور">
-    <button onclick="login()">دخول</button>
+  <h1>ATT/DES Analytics Truck 🚚🔥</h1>
+  
+  <div class="card-grid">
+    <div class="card">إجمالي الجلسات<div id="stat-sessions">0</div></div>
+    <div class="card">المواقع والنطاقات<div id="stat-sites">0</div></div>
+    <div class="card">إجمالي الأحداث<div id="stat-events">0</div></div>
   </div>
 
-  <!-- الشاشة الرئيسية للإحصائيات -->
-  <div id="dash-sec" style="display: none;">
-    <h1>ATT/DES Analytics 🚚</h1>
-    
-    <div class="card-grid">
-      <div class="card">إجمالي الجلسات<div id="stat-sessions">0</div></div>
-      <div class="card">المواقع والنطاقات<div id="stat-sites">0</div></div>
-      <div class="card">إجمالي الأحداث<div id="stat-events">0</div></div>
-    </div>
-
-    <h2>سجل الجلسات (Sessions)</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>الموقع/النطاق</th>
-          <th>معرف الزائر</th>
-          <th>الجهاز</th>
-          <th>المتصفح</th>
-          <th>النظام</th>
-          <th>مدة البقاء</th>
-          <th>التاريخ</th>
-        </tr>
-      </thead>
-      <tbody id="sessions-list"></tbody>
-    </table>
-  </div>
+  <h2>سجل الجلسات (Sessions)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>الموقع/النطاق</th>
+        <th>معرف الزائر</th>
+        <th>الجهاز</th>
+        <th>المتصفح</th>
+        <th>النظام</th>
+        <th>مدة البقاء</th>
+        <th>التاريخ</th>
+      </tr>
+    </thead>
+    <tbody id="sessions-list"></tbody>
+  </table>
 
   <script>
     const SUPABASE_URL = "YOUR_SUPABASE_URL";
     const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        alert("خطأ الدخول: " + error.message);
-      } else {
-        document.getElementById('login-sec').style.display = 'none';
-        document.getElementById('dash-sec').style.display = 'block';
-        loadDashboard();
-      }
-    }
-
     async function loadDashboard() {
-      // 1. جلب بيانات الجلسات والمواقع
       const { data: sessions } = await supabaseClient.from('sessions').select('*, sites(domain)').order('created_at', { ascending: false });
       const { data: sites } = await supabaseClient.from('sites').select('site_id');
       const { data: events } = await supabaseClient.from('events').select('event_id');
 
-      // 2. تحديث الكروت
       document.getElementById('stat-sessions').innerText = sessions ? sessions.length : 0;
       document.getElementById('stat-sites').innerText = sites ? sites.length : 0;
       document.getElementById('stat-events').innerText = events ? events.length : 0;
 
-      // 3. عرض سطر الجدول
       const tbody = document.getElementById('sessions-list');
       tbody.innerHTML = '';
       (sessions || []).forEach(s => {
@@ -104,6 +70,9 @@
         </tr>`;
       });
     }
+
+    // تشغيل التحميل تلقائياً بمجرد فتح الصفحة
+    loadDashboard();
   </script>
 </body>
 </html>

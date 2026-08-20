@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ATT/DES Analytics</title>
+  <title>ATT/DES Analytics - Full Control 🚚</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -45,14 +45,12 @@
       font-weight: 800;
       color: var(--accent-yellow);
       margin: 0 0 10px 0;
-      letter-spacing: 0.5px;
     }
 
     .status-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 10px;
     }
 
     .live-badge {
@@ -91,7 +89,7 @@
       color: var(--accent-yellow-light);
     }
 
-    .chart-container {
+    .chart-container, .section-box {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
@@ -99,25 +97,24 @@
       margin-bottom: 20px;
     }
 
-    .chart-title {
+    .section-title {
       font-size: 0.95rem;
-      color: var(--text-main);
+      color: var(--accent-yellow);
       margin-bottom: 15px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .table-container {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 15px;
       overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-align: right;
       white-space: nowrap;
     }
@@ -125,18 +122,37 @@
     th {
       color: var(--text-muted);
       border-bottom: 1px solid var(--border-color);
-      padding: 10px;
+      padding: 8px;
       font-weight: 600;
     }
 
     td {
-      padding: 12px 10px;
+      padding: 10px 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .highlight {
-      color: var(--accent-yellow);
+      color: var(--accent-yellow-light);
       font-weight: 600;
+    }
+
+    .badge-event {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .btn-filter {
+      background: var(--accent-yellow);
+      color: #000;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.75rem;
     }
   </style>
 </head>
@@ -151,6 +167,7 @@
     </div>
   </header>
 
+  <!-- الكروت العامة -->
   <div class="kpi-grid">
     <div class="card">
       <div class="card-title">إجمالي الجلسات</div>
@@ -161,32 +178,81 @@
       <div class="card-value" id="stat-sites">0</div>
     </div>
     <div class="card">
-      <div class="card-title">الأحداث</div>
+      <div class="card-title">الأحداث والنقرات</div>
       <div class="card-value" id="stat-events">0</div>
     </div>
   </div>
 
+  <!-- رسم بياني للجلسات -->
   <div class="chart-container">
-    <div class="chart-title">نشاط الجلسات عبر الزمن</div>
+    <div class="section-title">📊 نشاط الجلسات عبر الزمن</div>
     <canvas id="trafficChart" height="120"></canvas>
   </div>
 
-  <div class="table-container">
-    <div class="chart-title">سجل الجلسات المباشرة</div>
-    <table>
-      <thead>
-        <tr>
-          <th>النطاق</th>
-          <th>المعرف</th>
-          <th>الجهاز</th>
-          <th>المتصفح</th>
-          <th>النظام</th>
-          <th>المدة</th>
-          <th>التاريخ</th>
-        </tr>
-      </thead>
-      <tbody id="sessions-list"></tbody>
-    </table>
+  <!-- جدول المواقع (sites) -->
+  <div class="section-box">
+    <div class="section-title">🌐 المواقع المسجلة (sites)</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Site ID</th>
+            <th>النطاق (Domain)</th>
+            <th>الاسم (Name)</th>
+          </tr>
+        </thead>
+        <tbody id="sites-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- جدول الجلسات التفصيلي (sessions) -->
+  <div class="section-box">
+    <div class="section-title">
+      <span>👥 تحليلات الجلسات والزوار (sessions)</span>
+      <button class="btn-filter" onclick="loadDashboard()">إعادة ضبط الفلتر</button>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Session ID</th>
+            <th>النطاق</th>
+            <th>المعرف (Visitor ID)</th>
+            <th>الجهاز</th>
+            <th>المتصفح</th>
+            <th>النظام</th>
+            <th>اللغة</th>
+            <th>المصدر (Referrer)</th>
+            <th>حملات التسويق (UTM)</th>
+            <th>المدة</th>
+            <th>التاريخ</th>
+            <th>التتبع</th>
+          </tr>
+        </thead>
+        <tbody id="sessions-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- جدول الأحداث والنقرات (events) -->
+  <div class="section-box">
+    <div class="section-title">⚡ الأحداث والنقرات المباشرة (events)</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Session ID</th>
+            <th>نوع الحدث</th>
+            <th>العنصر المستهدف</th>
+            <th>عنوان الصفحة</th>
+            <th>رابط الصفحة</th>
+            <th>التاريخ</th>
+          </tr>
+        </thead>
+        <tbody id="events-list"></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -194,6 +260,7 @@
     const SUPABASE_KEY = "sb_publishable_OgE_7eKXWZzYqeRe1uLKWQ_z9kzwJEY";
 
     let trafficChart;
+    let allEvents = [];
 
     async function fetchREST(endpoint) {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
@@ -236,23 +303,84 @@
       });
     }
 
+    function filterEventsBySession(sessionId) {
+      const filtered = allEvents.filter(e => e.session_id === sessionId);
+      renderEvents(filtered);
+    }
+
+    function renderEvents(events) {
+      const eventsTbody = document.getElementById('events-list');
+      eventsTbody.innerHTML = '';
+      if (Array.isArray(events) && events.length > 0) {
+        events.forEach(e => {
+          eventsTbody.innerHTML += `<tr>
+            <td>${e.session_id}</td>
+            <td><span class="badge-event">${e.event_type}</span></td>
+            <td class="highlight">${e.target_label || '---'}</td>
+            <td>${e.page_title || '---'}</td>
+            <td><a href="${e.page_url}" target="_blank" style="color:var(--text-muted); text-decoration:none;">${e.page_url}</a></td>
+            <td>${new Date(e.created_at).toLocaleTimeString('ar-EG')}</td>
+          </tr>`;
+        });
+      } else {
+        eventsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد أحداث لهذا الزائر</td></tr>`;
+      }
+    }
+
     async function loadDashboard() {
       try {
         const [sessions, sites, events] = await Promise.all([
           fetchREST("sessions?select=*,sites(domain)&order=created_at.desc"),
-          fetchREST("sites?select=site_id"),
-          fetchREST("events?select=event_id")
+          fetchREST("sites?select=*"),
+          fetchREST("events?select=*&order=created_at.desc")
         ]);
 
+        allEvents = events || [];
+
+        // 1. التحديث العددي
         document.getElementById('stat-sessions').innerText = Array.isArray(sessions) ? sessions.length : 0;
         document.getElementById('stat-sites').innerText = Array.isArray(sites) ? sites.length : 0;
         document.getElementById('stat-events').innerText = Array.isArray(events) ? events.length : 0;
 
+        // 2. جدول المواقع
+        const sitesTbody = document.getElementById('sites-list');
+        sitesTbody.innerHTML = '';
+        if (Array.isArray(sites) && sites.length > 0) {
+          sites.forEach(s => {
+            sitesTbody.innerHTML += `<tr>
+              <td>${s.site_id}</td>
+              <td class="highlight">${s.domain}</td>
+              <td>${s.name || s.domain}</td>
+            </tr>`;
+          });
+        }
+
+        // 3. جدول الجلسات
         const timeMap = {};
-        if (Array.isArray(sessions)) {
+        const sessionsTbody = document.getElementById('sessions-list');
+        sessionsTbody.innerHTML = '';
+
+        if (Array.isArray(sessions) && sessions.length > 0) {
           sessions.forEach(s => {
             const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
             timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
+
+            const utmStr = s.utm ? Object.entries(s.utm).filter(([_, v]) => v).map(([k, v]) => `${k}:${v}`).join(', ') : '---';
+
+            sessionsTbody.innerHTML += `<tr>
+              <td>${s.session_id}</td>
+              <td class="highlight">${s.sites ? s.sites.domain : 'attdes.online'}</td>
+              <td>${s.visitor_id ? s.visitor_id.substring(0, 10) : '---'}</td>
+              <td>${s.device || 'Mobile'}</td>
+              <td>${s.browser || 'Chrome'}</td>
+              <td>${s.os || 'Android'}</td>
+              <td>${s.language || 'ar'}</td>
+              <td>${s.referrer || 'Direct'}</td>
+              <td>${utmStr || '---'}</td>
+              <td>${s.duration || 0}ث</td>
+              <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
+              <td><button class="btn-filter" onclick="filterEventsBySession(${s.session_id})">عرض نقراته ⚡</button></td>
+            </tr>`;
           });
         }
 
@@ -260,31 +388,16 @@
         const chartData = Object.values(timeMap).reverse();
         initChart(labels.length ? labels : ['الآن'], chartData.length ? chartData : [0]);
 
-        const tbody = document.getElementById('sessions-list');
-        tbody.innerHTML = '';
+        // 4. جدول الأحداث العام
+        renderEvents(allEvents);
 
-        if (Array.isArray(sessions) && sessions.length > 0) {
-          sessions.forEach(s => {
-            tbody.innerHTML += `<tr>
-              <td class="highlight">${s.sites ? s.sites.domain : 'attdes.online'}</td>
-              <td>${s.visitor_id ? s.visitor_id.substring(0, 8) : '---'}</td>
-              <td>${s.device || 'Mobile'}</td>
-              <td>${s.browser || 'Chrome'}</td>
-              <td>${s.os || 'Android'}</td>
-              <td>${s.duration || 0}ث</td>
-              <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
-            </tr>`;
-          });
-        } else {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">لا توجد جلسات مسجلة بعد</td></tr>`;
-        }
       } catch (err) {
-        console.error("Fetch Error:", err);
+        console.error("Dashboard Error:", err);
       }
     }
 
     loadDashboard();
-    setInterval(loadDashboard, 15000); // تحديث تلقائي كل 15 ثانية
+    setInterval(loadDashboard, 15000);
   </script>
 </body>
 </html>

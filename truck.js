@@ -23,10 +23,6 @@
     return "OS";
   }
 
-  function getDevice() {
-    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
-  }
-
   function getUTM() {
     const params = new URLSearchParams(window.location.search);
     return {
@@ -54,66 +50,82 @@
       "Authorization": `Bearer ${SUPABASE_KEY}`,
       "Prefer": "return=representation"
     };
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : null
-    });
-    return res.json();
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        console.error(`[Supabase Error ${res.status}] on ${method} ${endpoint}:`, data);
+      } else {
+        console.log(`[Supabase Success] ${method} ${endpoint}:`, data);
+      }
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      console.error(`[Fetch Network Error] on ${method} ${endpoint}:`, err);
+      return { ok: false, error: err };
+    }
   }
 
   async function initTracking() {
-    try {
-      let sites = await api(`sites?domain=eq.${currentDomain}`);
-      if (!Array.isArray(sites) || sites.length === 0) {
-        sites = await api("sites", "POST", { domain: currentDomain, name: currentDomain });
+    // 1. جلب أو إنشاء site_id
+    let siteRes = await api(`sites?domain=eq.${currentDomain}`);
+    if (siteRes.ok && Array.isArray(siteRes.data) && siteRes.data.length > 0) {
+      siteId = siteRes.data[0].site_id;
+    } else {
+      let createSite = await api("sites", "POST", { domain: currentDomain, name: currentDomain });
+      if (createSite.ok && Array.isArray(createSite.data) && createSite.data.length > 0) {
+        siteId = createSite.data[0].site_id;
       }
-      siteId = sites[0].site_id;
+    }
 
-      const sessionData = {
-        site_id: siteId,
-        visitor_id: visitorId,
-        device: getDevice(),
-        browser: getBrowser(),
-        os: getOS(),
-        language: navigator.language || "ar",
-        referrer: document.referrer || "Direct",
-        utm: getUTM(),
-        duration: 0,
-        last_ping: new Date().toISOString()
-      };
+    if (!siteId) {
+      console.error("فشل الحصول على site_id، توقف التتبع.");
+      return;
+    }
 
-      const sessionRes = await api("sessions", "POST", sessionData);
-      if (Array.isArray(sessionRes) && sessionRes.length > 0) {
-        sessionId = sessionRes[0].session_id;
-        logEvent("pageview", window.location.href, document.title, "زيارة صفحة");
-      }
+    // 2. إرسال الجلسة POST
+    const sessionData = {
+      site_id: siteId,
+      visitor_id: visitorId,
+      device: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+      browser: getBrowser(),
+      os: getOS(),
+      language: navigator.language || "ar",
+      referrer: document.referrer || "Direct",
+      utm: getUTM(),
+      duration: 0,
+      last_ping: new Date().toISOString()
+    };
 
+    const sessionRes = await api("sessions", "POST", sessionData);
+
+    if (sessionRes.ok && Array.isArray(sessionRes.data) && sessionRes.data.length > 0) {
+      sessionId = sessionRes.data[0].session_id;
+
+      // 3. إرسال حدث زيارة الصفحة POST
+      logEvent("pageview", window.location.href, document.title, "زيارة صفحة");
+
+      // 4. تحديث مدة البقاء كل 10 ثوانٍ (PATCH)
       setInterval(() => {
         if (!sessionId) return;
         const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
-        fetch(`${SUPABASE_URL}/rest/v1/sessions?session_id=eq.${sessionId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY,
-            "Authorization": `Bearer ${SUPABASE_KEY}`
-          },
-          body: JSON.stringify({
-            last_ping: new Date().toISOString(),
-            duration: durationSeconds
-          })
+        api(`sessions?session_id=eq.${sessionId}`, "PATCH", {
+          last_ping: new Date().toISOString(),
+          duration: durationSeconds
         });
       }, 10000);
-
-    } catch (err) {
-      console.error("Tracking Error:", err);
     }
   }
 
   async function logEvent(eventType, url, title, label) {
     if (!siteId || !sessionId) return;
-    api("events", "POST", {
+    await api("events", "POST", {
       session_id: sessionId,
       site_id: siteId,
       event_type: eventType,

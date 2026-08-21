@@ -10,60 +10,48 @@
   :root{
     --bg:#0a0a0a; --panel:#141414; --panel2:#1c1c1c; --border:#2a2a2a;
     --text:#f2f2f2; --muted:#8a8a8a; --accent:#ffd60a; --accent2:#ffb800;
-    --danger:#ff5c5c;
+    --danger:#ff5c5c; --green:#3ddc84;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
-  .brand{padding:36px 28px 24px;text-align:center;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,#1a1a0f 0%,var(--bg) 70%);}
-  .brand img{max-width:220px;width:100%;height:auto;display:block;margin:0 auto 14px;filter:drop-shadow(0 0 18px rgba(255,214,10,.35));}
-  .brand .tagline{color:var(--accent);font-size:15px;letter-spacing:2px;font-weight:700;text-transform:uppercase;}
-  header{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-  header h1{margin:0;font-size:20px;}
+  .brand{padding:32px 28px 20px;text-align:center;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,#1a1a0f 0%,var(--bg) 70%);}
+  .brand img{max-width:200px;width:100%;height:auto;display:block;margin:0 auto 12px;filter:drop-shadow(0 0 18px rgba(255,214,10,.35));}
+  .brand .tagline{color:var(--accent);font-size:14px;letter-spacing:2px;font-weight:700;text-transform:uppercase;}
+  header{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:sticky;top:0;background:var(--bg);z-index:50;}
+  header h1{margin:0;font-size:19px;}
   header h1 span{color:var(--accent);}
   .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  select,input,button{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;}
+  select,button{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;}
   button{cursor:pointer;background:var(--accent);color:#0a0a0a;border:none;font-weight:700;}
   button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
   button:hover{opacity:.85}
-  main{padding:24px 28px;}
-  .cfg{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  .cfg input{flex:1;min-width:220px;}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;border-top:2px solid var(--accent);}
-  .kpi .num{font-size:26px;font-weight:700;color:var(--accent);}
-  .kpi .lbl{color:var(--muted);font-size:13px;margin-top:4px;}
+  main{padding:22px 28px;}
+  .live{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;margin-bottom:20px;width:fit-content;}
+  .live .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+  .live b{color:var(--accent);font-size:18px;}
+  .section-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:26px 0 12px;font-weight:700;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:8px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:2px solid var(--accent);}
+  .kpi .num{font-size:24px;font-weight:700;color:var(--accent);}
+  .kpi .lbl{color:var(--muted);font-size:12px;margin-top:4px;}
   .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;}
-  .card h3{margin:0 0 14px;font-size:15px;color:var(--muted);font-weight:600;}
-  table{width:100%;border-collapse:collapse;font-size:13px;}
-  th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--border);}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .card h3{margin:0 0 12px;font-size:14px;color:var(--muted);font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
   th{color:var(--accent);font-weight:600;}
-  .empty{color:var(--muted);text-align:center;padding:30px;font-size:13px;}
+  .empty{color:var(--muted);text-align:center;padding:26px;font-size:13px;}
   .status{font-size:12px;color:var(--muted);}
-  .exportbar{display:flex;gap:8px;margin-top:16px;}
-  @media (max-width:900px){.grid,.grid2{grid-template-columns:1fr;}}
-
-  #splash{position:fixed;inset:0;background:#0a0a0a;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .6s ease;}
-  #splash.hide{opacity:0;pointer-events:none;}
-  #splash .king{font-size:42px;font-weight:800;color:var(--accent);text-shadow:0 0 24px rgba(255,214,10,.6);letter-spacing:1px;}
-  #splash img{max-width:200px;width:70%;margin-bottom:22px;filter:drop-shadow(0 0 20px rgba(255,214,10,.4));}
-  #splash .sub{color:var(--muted);margin-top:10px;font-size:13px;letter-spacing:2px;}
-  #app{display:none;}
-  #app.show{display:block;}
-  .cfg{display:none;}
-  .cfg.show{display:flex;}
+  .exportbar{display:flex;gap:8px;flex-wrap:wrap;}
+  .tablewrap{max-height:280px;overflow:auto;}
+  .sites-table td:first-child{color:var(--accent);font-weight:600;}
+  @media (max-width:1000px){.grid,.grid2,.grid3{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-
-<div id="splash">
-  <img src="https://attdes.online/header.png" alt="ATT/DES" onerror="this.style.display='none'" />
-  <div class="king" id="splashText">عاش الملك!</div>
-  <div class="sub">دامت الإمبراطورية خالدة 666</div>
-</div>
-
-<div id="app">
 
 <div class="brand">
   <img src="https://attdes.online/header.png" alt="ATT/DES" onerror="this.style.display='none'" />
@@ -81,110 +69,127 @@
       <option value="90">آخر 90 يوم</option>
     </select>
     <button class="secondary" id="refreshBtn">تحديث</button>
+    <span class="status" id="connStatus"></span>
   </div>
 </header>
 
 <main>
-  <div class="cfg" id="cfgBar">
-    <input id="sbUrl" placeholder="Supabase URL (https://xxxx.supabase.co)" />
-    <input id="sbKey" placeholder="Supabase anon key" />
-    <button id="connectBtn">اتصال</button>
-    <span class="status" id="connStatus">غير متصل</span>
+  <div class="live">
+    <div class="dot"></div>
+    <span>نشطون الآن (آخر 5 دقائق): <b id="liveNow">0</b></span>
   </div>
 
+  <div class="section-title">نظرة عامة</div>
   <div class="kpis">
     <div class="kpi"><div class="num" id="kpiSessions">–</div><div class="lbl">جلسات</div></div>
     <div class="kpi"><div class="num" id="kpiVisitors">–</div><div class="lbl">زوار فريدون</div></div>
     <div class="kpi"><div class="num" id="kpiPageviews">–</div><div class="lbl">مشاهدات صفحة</div></div>
+    <div class="kpi"><div class="num" id="kpiEvents">–</div><div class="lbl">إجمالي الأحداث</div></div>
     <div class="kpi"><div class="num" id="kpiDuration">–</div><div class="lbl">متوسط مدة الجلسة</div></div>
+    <div class="kpi"><div class="num" id="kpiBounce">–</div><div class="lbl">نسبة الارتداد</div></div>
   </div>
 
+  <div class="section-title">الاتجاهات</div>
   <div class="grid">
     <div class="card">
-      <h3>الجلسات عبر الزمن</h3>
+      <h3>الجلسات عبر الزمن (يوميًا)</h3>
       <canvas id="chartTimeline" height="90"></canvas>
     </div>
     <div class="card">
-      <h3>الأجهزة</h3>
-      <canvas id="chartDevice" height="90"></canvas>
+      <h3>الجلسات حسب ساعة اليوم</h3>
+      <canvas id="chartHour" height="90"></canvas>
     </div>
   </div>
 
+  <div class="section-title">الجمهور</div>
+  <div class="grid3">
+    <div class="card">
+      <h3>الأجهزة</h3>
+      <canvas id="chartDevice" height="140"></canvas>
+    </div>
+    <div class="card">
+      <h3>المتصفحات</h3>
+      <canvas id="chartBrowser" height="140"></canvas>
+    </div>
+    <div class="card">
+      <h3>أنظمة التشغيل</h3>
+      <canvas id="chartOS" height="140"></canvas>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>اللغات</h3>
+      <div class="tablewrap"><table id="tblLang"><thead><tr><th>اللغة</th><th>جلسات</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>أنواع الأحداث</h3>
+      <div class="tablewrap"><table id="tblEventTypes"><thead><tr><th>النوع</th><th>عدد</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="section-title">المحتوى والسلوك</div>
   <div class="grid2">
     <div class="card">
       <h3>أكثر الصفحات زيارة</h3>
-      <table id="tblPages"><thead><tr><th>الصفحة</th><th>مشاهدات</th></tr></thead><tbody></tbody></table>
+      <div class="tablewrap"><table id="tblPages"><thead><tr><th>الصفحة</th><th>مشاهدات</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <h3>المتصفحات ونظام التشغيل</h3>
-      <table id="tblBrowsers"><thead><tr><th>المتصفح</th><th>النظام</th><th>جلسات</th></tr></thead><tbody></tbody></table>
+      <h3>أكثر العناصر ضغطًا (Clicks)</h3>
+      <div class="tablewrap"><table id="tblClicks"><thead><tr><th>العنصر</th><th>ضغطات</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
 
+  <div class="section-title">مصادر الزيارات</div>
   <div class="grid2">
     <div class="card">
-      <h3>مصادر الزيارات (Referrer)</h3>
-      <table id="tblReferrers"><thead><tr><th>المصدر</th><th>جلسات</th></tr></thead><tbody></tbody></table>
+      <h3>Referrers</h3>
+      <div class="tablewrap"><table id="tblReferrers"><thead><tr><th>المصدر</th><th>جلسات</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <h3>حملات UTM</h3>
-      <table id="tblUtm"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>جلسات</th></tr></thead><tbody></tbody></table>
+      <h3>حملات UTM (source / medium / campaign / term / content)</h3>
+      <div class="tablewrap"><table id="tblUtm"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>Term</th><th>Content</th><th>جلسات</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
 
+  <div class="section-title">المواقع المسجّلة</div>
   <div class="card">
-    <h3>تصدير البيانات</h3>
+    <div class="tablewrap"><table class="sites-table" id="tblSites"><thead><tr><th>الموقع</th><th>النطاق</th><th>جلسات (الفترة الحالية)</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <div class="section-title">تصدير البيانات</div>
+  <div class="card">
     <div class="exportbar">
       <button class="secondary" onclick="exportCSV('day')">تصدير اليوم</button>
       <button class="secondary" onclick="exportCSV('week')">تصدير الأسبوع</button>
       <button class="secondary" onclick="exportCSV('month')">تصدير الشهر</button>
+      <button class="secondary" onclick="exportEventsCSV()">تصدير الأحداث (الفترة الحالية)</button>
     </div>
   </div>
 </main>
 
-</div>
-
 <script>
-let supabase = null;
+// ====================== CONFIG — credentials live only here ======================
+const SUPABASE_URL = "https://sfsrquxrayrqljwszwhek.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmc3JxdXJheXJxbGp3c3p3aGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNjY4MjksImV4cCI6MjEwMjg0MjgyOX0.v716gJO5zsm1QwIZu3_gnIhg-M70ESvlgAGbZeuHEgY";
+// ===================================================================================
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let charts = {};
 
-function saveCfg(){
-  localStorage.setItem('attdes_url', document.getElementById('sbUrl').value.trim());
-  localStorage.setItem('attdes_key', document.getElementById('sbKey').value.trim());
-}
-function loadCfg(){
-  document.getElementById('sbUrl').value = localStorage.getItem('attdes_url') || '';
-  document.getElementById('sbKey').value = localStorage.getItem('attdes_key') || '';
-}
-
-async function doConnect(showErrors){
-  const url = document.getElementById('sbUrl').value.trim();
-  const key = document.getElementById('sbKey').value.trim();
-  if(!url || !key){ if(showErrors) alert('الرجاء إدخال URL والمفتاح'); return false; }
-  supabase = window.supabase.createClient(url, key);
-  document.getElementById('connStatus').textContent = 'جاري الاتصال...';
+async function connectAndLoad(){
+  document.getElementById('connStatus').textContent = 'جاري التحميل...';
   const { data, error } = await supabase.from('sites').select('*').order('created_at',{ascending:false});
-  if(error){ document.getElementById('connStatus').textContent = 'خطأ: '+error.message; document.getElementById('cfgBar').classList.add('show'); return false; }
-  document.getElementById('connStatus').textContent = 'متصل ✓';
+  if(error){ document.getElementById('connStatus').textContent = 'خطأ: '+error.message; return; }
+  document.getElementById('connStatus').textContent = '';
   const sel = document.getElementById('siteSelect');
   sel.innerHTML = '<option value="">كل المواقع</option>' + data.map(s=>`<option value="${s.site_id}">${s.name||s.domain}</option>`).join('');
+  window._allSites = data;
   loadData();
-  return true;
+  loadLive();
 }
 
-document.getElementById('connectBtn').onclick = async () => {
-  saveCfg();
-  const ok = await doConnect(true);
-  if(ok){
-    document.getElementById('cfgBar').classList.remove('show');
-    localStorage.setItem('attdes_lastvisit', String(Date.now()));
-    document.getElementById('splashText').textContent = 'عاش الملك!';
-    document.getElementById('splash').classList.remove('hide');
-    setTimeout(() => document.getElementById('splash').classList.add('hide'), 7000);
-  }
-};
-
-document.getElementById('refreshBtn').onclick = loadData;
+document.getElementById('refreshBtn').onclick = () => { loadData(); loadLive(); };
 document.getElementById('siteSelect').onchange = loadData;
 document.getElementById('rangeSelect').onchange = loadData;
 
@@ -195,8 +200,16 @@ function rangeStart(){
   return d.toISOString();
 }
 
+async function loadLive(){
+  const since = new Date(Date.now()-5*60000).toISOString();
+  const siteId = document.getElementById('siteSelect').value;
+  let q = supabase.from('sessions').select('session_id', {count:'exact'}).gte('last_ping', since);
+  if(siteId) q = q.eq('site_id', siteId);
+  const { count } = await q;
+  document.getElementById('liveNow').textContent = count || 0;
+}
+
 async function loadData(){
-  if(!supabase) return;
   const siteId = document.getElementById('siteSelect').value;
   const since = rangeStart();
 
@@ -212,11 +225,17 @@ async function loadData(){
 
   renderKPIs(sessions, events);
   renderTimeline(sessions);
+  renderHourly(sessions);
   renderDevices(sessions);
+  renderBrowsersChart(sessions);
+  renderOSChart(sessions);
+  renderLang(sessions);
+  renderEventTypes(events);
   renderPages(events);
-  renderBrowsers(sessions);
+  renderClicks(events);
   renderReferrers(sessions);
   renderUtm(sessions);
+  renderSites(sessions);
 
   window._lastSessions = sessions;
   window._lastEvents = events;
@@ -225,19 +244,26 @@ async function loadData(){
 function renderKPIs(sessions, events){
   document.getElementById('kpiSessions').textContent = sessions.length;
   document.getElementById('kpiVisitors').textContent = new Set(sessions.map(s=>s.visitor_id)).size;
-  document.getElementById('kpiPageviews').textContent = events.filter(e=>e.event_type==='pageview').length;
+  const pv = events.filter(e=>e.event_type==='pageview');
+  document.getElementById('kpiPageviews').textContent = pv.length;
+  document.getElementById('kpiEvents').textContent = events.length;
   const avg = sessions.length ? Math.round(sessions.reduce((a,s)=>a+(s.duration||0),0)/sessions.length) : 0;
   document.getElementById('kpiDuration').textContent = avg>=60 ? `${Math.floor(avg/60)}د ${avg%60}ث` : `${avg}ث`;
+
+  const pvBySession = {};
+  pv.forEach(e=>{ pvBySession[e.session_id] = (pvBySession[e.session_id]||0)+1; });
+  const single = Object.values(pvBySession).filter(v=>v===1).length;
+  const totalWithPv = Object.keys(pvBySession).length;
+  const bounce = totalWithPv ? Math.round((single/totalWithPv)*100) : 0;
+  document.getElementById('kpiBounce').textContent = bounce + '%';
 }
 
 function destroy(id){ if(charts[id]){ charts[id].destroy(); } }
+const palette = ['#ffd60a','#ffb800','#ff5c5c','#3ddc84','#8a8a8a','#6d5efc','#3aa0ff'];
 
 function renderTimeline(sessions){
   const byDay = {};
-  sessions.forEach(s=>{
-    const day = (s.first_seen||'').slice(0,10);
-    byDay[day] = (byDay[day]||0)+1;
-  });
+  sessions.forEach(s=>{ const day=(s.first_seen||'').slice(0,10); byDay[day]=(byDay[day]||0)+1; });
   const labels = Object.keys(byDay).sort();
   destroy('timeline');
   charts.timeline = new Chart(document.getElementById('chartTimeline'), {
@@ -247,102 +273,124 @@ function renderTimeline(sessions){
   });
 }
 
-function renderDevices(sessions){
-  const byDev = {};
-  sessions.forEach(s=>{ byDev[s.device||'unknown']=(byDev[s.device||'unknown']||0)+1; });
-  destroy('device');
-  charts.device = new Chart(document.getElementById('chartDevice'), {
-    type:'doughnut',
-    data:{ labels:Object.keys(byDev), datasets:[{ data:Object.values(byDev), backgroundColor:['#ffd60a','#ffb800','#ff5c5c','#8a8a8a'] }]},
-    options:{ plugins:{ legend:{ labels:{ color:'#f2f2f2' } } } }
+function renderHourly(sessions){
+  const byHour = Array(24).fill(0);
+  sessions.forEach(s=>{ const h=new Date(s.first_seen).getHours(); byHour[h]++; });
+  destroy('hourly');
+  charts.hourly = new Chart(document.getElementById('chartHour'), {
+    type:'bar',
+    data:{ labels: byHour.map((_,i)=>i+':00'), datasets:[{ label:'جلسات', data: byHour, backgroundColor:'#ffb800' }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#8a8a8a'}}, y:{ticks:{color:'#8a8a8a'}, beginAtZero:true} } }
   });
 }
 
-function topN(rows, keyFn, n=8){
+function renderDevices(sessions){
+  const m={}; sessions.forEach(s=>{ m[s.device||'unknown']=(m[s.device||'unknown']||0)+1; });
+  destroy('device');
+  charts.device = new Chart(document.getElementById('chartDevice'), {
+    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+  });
+}
+function renderBrowsersChart(sessions){
+  const m={}; sessions.forEach(s=>{ m[s.browser||'?']=(m[s.browser||'?']||0)+1; });
+  destroy('browser');
+  charts.browser = new Chart(document.getElementById('chartBrowser'), {
+    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+  });
+}
+function renderOSChart(sessions){
+  const m={}; sessions.forEach(s=>{ m[s.os||'?']=(m[s.os||'?']||0)+1; });
+  destroy('os');
+  charts.os = new Chart(document.getElementById('chartOS'), {
+    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+  });
+}
+
+function topN(rows, keyFn, n=10){
   const m = {};
   rows.forEach(r=>{ const k=keyFn(r); if(!k) return; m[k]=(m[k]||0)+1; });
   return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n);
 }
+function fillTable(id, rows, cols){
+  const tb = document.getElementById(id).querySelector('tbody');
+  tb.innerHTML = rows.length ? rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')
+    : `<tr><td colspan="${cols.length}" class="empty">لا بيانات</td></tr>`;
+}
 
+function renderLang(sessions){
+  const rows = topN(sessions, s=>s.language).map(([k,v])=>({a:k,b:v}));
+  fillTable('tblLang', rows, ['a','b']);
+}
+function renderEventTypes(events){
+  const rows = topN(events, e=>e.event_type).map(([k,v])=>({a:k,b:v}));
+  fillTable('tblEventTypes', rows, ['a','b']);
+}
 function renderPages(events){
-  const rows = topN(events.filter(e=>e.event_type==='pageview'), e=>e.page_url);
-  document.getElementById('tblPages').querySelector('tbody').innerHTML =
-    rows.length ? rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('') : '<tr><td colspan="2" class="empty">لا بيانات</td></tr>';
+  const rows = topN(events.filter(e=>e.event_type==='pageview'), e=>e.page_url).map(([k,v])=>({a:k,b:v}));
+  fillTable('tblPages', rows, ['a','b']);
 }
-
-function renderBrowsers(sessions){
-  const m={};
-  sessions.forEach(s=>{ const k=`${s.browser||'?'}|${s.os||'?'}`; m[k]=(m[k]||0)+1; });
-  const rows = Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById('tblBrowsers').querySelector('tbody').innerHTML =
-    rows.length ? rows.map(([k,v])=>{ const [b,o]=k.split('|'); return `<tr><td>${b}</td><td>${o}</td><td>${v}</td></tr>`; }).join('') : '<tr><td colspan="3" class="empty">لا بيانات</td></tr>';
+function renderClicks(events){
+  const rows = topN(events.filter(e=>e.event_type==='click'), e=>e.target_label).map(([k,v])=>({a:k,b:v}));
+  fillTable('tblClicks', rows, ['a','b']);
 }
-
 function renderReferrers(sessions){
-  const rows = topN(sessions, s=>s.referrer);
-  document.getElementById('tblReferrers').querySelector('tbody').innerHTML =
-    rows.length ? rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('') : '<tr><td colspan="2" class="empty">لا مصادر خارجية</td></tr>';
+  const rows = topN(sessions, s=>s.referrer).map(([k,v])=>({a:k,b:v}));
+  fillTable('tblReferrers', rows, ['a','b']);
 }
-
 function renderUtm(sessions){
   const m={};
   sessions.filter(s=>s.utm_source).forEach(s=>{
-    const k = `${s.utm_source}|${s.utm_medium||''}|${s.utm_campaign||''}`;
+    const k = [s.utm_source,s.utm_medium||'',s.utm_campaign||'',s.utm_term||'',s.utm_content||''].join('|');
     m[k]=(m[k]||0)+1;
   });
-  const rows = Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById('tblUtm').querySelector('tbody').innerHTML =
-    rows.length ? rows.map(([k,v])=>{ const [src,med,camp]=k.split('|'); return `<tr><td>${src}</td><td>${med}</td><td>${camp}</td><td>${v}</td></tr>`; }).join('') : '<tr><td colspan="4" class="empty">لا حملات</td></tr>';
+  const rows = Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)
+    .map(([k,v])=>{ const [src,med,camp,term,content]=k.split('|'); return {src,med,camp,term,content,v}; });
+  const tb = document.getElementById('tblUtm').querySelector('tbody');
+  tb.innerHTML = rows.length ? rows.map(r=>`<tr><td>${r.src}</td><td>${r.med}</td><td>${r.camp}</td><td>${r.term}</td><td>${r.content}</td><td>${r.v}</td></tr>`).join('')
+    : '<tr><td colspan="6" class="empty">لا حملات</td></tr>';
+}
+function renderSites(sessions){
+  const sites = window._allSites || [];
+  const counts = {};
+  sessions.forEach(s=>{ counts[s.site_id]=(counts[s.site_id]||0)+1; });
+  const rows = sites.map(s=>({a:s.name||s.domain, b:s.domain, c:counts[s.site_id]||0})).sort((a,b)=>b.c-a.c);
+  fillTable('tblSites', rows, ['a','b','c']);
 }
 
 async function exportCSV(period){
-  if(!supabase){ alert('اتصل أولاً'); return; }
   const days = period==='day'?1:period==='week'?7:30;
   const since = new Date(Date.now()-days*86400000).toISOString();
   const siteId = document.getElementById('siteSelect').value;
-
   let sq = supabase.from('sessions').select('*').gte('first_seen', since);
   if(siteId) sq = sq.eq('site_id', siteId);
   const { data: sessions } = await sq;
-
   if(!sessions || !sessions.length){ alert('لا بيانات لهذه الفترة'); return; }
+  const cols = ['session_id','site_id','visitor_id','device','browser','os','language','referrer','utm_source','utm_medium','utm_campaign','utm_term','utm_content','first_seen','last_ping','duration'];
+  downloadCSV(sessions, cols, `attdes-sessions-${period}`);
+}
 
-  const cols = ['session_id','site_id','visitor_id','device','browser','os','language','referrer','utm_source','utm_medium','utm_campaign','first_seen','last_ping','duration'];
+async function exportEventsCSV(){
+  if(!window._lastEvents || !window._lastEvents.length){ alert('لا بيانات لهذه الفترة'); return; }
+  const cols = ['session_id','site_id','event_type','page_url','page_title','target_label','created_at'];
+  downloadCSV(window._lastEvents, cols, 'attdes-events');
+}
+
+function downloadCSV(rows, cols, name){
   const csv = [cols.join(',')].concat(
-    sessions.map(s => cols.map(c => `"${(s[c]??'').toString().replace(/"/g,'""')}"`).join(','))
+    rows.map(r => cols.map(c => `"${(r[c]??'').toString().replace(/"/g,'""')}"`).join(','))
   ).join('\n');
-
   const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `attdes-analytics-${period}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `${name}-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
-loadCfg();
-document.getElementById('app').classList.add('show');
-
-const hasCreds = !!(document.getElementById('sbUrl').value && document.getElementById('sbKey').value);
-const ONE_HOUR = 3600000;
-
-if(hasCreds){
-  doConnect(false);
-  const now = Date.now();
-  const lastVisitRaw = localStorage.getItem('attdes_lastvisit');
-  const lastVisit = lastVisitRaw ? parseInt(lastVisitRaw, 10) : null;
-  localStorage.setItem('attdes_lastvisit', String(now));
-
-  if(!lastVisit || (now - lastVisit) >= ONE_HOUR){
-    document.getElementById('splashText').textContent = 'عاد الأسد اللهم لا حسد!';
-    setTimeout(() => document.getElementById('splash').classList.add('hide'), 7000);
-  } else {
-    document.getElementById('splash').classList.add('hide');
-  }
-} else {
-  // first time ever: no credentials saved yet, ask for them directly, no splash
-  document.getElementById('splash').classList.add('hide');
-  document.getElementById('cfgBar').classList.add('show');
-}
+connectAndLoad();
+setInterval(loadLive, 30000);
 </script>
 </body>
 </html>

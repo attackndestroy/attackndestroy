@@ -99,9 +99,7 @@
       justify-content: space-between;
     }
 
-    .table-container {
-      overflow-x: auto;
-    }
+    .table-container { overflow-x: auto; }
 
     table {
       width: 100%;
@@ -156,7 +154,7 @@
       <div class="card-value" id="stat-sessions">0</div>
     </div>
     <div class="card">
-      <div class="card-title">الم مواقع</div>
+      <div class="card-title">المواقع</div>
       <div class="card-value" id="stat-sites">0</div>
     </div>
     <div class="card">
@@ -239,13 +237,20 @@
     let allEvents = [];
 
     async function fetchREST(endpoint) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization": `Bearer ${SUPABASE_KEY}`
-        }
-      });
-      return res.json();
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) console.error("Error Fetching " + endpoint, data);
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.error("Fetch Exception " + endpoint, err);
+        return [];
+      }
     }
 
     function initChart(labels, data) {
@@ -287,7 +292,7 @@
     function renderEvents(events) {
       const eventsTbody = document.getElementById('events-list');
       eventsTbody.innerHTML = '';
-      if (Array.isArray(events) && events.length > 0) {
+      if (events.length > 0) {
         events.forEach(e => {
           eventsTbody.innerHTML += `<tr>
             <td>${e.session_id}</td>
@@ -299,74 +304,69 @@
           </tr>`;
         });
       } else {
-        eventsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد أحداث مسجلة</td></tr>`;
+        eventsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد أحداث مسجلة لهذا الزائر</td></tr>`;
       }
     }
 
     async function loadDashboard() {
-      try {
-        const [sessions, sites, events] = await Promise.all([
-          fetchREST("sessions?select=*&order=created_at.desc"),
-          fetchREST("sites?select=*"),
-          fetchREST("events?select=*&order=created_at.desc")
-        ]);
+      const [sites, sessions, events] = await Promise.all([
+        fetchREST("sites?select=*"),
+        fetchREST("sessions?select=*&order=created_at.desc"),
+        fetchREST("events?select=*&order=created_at.desc")
+      ]);
 
-        allEvents = Array.isArray(events) ? events : [];
+      allEvents = events;
 
-        document.getElementById('stat-sessions').innerText = Array.isArray(sessions) ? sessions.length : 0;
-        document.getElementById('stat-sites').innerText = Array.isArray(sites) ? sites.length : 0;
-        document.getElementById('stat-events').innerText = allEvents.length;
+      document.getElementById('stat-sessions').innerText = sessions.length;
+      document.getElementById('stat-sites').innerText = sites.length;
+      document.getElementById('stat-events').innerText = allEvents.length;
 
-        // 1. المواقع
-        const sitesTbody = document.getElementById('sites-list');
-        sitesTbody.innerHTML = '';
-        if (Array.isArray(sites) && sites.length > 0) {
-          sites.forEach(s => {
-            sitesTbody.innerHTML += `<tr>
-              <td>${s.site_id}</td>
-              <td class="highlight">${s.domain}</td>
-              <td>${s.name || s.domain}</td>
-            </tr>`;
-          });
-        }
-
-        // 2. الجلسات
-        const timeMap = {};
-        const sessionsTbody = document.getElementById('sessions-list');
-        sessionsTbody.innerHTML = '';
-
-        if (Array.isArray(sessions) && sessions.length > 0) {
-          sessions.forEach(s => {
-            const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-            timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
-
-            sessionsTbody.innerHTML += `<tr>
-              <td>${s.session_id}</td>
-              <td class="highlight">${s.visitor_id || '---'}</td>
-              <td>${s.device || 'Mobile'}</td>
-              <td>${s.browser || 'Browser'}</td>
-              <td>${s.os || 'OS'}</td>
-              <td>${s.language || 'ar'}</td>
-              <td>${s.referrer || 'Direct'}</td>
-              <td>${s.duration || 0}ث</td>
-              <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
-              <td><button class="btn-filter" onclick="filterEventsBySession('${s.session_id}')">تتبع ⚡</button></td>
-            </tr>`;
-          });
-        } else {
-          sessionsTbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد جلسات حتى الآن</td></tr>`;
-        }
-
-        const labels = Object.keys(timeMap).reverse();
-        const chartData = Object.values(timeMap).reverse();
-        initChart(labels.length ? labels : ['الآن'], chartData.length ? chartData : [0]);
-
-        // 3. الأحداث
-        renderEvents(allEvents);
-
-      } catch (err) {
-        console.error("Dashboard Error:", err);
+      // 1. جدول المواقع
+      const sitesTbody = document.getElementById('sites-list');
+      sitesTbody.innerHTML = '';
+      if (sites.length > 0) {
+        sites.forEach(s => {
+          sitesTbody.innerHTML += `<tr>
+            <td>${s.site_id}</td>
+            <td class="highlight">${s.domain}</td>
+            <td>${s.name || s.domain}</td>
+          </tr>`;
+        });
       }
+
+      // 2. جدول الجلسات
+      const timeMap = {};
+      const sessionsTbody = document.getElementById('sessions-list');
+      sessionsTbody.innerHTML = '';
+
+      if (sessions.length > 0) {
+        sessions.forEach(s => {
+          const timeKey = new Date(s.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+          timeMap[timeKey] = (timeMap[timeKey] || 0) + 1;
+
+          sessionsTbody.innerHTML += `<tr>
+            <td>${s.session_id}</td>
+            <td class="highlight">${s.visitor_id || '---'}</td>
+            <td>${s.device || 'Mobile'}</td>
+            <td>${s.browser || 'Browser'}</td>
+            <td>${s.os || 'OS'}</td>
+            <td>${s.language || 'ar'}</td>
+            <td>${s.referrer || 'Direct'}</td>
+            <td>${s.duration || 0}ث</td>
+            <td>${new Date(s.created_at).toLocaleTimeString('ar-EG')}</td>
+            <td><button class="btn-filter" onclick="filterEventsBySession('${s.session_id}')">تتبع ⚡</button></td>
+          </tr>`;
+        });
+      } else {
+        sessionsTbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد جلسات مسجلة حتى الآن</td></tr>`;
+      }
+
+      const labels = Object.keys(timeMap).reverse();
+      const chartData = Object.values(timeMap).reverse();
+      initChart(labels.length ? labels : ['الآن'], chartData.length ? chartData : [0]);
+
+      // 3. جدول الأحداث
+      renderEvents(allEvents);
     }
 
     loadDashboard();

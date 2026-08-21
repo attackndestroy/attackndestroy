@@ -147,7 +147,7 @@
       <div class="tablewrap"><table id="tblReferrers"><thead><tr><th>المصدر</th><th>جلسات</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <h3>حملات UTM (source / medium / campaign / term / content)</h3>
+      <h3>حملات UTM</h3>
       <div class="tablewrap"><table id="tblUtm"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>Term</th><th>Content</th><th>جلسات</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
@@ -177,218 +177,357 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let charts = {};
 
-async function connectAndLoad(){
-  document.getElementById('connStatus').textContent = 'جاري التحميل...';
-  const { data, error } = await supabase.from('sites').select('*').order('created_at',{ascending:false});
-  if(error){ document.getElementById('connStatus').textContent = 'خطأ: '+error.message; return; }
-  document.getElementById('connStatus').textContent = '';
-  const sel = document.getElementById('siteSelect');
-  sel.innerHTML = '<option value="">كل المواقع</option>' + data.map(s=>`<option value="${s.site_id}">${s.name||s.domain}</option>`).join('');
-  window._allSites = data;
-  loadData();
-  loadLive();
+// دالة مساعدة لتدمير المخططات السابقة
+function destroyChart(id) {
+  if (charts[id]) {
+    charts[id].destroy();
+    delete charts[id];
+  }
 }
 
+// دالة مساعدة لملء الجداول
+function fillTable(tableId, data, columns) {
+  const tbody = document.getElementById(tableId).querySelector('tbody');
+  if (!data || data.length === 0) {
+    const cols = columns.length;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="empty">لا بيانات</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(row => 
+    `<tr>${columns.map(col => `<td>${row[col] ?? ''}</td>`).join('')}</tr>`
+  ).join('');
+}
+
+// دالة لاستخراج التصنيفات (top N)
+function topN(rows, keyFn, n = 10) {
+  const counts = {};
+  rows.forEach(r => {
+    const k = keyFn(r);
+    if (k) counts[k] = (counts[k] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([key, count]) => ({ key, count }));
+}
+
+// استدعاء أولي لتحميل المواقع
+async function connectAndLoad() {
+  document.getElementById('connStatus').textContent = 'جاري التحميل...';
+  try {
+    const { data: sites, error } = await supabase.from('sites').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    document.getElementById('connStatus').textContent = '';
+    const sel = document.getElementById('siteSelect');
+    sel.innerHTML = '<option value="">كل المواقع</option>' + 
+      sites.map(s => `<option value="${s.site_id}">${s.name || s.domain}</option>`).join('');
+    window._allSites = sites;
+    loadData();
+    loadLive();
+  } catch (err) {
+    document.getElementById('connStatus').textContent = 'خطأ: ' + err.message;
+    console.error(err);
+  }
+}
+
+// أحداث التغيير
 document.getElementById('refreshBtn').onclick = () => { loadData(); loadLive(); };
 document.getElementById('siteSelect').onchange = loadData;
 document.getElementById('rangeSelect').onchange = loadData;
 
-function rangeStart(){
-  const days = parseInt(document.getElementById('rangeSelect').value,10);
+// حساب بداية الفترة
+function rangeStart() {
+  const days = parseInt(document.getElementById('rangeSelect').value, 10);
   const d = new Date();
-  d.setDate(d.getDate()-days);
+  d.setDate(d.getDate() - days);
   return d.toISOString();
 }
 
-async function loadLive(){
-  const since = new Date(Date.now()-5*60000).toISOString();
+// تحميل عدد النشطاء الآن
+async function loadLive() {
+  const since = new Date(Date.now() - 5 * 60000).toISOString();
   const siteId = document.getElementById('siteSelect').value;
-  let q = supabase.from('sessions').select('session_id', {count:'exact'}).gte('last_ping', since);
-  if(siteId) q = q.eq('site_id', siteId);
-  const { count } = await q;
-  document.getElementById('liveNow').textContent = count || 0;
+  let query = supabase.from('sessions').select('session_id', { count: 'exact', head: false }).gte('last_ping', since);
+  if (siteId) query = query.eq('site_id', siteId);
+  const { count, error } = await query;
+  if (!error) document.getElementById('liveNow').textContent = count || 0;
 }
 
-async function loadData(){
+// تحميل كل البيانات
+async function loadData() {
   const siteId = document.getElementById('siteSelect').value;
   const since = rangeStart();
 
-  let sq = supabase.from('sessions').select('*').gte('first_seen', since);
-  if(siteId) sq = sq.eq('site_id', siteId);
-  const { data: sessions, error: e1 } = await sq;
-  if(e1){ console.error(e1); return; }
+  try {
+    // جلسات
+    let sessionsQuery = supabase.from('sessions').select('*').gte('first_seen', since);
+    if (siteId) sessionsQuery = sessionsQuery.eq('site_id', siteId);
+    const { data: sessions, error: e1 } = await sessionsQuery;
+    if (e1) throw e1;
 
-  let eq = supabase.from('events').select('*').gte('created_at', since);
-  if(siteId) eq = eq.eq('site_id', siteId);
-  const { data: events, error: e2 } = await eq;
-  if(e2){ console.error(e2); return; }
+    // أحداث
+    let eventsQuery = supabase.from('events').select('*').gte('created_at', since);
+    if (siteId) eventsQuery = eventsQuery.eq('site_id', siteId);
+    const { data: events, error: e2 } = await eventsQuery;
+    if (e2) throw e2;
 
-  renderKPIs(sessions, events);
-  renderTimeline(sessions);
-  renderHourly(sessions);
-  renderDevices(sessions);
-  renderBrowsersChart(sessions);
-  renderOSChart(sessions);
-  renderLang(sessions);
-  renderEventTypes(events);
-  renderPages(events);
-  renderClicks(events);
-  renderReferrers(sessions);
-  renderUtm(sessions);
-  renderSites(sessions);
+    // تخزين البيانات للتصدير
+    window._lastSessions = sessions || [];
+    window._lastEvents = events || [];
 
-  window._lastSessions = sessions;
-  window._lastEvents = events;
+    // عرض التقارير
+    renderKPIs(sessions, events);
+    renderTimeline(sessions);
+    renderHourly(sessions);
+    renderDevices(sessions);
+    renderBrowsers(sessions);
+    renderOS(sessions);
+    renderLang(sessions);
+    renderEventTypes(events);
+    renderPages(events);
+    renderClicks(events);
+    renderReferrers(sessions);
+    renderUtm(sessions);
+    renderSites(sessions);
+
+  } catch (err) {
+    console.error('Error loading data:', err);
+    document.getElementById('connStatus').textContent = 'خطأ في التحميل: ' + err.message;
+  }
 }
 
-function renderKPIs(sessions, events){
-  document.getElementById('kpiSessions').textContent = sessions.length;
-  document.getElementById('kpiVisitors').textContent = new Set(sessions.map(s=>s.visitor_id)).size;
-  const pv = events.filter(e=>e.event_type==='pageview');
-  document.getElementById('kpiPageviews').textContent = pv.length;
-  document.getElementById('kpiEvents').textContent = events.length;
-  const avg = sessions.length ? Math.round(sessions.reduce((a,s)=>a+(s.duration||0),0)/sessions.length) : 0;
-  document.getElementById('kpiDuration').textContent = avg>=60 ? `${Math.floor(avg/60)}د ${avg%60}ث` : `${avg}ث`;
+// === دوال العرض ===
 
+function renderKPIs(sessions, events) {
+  const totalSessions = sessions.length;
+  const uniqueVisitors = new Set(sessions.map(s => s.visitor_id)).size;
+  const pageviews = events.filter(e => e.event_type === 'pageview').length;
+  const totalEvents = events.length;
+  const avgDuration = totalSessions ? Math.round(sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / totalSessions) : 0;
+  const avgDurationStr = avgDuration >= 60 ? `${Math.floor(avgDuration/60)}د ${avgDuration%60}ث` : `${avgDuration}ث`;
+
+  // حساب نسبة الارتداد (جلسات تحتوي على صفحة واحدة فقط)
   const pvBySession = {};
-  pv.forEach(e=>{ pvBySession[e.session_id] = (pvBySession[e.session_id]||0)+1; });
-  const single = Object.values(pvBySession).filter(v=>v===1).length;
-  const totalWithPv = Object.keys(pvBySession).length;
-  const bounce = totalWithPv ? Math.round((single/totalWithPv)*100) : 0;
-  document.getElementById('kpiBounce').textContent = bounce + '%';
+  events.filter(e => e.event_type === 'pageview').forEach(e => {
+    pvBySession[e.session_id] = (pvBySession[e.session_id] || 0) + 1;
+  });
+  const sessionsWithPV = Object.keys(pvBySession);
+  const singlePageSessions = sessionsWithPV.filter(sid => pvBySession[sid] === 1).length;
+  const bounceRate = sessionsWithPV.length ? Math.round((singlePageSessions / sessionsWithPV.length) * 100) : 0;
+
+  document.getElementById('kpiSessions').textContent = totalSessions;
+  document.getElementById('kpiVisitors').textContent = uniqueVisitors;
+  document.getElementById('kpiPageviews').textContent = pageviews;
+  document.getElementById('kpiEvents').textContent = totalEvents;
+  document.getElementById('kpiDuration').textContent = avgDurationStr;
+  document.getElementById('kpiBounce').textContent = bounceRate + '%';
 }
 
-function destroy(id){ if(charts[id]){ charts[id].destroy(); } }
-const palette = ['#ffd60a','#ffb800','#ff5c5c','#3ddc84','#8a8a8a','#6d5efc','#3aa0ff'];
-
-function renderTimeline(sessions){
+function renderTimeline(sessions) {
   const byDay = {};
-  sessions.forEach(s=>{ const day=(s.first_seen||'').slice(0,10); byDay[day]=(byDay[day]||0)+1; });
+  sessions.forEach(s => {
+    const day = (s.first_seen || '').slice(0, 10);
+    if (day) byDay[day] = (byDay[day] || 0) + 1;
+  });
   const labels = Object.keys(byDay).sort();
-  destroy('timeline');
+  const data = labels.map(d => byDay[d]);
+  destroyChart('timeline');
+  if (labels.length === 0) {
+    document.getElementById('chartTimeline').getContext('2d').clearRect(0, 0, 1, 1); // مسح canvas
+    return;
+  }
   charts.timeline = new Chart(document.getElementById('chartTimeline'), {
-    type:'line',
-    data:{ labels, datasets:[{ label:'جلسات', data: labels.map(l=>byDay[l]), borderColor:'#ffd60a', backgroundColor:'rgba(255,214,10,.15)', tension:.3, fill:true }]},
-    options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#8a8a8a'}}, y:{ticks:{color:'#8a8a8a'}, beginAtZero:true} } }
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'جلسات',
+        data: data,
+        borderColor: '#ffd60a',
+        backgroundColor: 'rgba(255,214,10,.15)',
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: '#8a8a8a' } }, y: { ticks: { color: '#8a8a8a' }, beginAtZero: true } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
 
-function renderHourly(sessions){
+function renderHourly(sessions) {
   const byHour = Array(24).fill(0);
-  sessions.forEach(s=>{ const h=new Date(s.first_seen).getHours(); byHour[h]++; });
-  destroy('hourly');
+  sessions.forEach(s => {
+    const h = new Date(s.first_seen).getHours();
+    byHour[h] = (byHour[h] || 0) + 1;
+  });
+  destroyChart('hourly');
   charts.hourly = new Chart(document.getElementById('chartHour'), {
-    type:'bar',
-    data:{ labels: byHour.map((_,i)=>i+':00'), datasets:[{ label:'جلسات', data: byHour, backgroundColor:'#ffb800' }]},
-    options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#8a8a8a'}}, y:{ticks:{color:'#8a8a8a'}, beginAtZero:true} } }
+    type: 'bar',
+    data: {
+      labels: byHour.map((_, i) => i + ':00'),
+      datasets: [{
+        label: 'جلسات',
+        data: byHour,
+        backgroundColor: '#ffb800'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: '#8a8a8a' } }, y: { ticks: { color: '#8a8a8a' }, beginAtZero: true } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
 
-function renderDevices(sessions){
-  const m={}; sessions.forEach(s=>{ m[s.device||'unknown']=(m[s.device||'unknown']||0)+1; });
-  destroy('device');
+function renderDevices(sessions) {
+  const counts = topN(sessions, s => s.device || 'غير معروف');
+  destroyChart('device');
+  if (counts.length === 0) return;
   charts.device = new Chart(document.getElementById('chartDevice'), {
-    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
-    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+    type: 'doughnut',
+    data: {
+      labels: counts.map(c => c.key),
+      datasets: [{ data: counts.map(c => c.count), backgroundColor: ['#ffd60a','#ffb800','#ff5c5c','#3ddc84','#8a8a8a'] }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { color: '#f2f2f2', boxWidth: 12 } } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
-function renderBrowsersChart(sessions){
-  const m={}; sessions.forEach(s=>{ m[s.browser||'?']=(m[s.browser||'?']||0)+1; });
-  destroy('browser');
+
+function renderBrowsers(sessions) {
+  const counts = topN(sessions, s => s.browser || 'غير معروف');
+  destroyChart('browser');
+  if (counts.length === 0) return;
   charts.browser = new Chart(document.getElementById('chartBrowser'), {
-    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
-    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+    type: 'doughnut',
+    data: {
+      labels: counts.map(c => c.key),
+      datasets: [{ data: counts.map(c => c.count), backgroundColor: ['#ffd60a','#ffb800','#ff5c5c','#3ddc84','#8a8a8a','#6d5efc'] }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { color: '#f2f2f2', boxWidth: 12 } } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
-function renderOSChart(sessions){
-  const m={}; sessions.forEach(s=>{ m[s.os||'?']=(m[s.os||'?']||0)+1; });
-  destroy('os');
+
+function renderOS(sessions) {
+  const counts = topN(sessions, s => s.os || 'غير معروف');
+  destroyChart('os');
+  if (counts.length === 0) return;
   charts.os = new Chart(document.getElementById('chartOS'), {
-    type:'doughnut', data:{ labels:Object.keys(m), datasets:[{ data:Object.values(m), backgroundColor:palette }]},
-    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#f2f2f2', boxWidth:12 } } } }
+    type: 'doughnut',
+    data: {
+      labels: counts.map(c => c.key),
+      datasets: [{ data: counts.map(c => c.count), backgroundColor: ['#ffd60a','#ffb800','#ff5c5c','#3ddc84','#8a8a8a','#6d5efc'] }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { color: '#f2f2f2', boxWidth: 12 } } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
 
-function topN(rows, keyFn, n=10){
-  const m = {};
-  rows.forEach(r=>{ const k=keyFn(r); if(!k) return; m[k]=(m[k]||0)+1; });
-  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n);
-}
-function fillTable(id, rows, cols){
-  const tb = document.getElementById(id).querySelector('tbody');
-  tb.innerHTML = rows.length ? rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')
-    : `<tr><td colspan="${cols.length}" class="empty">لا بيانات</td></tr>`;
+function renderLang(sessions) {
+  const rows = topN(sessions, s => s.language || 'غير معروف').map(c => ({ lang: c.key, count: c.count }));
+  fillTable('tblLang', rows, ['lang', 'count']);
 }
 
-function renderLang(sessions){
-  const rows = topN(sessions, s=>s.language).map(([k,v])=>({a:k,b:v}));
-  fillTable('tblLang', rows, ['a','b']);
+function renderEventTypes(events) {
+  const rows = topN(events, e => e.event_type).map(c => ({ type: c.key, count: c.count }));
+  fillTable('tblEventTypes', rows, ['type', 'count']);
 }
-function renderEventTypes(events){
-  const rows = topN(events, e=>e.event_type).map(([k,v])=>({a:k,b:v}));
-  fillTable('tblEventTypes', rows, ['a','b']);
+
+function renderPages(events) {
+  const pageviews = events.filter(e => e.event_type === 'pageview');
+  const rows = topN(pageviews, e => e.page_url || 'بدون مسار').map(c => ({ url: c.key, count: c.count }));
+  fillTable('tblPages', rows, ['url', 'count']);
 }
-function renderPages(events){
-  const rows = topN(events.filter(e=>e.event_type==='pageview'), e=>e.page_url).map(([k,v])=>({a:k,b:v}));
-  fillTable('tblPages', rows, ['a','b']);
+
+function renderClicks(events) {
+  const clicks = events.filter(e => e.event_type === 'click');
+  const rows = topN(clicks, e => e.target_label || 'عنصر غير معروف').map(c => ({ label: c.key, count: c.count }));
+  fillTable('tblClicks', rows, ['label', 'count']);
 }
-function renderClicks(events){
-  const rows = topN(events.filter(e=>e.event_type==='click'), e=>e.target_label).map(([k,v])=>({a:k,b:v}));
-  fillTable('tblClicks', rows, ['a','b']);
+
+function renderReferrers(sessions) {
+  const rows = topN(sessions, s => s.referrer || 'مباشر').map(c => ({ referrer: c.key, count: c.count }));
+  fillTable('tblReferrers', rows, ['referrer', 'count']);
 }
-function renderReferrers(sessions){
-  const rows = topN(sessions, s=>s.referrer).map(([k,v])=>({a:k,b:v}));
-  fillTable('tblReferrers', rows, ['a','b']);
-}
-function renderUtm(sessions){
-  const m={};
-  sessions.filter(s=>s.utm_source).forEach(s=>{
-    const k = [s.utm_source,s.utm_medium||'',s.utm_campaign||'',s.utm_term||'',s.utm_content||''].join('|');
-    m[k]=(m[k]||0)+1;
+
+function renderUtm(sessions) {
+  const utmData = {};
+  sessions.filter(s => s.utm_source).forEach(s => {
+    const key = [s.utm_source, s.utm_medium || '', s.utm_campaign || '', s.utm_term || '', s.utm_content || ''].join('|');
+    utmData[key] = (utmData[key] || 0) + 1;
   });
-  const rows = Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)
-    .map(([k,v])=>{ const [src,med,camp,term,content]=k.split('|'); return {src,med,camp,term,content,v}; });
-  const tb = document.getElementById('tblUtm').querySelector('tbody');
-  tb.innerHTML = rows.length ? rows.map(r=>`<tr><td>${r.src}</td><td>${r.med}</td><td>${r.camp}</td><td>${r.term}</td><td>${r.content}</td><td>${r.v}</td></tr>`).join('')
-    : '<tr><td colspan="6" class="empty">لا حملات</td></tr>';
+  const rows = Object.entries(utmData)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([key, count]) => {
+      const [source, medium, campaign, term, content] = key.split('|');
+      return { source, medium, campaign, term, content, count };
+    });
+  fillTable('tblUtm', rows, ['source', 'medium', 'campaign', 'term', 'content', 'count']);
 }
-function renderSites(sessions){
+
+function renderSites(sessions) {
   const sites = window._allSites || [];
   const counts = {};
-  sessions.forEach(s=>{ counts[s.site_id]=(counts[s.site_id]||0)+1; });
-  const rows = sites.map(s=>({a:s.name||s.domain, b:s.domain, c:counts[s.site_id]||0})).sort((a,b)=>b.c-a.c);
-  fillTable('tblSites', rows, ['a','b','c']);
+  sessions.forEach(s => { counts[s.site_id] = (counts[s.site_id] || 0) + 1; });
+  const rows = sites.map(s => ({
+    name: s.name || s.domain,
+    domain: s.domain,
+    sessions: counts[s.site_id] || 0
+  })).sort((a, b) => b.sessions - a.sessions);
+  fillTable('tblSites', rows, ['name', 'domain', 'sessions']);
 }
 
-async function exportCSV(period){
-  const days = period==='day'?1:period==='week'?7:30;
-  const since = new Date(Date.now()-days*86400000).toISOString();
+// === دوال التصدير ===
+
+async function exportCSV(period) {
+  const days = period === 'day' ? 1 : period === 'week' ? 7 : 30;
+  const since = new Date(Date.now() - days * 86400000).toISOString();
   const siteId = document.getElementById('siteSelect').value;
-  let sq = supabase.from('sessions').select('*').gte('first_seen', since);
-  if(siteId) sq = sq.eq('site_id', siteId);
-  const { data: sessions } = await sq;
-  if(!sessions || !sessions.length){ alert('لا بيانات لهذه الفترة'); return; }
+  let query = supabase.from('sessions').select('*').gte('first_seen', since);
+  if (siteId) query = query.eq('site_id', siteId);
+  const { data, error } = await query;
+  if (error) { alert('خطأ في التصدير: ' + error.message); return; }
+  if (!data || data.length === 0) { alert('لا بيانات لهذه الفترة'); return; }
   const cols = ['session_id','site_id','visitor_id','device','browser','os','language','referrer','utm_source','utm_medium','utm_campaign','utm_term','utm_content','first_seen','last_ping','duration'];
-  downloadCSV(sessions, cols, `attdes-sessions-${period}`);
+  downloadCSV(data, cols, `attdes-sessions-${period}`);
 }
 
-async function exportEventsCSV(){
-  if(!window._lastEvents || !window._lastEvents.length){ alert('لا بيانات لهذه الفترة'); return; }
+function exportEventsCSV() {
+  const events = window._lastEvents || [];
+  if (events.length === 0) { alert('لا أحداث للتصدير'); return; }
   const cols = ['session_id','site_id','event_type','page_url','page_title','target_label','created_at'];
-  downloadCSV(window._lastEvents, cols, 'attdes-events');
+  downloadCSV(events, cols, 'attdes-events');
 }
 
-function downloadCSV(rows, cols, name){
-  const csv = [cols.join(',')].concat(
-    rows.map(r => cols.map(c => `"${(r[c]??'').toString().replace(/"/g,'""')}"`).join(','))
-  ).join('\n');
-  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${name}-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+function downloadCSV(rows, cols, fileName) {
+  const header = cols.join(',');
+  const lines = rows.map(r => cols.map(c => `"${(r[c] ?? '').toString().replace(/"/g, '""')}"`).join(','));
+  const csv = [header, ...lines].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${fileName}-${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
+// بدء التشغيل
 connectAndLoad();
 setInterval(loadLive, 30000);
 </script>

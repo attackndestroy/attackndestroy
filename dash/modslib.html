@@ -46,7 +46,6 @@
             height: auto;
         }
 
-        /* Tab Switcher Style */
         .tab-bar {
             display: flex;
             gap: 10px;
@@ -150,6 +149,31 @@
             margin-bottom: 15px;
         }
 
+        /* Sorting Bar Options */
+        .sort-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .sort-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 13px;
+            background-color: #2a2a2a;
+            color: #ccc;
+            border: 1px solid #444;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .sort-btn.active {
+            background-color: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: bold;
+        }
+
         .mod-item {
             background-color: #262626;
             border: 1px solid #333;
@@ -196,7 +220,6 @@
             direction: ltr;
         }
 
-        /* Toast Notification Box (Replaces alert) */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -231,7 +254,6 @@
         <img src="https://attdes.online/header.png" alt="ATT/DES Progz">
     </header>
 
-    <!-- Tab Selection Buttons -->
     <div class="tab-bar">
         <button class="tab-btn active" id="tabModBtn" onclick="switchTab('mod')">🎮 قسم MODS (mod.json)</button>
         <button class="tab-btn" id="tabSeedBtn" onclick="switchTab('seed')">🌱 قسم SEEDS (seed.json)</button>
@@ -279,10 +301,16 @@
         </div>
     </div>
 
-    <!-- SECTION 3: LIST ENTRIES WITH SEARCH -->
+    <!-- SECTION 3: LIST ENTRIES WITH SEARCH & SORTING -->
     <div class="card">
         <h3 id="sec3Title">قسم 3: إدارة المودات الحالية (<span id="modCount">0</span>)</h3>
-        
+
+        <!-- Sort Options -->
+        <div class="sort-bar">
+            <button class="sort-btn active" id="sortNewestBtn" onclick="setSortOrder('newest')">⚡ الأحدث أولاً</button>
+            <button class="sort-btn" id="sortOldestBtn" onclick="setSortOrder('oldest')">⏳ الأقدم أولاً</button>
+        </div>
+
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="🔍 بحث بواسطة الـ ID أو الرابط..." oninput="filterMods()">
         </div>
@@ -293,7 +321,6 @@
     <button class="btn-red" style="margin-bottom: 20px;" onclick="resetApiToken()">🔑 تغيير GitHub API Token</button>
 </div>
 
-<!-- Toast Box For Silent Alerts -->
 <div id="toast"></div>
 
 <script>
@@ -320,6 +347,7 @@
     };
 
     let currentTab = 'mod';
+    let sortOrder = 'newest'; // Default: Newest first
     let apiToken = localStorage.getItem('gh_token');
     let rawData = {};
     let currentSha = '';
@@ -328,7 +356,6 @@
         checkToken();
     });
 
-    // Custom Silent Toast Notification
     function showToast(msg) {
         const toast = document.getElementById("toast");
         toast.textContent = msg;
@@ -373,6 +400,13 @@
         document.getElementById('fileLink').textContent = typeInfo.fileUrl.replace('https://', '');
 
         fetchGithubData();
+    }
+
+    function setSortOrder(order) {
+        sortOrder = order;
+        document.getElementById('sortNewestBtn').className = order === 'newest' ? 'sort-btn active' : 'sort-btn';
+        document.getElementById('sortOldestBtn').className = order === 'oldest' ? 'sort-btn active' : 'sort-btn';
+        filterMods();
     }
 
     function safeBtoa(str) {
@@ -424,9 +458,20 @@
         const container = document.getElementById('modsContainer');
         container.innerHTML = '';
 
+        let keys = Object.keys(rawData);
+
+        // Sorting Logic
+        keys.sort((a, b) => {
+            const numA = parseInt(a), numB = parseInt(b);
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return sortOrder === 'newest' ? numB - numA : numA - numB;
+            }
+            return sortOrder === 'newest' ? b.localeCompare(a) : a.localeCompare(b);
+        });
+
         let matches = 0;
 
-        for (let id in rawData) {
+        for (let id of keys) {
             const encryptedUrl = rawData[id];
             const originalUrl = safeAtob(encryptedUrl);
 

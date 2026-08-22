@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CJ MODS - GitHub Dashboard</title>
+    <title>CJ MODS - Dashboard (cj-legend)</title>
     <style>
         :root {
             --bg: #121212;
@@ -194,7 +194,6 @@
             direction: ltr;
         }
 
-        /* Toast UI */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -218,7 +217,6 @@
             animation: fadein 0.3s, fadeout 0.3s 2.7s;
         }
 
-        /* Token Modal Window UI */
         #tokenModal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -245,11 +243,10 @@
 </head>
 <body>
 
-<!-- Custom Token Input Modal UI -->
 <div id="tokenModal" style="display: none;">
     <div class="modal-content">
         <h3 style="color: var(--accent); margin-top:0;">إدخال GitHub API Token</h3>
-        <p style="font-size: 13px; color: #ccc;">يرجى إدخال Personal Access Token للتمكن من تعديل الملفات تلقائياً:</p>
+        <p style="font-size: 13px; color: #ccc;">يرجى إدخال Personal Access Token لإدارة مستودع cj-legend:</p>
         <div class="form-group">
             <input type="text" id="apiTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
         </div>
@@ -328,8 +325,8 @@
 <script>
     const CONFIG = {
         owner: 'attackndestroy',
-        repo: 'modslib',
-        path: 'cj/mod.json',
+        repo: 'cj-legend', // المستودع الجديد
+        path: 'mod.json',   // المسار المباشر لملف الـ json داخل المستودع
         shareDomain: 'https://cj.attdes.online/mod.html?id='
     };
 
@@ -410,7 +407,7 @@
                     resetApiToken();
                     return;
                 }
-                throw new Error('فشل جلب البيانات، تأكد من المسار.');
+                throw new Error('فشل جلب البيانات، تأكد من مسار الملف واسم المستودع.');
             }
             
             const data = await res.json();
@@ -501,7 +498,7 @@
             }
             throw new Error();
         } catch (err) {
-            showToast("استخدم اختصار CTRL+V للصق الرابط مباشر.");
+            showToast("استخدم اختصار CTRL+V للصق الرابط مباشرة.");
         }
     }
 
@@ -531,7 +528,7 @@
         const inputContainer = document.getElementById('newModUrl');
         inputContainer.value = currentUrl;
         document.getElementById('newModId').value = id;
-        showToast(`جاري تعديل المود ID: ${id} في خانة الإضافة ألاعلى`);
+        showToast(`جاري تعديل المود ID: ${id} في الأعلى`);
     }
 
     async function deleteMod(id) {

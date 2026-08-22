@@ -120,7 +120,11 @@
         .btn-red { background-color: var(--red); }
         .btn-gray { background-color: #555; }
 
-        /* Mod List Styling */
+        .search-box {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
         .mod-item {
             background-color: #262626;
             border: 1px solid #333;
@@ -162,7 +166,7 @@
         }
 
         textarea {
-            height: 150px;
+            height: 140px;
             font-family: monospace;
             direction: ltr;
         }
@@ -202,15 +206,9 @@
         <button class="btn-green" style="width: 100%; padding: 12px; font-size: 16px;" onclick="submitMod()">🚀 إرسال وتحديث GitHub</button>
     </div>
 
-    <!-- SECTION 2: LIST MODS -->
+    <!-- SECTION 2: EXPORT & PREVIEW JSON (Moved Before List) -->
     <div class="card">
-        <h3>قسم 2: إدارة المودات الحالية (<span id="modCount">0</span>)</h3>
-        <div id="modsContainer">جاري تحميل البيانات من GitHub...</div>
-    </div>
-
-    <!-- SECTION 3: EXPORT JSON -->
-    <div class="card">
-        <h3>قسم 3: تصدير ونسخ البيانات</h3>
+        <h3>قسم 2: تصدير ونسخ البيانات</h3>
         <div class="form-group">
             <label>معاينة JSON الحالية:</label>
             <textarea id="jsonPreview" readonly></textarea>
@@ -222,6 +220,18 @@
         <div style="margin-top: 10px; font-size: 12px; text-align: center;">
             رابط الملف المفعل: <a href="https://modslib.attdes.online/mod.json" target="_blank" style="color: var(--accent);">modslib.attdes.online/mod.json</a>
         </div>
+    </div>
+
+    <!-- SECTION 3: LIST MODS WITH SEARCH -->
+    <div class="card">
+        <h3>قسم 3: إدارة المودات الحالية (<span id="modCount">0</span>)</h3>
+        
+        <!-- Search Field -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 بحث بواسطة الـ ID أو الرابط..." oninput="filterMods()">
+        </div>
+
+        <div id="modsContainer">جاري تحميل البيانات من GitHub...</div>
     </div>
 
     <button class="btn-red" style="margin-bottom: 20px;" onclick="resetApiToken()">🔑 تغيير GitHub API Token</button>
@@ -236,10 +246,9 @@
     };
 
     let apiToken = localStorage.getItem('gh_token');
-    let rawData = {}; // Stores Encrypted Base64 Json
+    let rawData = {};
     let currentSha = '';
 
-    // Check Token on Startup
     window.addEventListener('DOMContentLoaded', () => {
         checkToken();
     });
@@ -262,7 +271,6 @@
         location.reload();
     }
 
-    // Helper Base64 Decode/Encode
     function safeBtoa(str) {
         return btoa(unescape(encodeURIComponent(str)));
     }
@@ -274,7 +282,6 @@
         }
     }
 
-    // Fetch mod.json from GitHub
     async function fetchGithubData() {
         try {
             const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, {
@@ -285,7 +292,6 @@
             const data = await res.json();
             currentSha = data.sha;
             
-            // GitHub content is Base64 encoded
             const decodedContent = safeAtob(data.content);
             rawData = JSON.parse(decodedContent);
 
@@ -296,54 +302,74 @@
     }
 
     function renderDashboard() {
-        // Calculate Next ID (Max Numeric Key + 1)
         const keys = Object.keys(rawData).map(k => parseInt(k)).filter(n => !isNaN(n));
         const maxId = keys.length > 0 ? Math.max(...keys) + 1 : 1;
         document.getElementById('newModId').value = maxId;
 
-        // Render List
+        document.getElementById('jsonPreview').value = JSON.stringify(rawData, null, 2);
+        document.getElementById('modCount').textContent = Object.keys(rawData).length;
+
+        filterMods(); // Render List based on current search
+    }
+
+    function filterMods() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const container = document.getElementById('modsContainer');
         container.innerHTML = '';
-        document.getElementById('modCount').textContent = Object.keys(rawData).length;
+
+        let matches = 0;
 
         for (let id in rawData) {
             const encryptedUrl = rawData[id];
             const originalUrl = safeAtob(encryptedUrl);
 
-            const modEl = document.createElement('div');
-            modEl.className = 'mod-item';
-            modEl.innerHTML = `
-                <div class="mod-header">
-                    <span class="mod-id" onclick="copyShareUrl('${id}')" title="اضغط لنسخ رابط النشر">ID: ${id} 📋</span>
-                    <div>
-                        <button class="btn-blue" onclick="editMod('${id}', '${originalUrl}')">✏️</button>
-                        <button class="btn-red" onclick="deleteMod('${id}')">🗑️</button>
+            if (id.toLowerCase().includes(query) || originalUrl.toLowerCase().includes(query) || encryptedUrl.toLowerCase().includes(query)) {
+                matches++;
+                const modEl = document.createElement('div');
+                modEl.className = 'mod-item';
+                modEl.innerHTML = `
+                    <div class="mod-header">
+                        <span class="mod-id" onclick="copyShareUrl('${id}')" title="اضغط لنسخ رابط النشر">ID: ${id} 📋</span>
+                        <div>
+                            <button class="btn-blue" onclick="editMod('${id}', '${originalUrl}')">✏️</button>
+                            <button class="btn-red" onclick="deleteMod('${id}')">🗑️</button>
+                        </div>
                     </div>
-                </div>
-                <div class="mod-details">
-                    <div><b>الرابط الأصلي:</b> <span style="color:#81d4fa">${originalUrl}</span></div>
-                    <div><b>المشفّر:</b> <span style="color:#a5d6a7">${encryptedUrl}</span></div>
-                </div>
-            `;
-            container.appendChild(modEl);
+                    <div class="mod-details">
+                        <div><b>الرابط الأصلي:</b> <span style="color:#81d4fa">${originalUrl}</span></div>
+                        <div><b>المشفّر:</b> <span style="color:#a5d6a7">${encryptedUrl}</span></div>
+                    </div>
+                `;
+                container.appendChild(modEl);
+            }
         }
 
-        // Section 3 Preview
-        document.getElementById('jsonPreview').value = JSON.stringify(rawData, null, 2);
+        if (matches === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#888; padding:10px;">لا توجد نتائج مطابقة للبحث.</div>';
+        }
     }
 
-    // Optimization Logic
     function applyOptimization(url) {
         if (!url) return '';
         return url.trim().replace(/.$/, '1');
     }
 
+    // Fixed Paste Logic
     async function pasteUrl() {
+        const inputField = document.getElementById('newModUrl');
         try {
-            const text = await navigator.clipboard.readText();
-            document.getElementById('newModUrl').value = text;
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    inputField.value = text;
+                    return;
+                }
+            }
+            throw new Error();
         } catch (err) {
-            alert('تعذر الوصول للحافظة.');
+            // Manual Prompt Fallback
+            const manualText = prompt('ألصق الرابط هنا مباشرة:');
+            if (manualText) inputField.value = manualText.trim();
         }
     }
 
@@ -365,7 +391,6 @@
 
         await saveToGithub(`إضافة مود جديد ID: ${id}`);
         
-        // Copy final share url
         copyShareUrl(id);
         document.getElementById('newModUrl').value = '';
     }
@@ -388,7 +413,6 @@
         }
     }
 
-    // Push JSON Changes to GitHub API
     async function saveToGithub(commitMessage) {
         const jsonString = JSON.stringify(rawData, null, 2);
         const encodedContent = safeBtoa(jsonString);

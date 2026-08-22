@@ -194,6 +194,7 @@
             direction: ltr;
         }
 
+        /* Toast UI */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -217,11 +218,44 @@
             animation: fadein 0.3s, fadeout 0.3s 2.7s;
         }
 
+        /* Token Modal Window UI */
+        #tokenModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
         @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
         @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
     </style>
 </head>
 <body>
+
+<!-- Custom Token Input Modal UI -->
+<div id="tokenModal" style="display: none;">
+    <div class="modal-content">
+        <h3 style="color: var(--accent); margin-top:0;">إدخال GitHub API Token</h3>
+        <p style="font-size: 13px; color: #ccc;">يرجى إدخال Personal Access Token للتمكن من تعديل الملفات تلقائياً:</p>
+        <div class="form-group">
+            <input type="text" id="apiTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <button class="btn-green" style="width: 100%; padding: 10px;" onclick="saveTokenUI()">حفظ والتنسيق</button>
+    </div>
+</div>
 
 <div class="container">
     <header>
@@ -274,7 +308,6 @@
     <div class="card">
         <h3>قسم 3: إدارة المودات الحالية (<span id="modCount">0</span>)</h3>
 
-        <!-- Sort Bar -->
         <div class="sort-bar">
             <button class="sort-btn active" id="sortNewestBtn" onclick="setSortOrder('newest')">⚡ الأحدث أولاً</button>
             <button class="sort-btn" id="sortOldestBtn" onclick="setSortOrder('oldest')">⏳ الأقدم أولاً</button>
@@ -290,14 +323,13 @@
     <button class="btn-red" style="margin-bottom: 20px;" onclick="resetApiToken()">🔑 تغيير GitHub API Token</button>
 </div>
 
-<!-- Silent Toast Notification -->
 <div id="toast"></div>
 
 <script>
     const CONFIG = {
         owner: 'attackndestroy',
         repo: 'modslib',
-        path: 'cj/mod.json', // مسار ملف cj داخل الريبو
+        path: 'cj/mod.json',
         shareDomain: 'https://cj.attdes.online/mod.html?id='
     };
 
@@ -318,24 +350,32 @@
     }
 
     function checkToken() {
-        if (!apiToken) {
-            const tokenInput = prompt('يرجى إدخال GitHub Personal Access Token:');
-            if (tokenInput && tokenInput.trim() !== '') {
-                apiToken = tokenInput.trim();
-                localStorage.setItem('gh_token', apiToken);
-                fetchGithubData();
-            } else {
-                showToast("لم يتم إدخال API Token!");
-            }
+        if (!apiToken || apiToken.trim() === '') {
+            document.getElementById('tokenModal').style.display = 'flex';
         } else {
+            document.getElementById('tokenModal').style.display = 'none';
             fetchGithubData();
+        }
+    }
+
+    function saveTokenUI() {
+        const val = document.getElementById('apiTokenInput').value.trim();
+        if (val) {
+            apiToken = val;
+            localStorage.setItem('gh_token', apiToken);
+            document.getElementById('tokenModal').style.display = 'none';
+            showToast("تم حفظ الـ API Token بنجاح!");
+            fetchGithubData();
+        } else {
+            showToast("يرجى كتابة الـ Token بشكل صحيح!");
         }
     }
 
     function resetApiToken() {
         localStorage.removeItem('gh_token');
         apiToken = null;
-        showToast("تم مسح الـ Token!");
+        document.getElementById('apiTokenInput').value = '';
+        showToast("تم مسح الـ Token المخزن!");
         checkToken();
     }
 
@@ -364,7 +404,14 @@
             const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, {
                 headers: { 'Authorization': `token ${apiToken}` }
             });
-            if (!res.ok) throw new Error('فشل جلب البيانات، تأكد من الـ Token والمسار.');
+            if (!res.ok) {
+                if(res.status === 401) {
+                    showToast("الـ Token غير صحيح أو منتهي الصلاحية!");
+                    resetApiToken();
+                    return;
+                }
+                throw new Error('فشل جلب البيانات، تأكد من المسار.');
+            }
             
             const data = await res.json();
             currentSha = data.sha;
@@ -454,11 +501,7 @@
             }
             throw new Error();
         } catch (err) {
-            const manualText = prompt('ألصق الرابط هنا مباشرة:');
-            if (manualText) {
-                inputField.value = manualText.trim();
-                showToast("تم إدخال الرابط!");
-            }
+            showToast("استخدم اختصار CTRL+V للصق الرابط مباشر.");
         }
     }
 
@@ -485,21 +528,15 @@
     }
 
     async function editMod(id, currentUrl) {
-        let newUrl = prompt(`تعديل ID: ${id}`, currentUrl);
-        if (newUrl && newUrl !== currentUrl) {
-            if (document.getElementById('optCheck').checked) {
-                newUrl = applyOptimization(newUrl);
-            }
-            rawData[id] = safeBtoa(newUrl);
-            await saveToGithub(`تعديل مود CJ ID: ${id}`);
-        }
+        const inputContainer = document.getElementById('newModUrl');
+        inputContainer.value = currentUrl;
+        document.getElementById('newModId').value = id;
+        showToast(`جاري تعديل المود ID: ${id} في خانة الإضافة ألاعلى`);
     }
 
     async function deleteMod(id) {
-        if (confirm(`هل أنت تأكد من حذف ID: ${id}؟`)) {
-            delete rawData[id];
-            await saveToGithub(`حذف مود CJ ID: ${id}`);
-        }
+        delete rawData[id];
+        await saveToGithub(`حذف مود CJ ID: ${id}`);
     }
 
     async function saveToGithub(commitMessage) {

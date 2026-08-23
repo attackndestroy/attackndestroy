@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مُحوّل ومحرر PSD إلى مشاريع الهاتف</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #0284c7;
+            --text-color: #f8fafc;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background-color: #0284c722;
+            border-right: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .editor-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            padding: 12px 20px;
+            background-color: #0f172a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .steps-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .steps-card h3 {
+            margin-top: 0;
+            color: #38bdf8;
+        }
+
+        ol {
+            padding-right: 20px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>مُحول ومُعالج ملفات PSD إلى الهاتف</h1>
+        <p>افتح ملفات Photoshop واسحب الطبقات واستخدمها في تطبيقات التصميم</p>
+    </header>
+
+    <div class="info-box">
+        <strong>تنبيه تقني:</strong> ملفات <code>.PLP</code> هي ملفات خاصة بتطبيق PixelLab ولا تدعم التحويل البرمجي المباشر. الحل الأفضل والأسرع هو فتح ملف PSD عبر المحرر أدناه وتصدير الطبقات أو العمل عليه مباشرة من الهاتف/الكمبيوتر.
+    </div>
+
+    <!-- مدمج فيه تطبيق Photopea الكامل لمعالجة PSD -->
+    <div class="editor-container">
+        <div class="editor-header">
+            <span>محرر PSD المباشر</span>
+            <small>قم بفتح ملف PSD من قائمة File > Open</small>
+        </div>
+        <iframe src="https://www.photopea.com"></iframe>
+    </div>
+
+    <div class="steps-card">
+        <h3>كيف تحول ملف PSD إلى مشروع PixelLab (.PLP)؟</h3>
+        <ol>
+            <li>قم بفتح ملف **PSD** داخل المحرر المرفق أعلاه.</li>
+            <li>اختر <strong>File</strong> ثم <strong>Export as</strong> ثم احفظ الصور والطبقات بصيغة <strong>PNG</strong>.</li>
+            <li>افتح تطبيق **PixelLab** على هاتفك وقم بإدراج الطبقات المفرغة بنفس الترتيب.</li>
+            <li>احفظ المشروع داخل PixelLab كـ **Project** وسيتم حفظه بصيغة <strong>.PLP</strong> على هاتفك.</li>
+        </ol>
+    </div>
+</div>
+
+</body>
+</html>

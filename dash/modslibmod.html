@@ -1,467 +1,1696 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATT/DES Progz - GitHub Mod Dashboard</title>
-    <style>
-        :root {
-            --bg: #121212;
-            --card: #1e1e1e;
-            --accent: #ffcc00;
-            --text: #ffffff;
-            --green: #28a745;
-            --blue: #007bff;
-            --red: #dc3545;
-            --gray: #333;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATT/DES — Dashboard</title><style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+html {
+    background: #121212;
+    color-scheme: dark;
+}
 
-        .container {
-            width: 100%;
-            max-width: 750px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+body {
+    min-height: 100vh;
+    background: #121212;
+    color: #e0e0e0;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    line-height: 1.6;
+}
 
-        header {
-            text-align: center;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 10px;
-        }
+button,
+input,
+textarea {
+    font: inherit;
+}
 
-        header img {
-            max-width: 280px;
-            height: auto;
-        }
+button {
+    cursor: pointer;
+}
 
-        .card {
-            background-color: var(--card);
-            border: 1px solid var(--gray);
-            border-radius: 8px;
-            padding: 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+a {
+    color: #f5c842;
+}
 
-        .card h3 {
-            margin-top: 0;
-            color: var(--accent);
-            border-bottom: 1px solid var(--gray);
-            padding-bottom: 8px;
-        }
+/* =========================================================
+   LOGIN / TOKEN SCREEN
+   ========================================================= */
 
-        .form-group {
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+#token-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
 
-        label {
-            font-size: 14px;
-            font-weight: bold;
-        }
+.token-box {
+    width: 100%;
+    max-width: 520px;
+    background: #1e1e1e;
+    border: 1px solid #2d2d2d;
+    border-radius: 20px;
+    padding: 30px 24px;
+    box-shadow: 0 15px 45px rgba(0,0,0,.55);
+}
 
-        .input-row {
-            display: flex;
-            gap: 8px;
-        }
+.logo-text {
+    text-align: center;
+    margin-bottom: 8px;
+    color: #f5c842;
+    font-size: 28px;
+    font-weight: 800;
+}
 
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #2a2a2a;
-            border: 1px solid var(--gray);
-            border-radius: 5px;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
+.token-subtitle {
+    text-align: center;
+    color: #999;
+    margin-bottom: 25px;
+}
 
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            user-select: none;
-            font-size: 14px;
-            color: var(--accent);
-        }
+.warning {
+    background: #2a2415;
+    border: 1px solid #66531b;
+    color: #d9c878;
+    border-radius: 12px;
+    padding: 13px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
 
-        button {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #fff;
-            transition: opacity 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
+label {
+    display: block;
+    margin-bottom: 7px;
+    color: #ddd;
+    font-weight: 600;
+}
 
-        button:hover { opacity: 0.85; }
+input,
+textarea {
+    width: 100%;
+    background: #151515;
+    color: #eee;
+    border: 1px solid #353535;
+    border-radius: 10px;
+    padding: 12px 13px;
+    outline: none;
+    transition: .2s;
+}
 
-        .btn-green { background-color: var(--green); }
-        .btn-blue { background-color: var(--blue); }
-        .btn-red { background-color: var(--red); }
-        .btn-gray { background-color: #555; }
+input:focus,
+textarea:focus {
+    border-color: #f5c842;
+    box-shadow: 0 0 0 3px rgba(245,200,66,.08);
+}
 
-        .search-box {
-            margin-bottom: 15px;
-            position: relative;
-        }
+textarea {
+    min-height: 130px;
+    resize: vertical;
+}
 
-        .mod-item {
-            background-color: #262626;
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+.field {
+    margin-bottom: 17px;
+}
 
-        .mod-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: 700;
+    transition: .2s;
+}
 
-        .mod-id {
-            background-color: var(--accent);
-            color: #000;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.btn-primary {
+    width: 100%;
+    background: #f5c842;
+    color: #171717;
+}
 
-        .mod-details {
-            font-size: 12px;
-            word-break: break-all;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+.btn-primary:hover {
+    background: #e0b030;
+    transform: translateY(-1px);
+}
 
-        .mod-details div {
-            background-color: #1a1a1a;
-            padding: 6px;
-            border-radius: 4px;
-        }
+.small-note {
+    color: #777;
+    font-size: 12px;
+    margin-top: 10px;
+}
 
-        textarea {
-            height: 140px;
-            font-family: monospace;
-            direction: ltr;
-        }
-    </style>
-</head>
-<body>
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
 
-<div class="container">
-    <!-- Header Image -->
-    <header>
-        <img src="https://attdes.online/header.png" alt="ATT/DES Progz">
-    </header>
+#dashboard {
+    display: none;
+}
 
-    <!-- SECTION 1: ADD MOD -->
-    <div class="card">
-        <h3>قسم 1: إضافة مود جديد</h3>
-        <div class="form-group">
-            <label>معرف المود (ID) - تلقائي:</label>
-            <input type="text" id="newModId" readonly style="background-color: #1a1a1a; color: var(--accent); font-weight: bold;">
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(18,18,18,.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #292929;
+}
+
+.header-inner {
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.brand {
+    color: #f5c842;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.logout-btn {
+    background: #292929;
+    color: #ccc;
+    border: 1px solid #3a3a3a;
+    border-radius: 9px;
+    padding: 8px 13px;
+}
+
+.logout-btn:hover {
+    background: #3a3a3a;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px 18px 50px;
+}
+
+.hero {
+    background: linear-gradient(145deg, #202020, #191919);
+    border: 1px solid #292929;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    color: #f5c842;
+    font-size: 25px;
+    margin-bottom: 6px;
+}
+
+.hero p {
+    color: #aaa;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-card {
+    background: #1e1e1e;
+    border: 1px solid #2b2b2b;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.form-title {
+    color: #f5c842;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.id-row {
+    display: flex;
+    gap: 10px;
+}
+
+.id-row .field {
+    flex: 1;
+}
+
+.auto-id {
+    background: #252525;
+    color: #f5c842;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.actions .btn {
+    flex: 1;
+    min-width: 140px;
+}
+
+.btn-save {
+    background: #f5c842;
+    color: #171717;
+}
+
+.btn-save:hover {
+    background: #e0b030;
+}
+
+.btn-clear {
+    background: #292929;
+    color: #ddd;
+}
+
+.btn-clear:hover {
+    background: #383838;
+}
+
+/* =========================================================
+   MODS LIST
+   ========================================================= */
+
+.list-card {
+    background: #1e1e1e;
+    border: 1px solid #2b2b2b;
+    border-radius: 18px;
+    padding: 22px;
+}
+
+.list-title {
+    color: #f5c842;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.search {
+    margin-bottom: 16px;
+}
+
+.mod-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mod-item {
+    background: #171717;
+    border: 1px solid #292929;
+    border-radius: 13px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.mod-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mod-id {
+    display: inline-block;
+    color: #f5c842;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.mod-name {
+    color: #eee;
+    font-size: 16px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.mod-actions {
+    display: flex;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.edit-btn {
+    background: #2c2c2c;
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.edit-btn:hover {
+    background: #3a3a3a;
+}
+
+.delete-btn {
+    background: #3a2020;
+    color: #ff9a9a;
+    border: 1px solid #5a2c2c;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.delete-btn:hover {
+    background: #542727;
+}
+
+.empty {
+    text-align: center;
+    color: #777;
+    padding: 30px 10px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+#status {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 100;
+    max-width: calc(100% - 36px);
+}
+
+.status-box {
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    color: #ddd;
+    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+}
+
+.status-success {
+    border-color: #476b32;
+    color: #b8e59a;
+}
+
+.status-error {
+    border-color: #6b3232;
+    color: #ffaaaa;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading {
+    opacity: .55;
+    pointer-events: none;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .container {
+        padding: 18px 12px 40px;
+    }
+
+    .header-inner {
+        padding: 13px 12px;
+    }
+
+    .hero {
+        padding: 18px;
+    }
+
+    .hero h1 {
+        font-size: 21px;
+    }
+
+    .form-card,
+    .list-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .id-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .mod-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .mod-actions {
+        width: 100%;
+    }
+
+    .mod-actions button {
+        flex: 1;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actions .btn {
+        width: 100%;
+    }
+
+    .token-box {
+        padding: 24px 18px;
+    }
+}
+</style></head><body><!-- =========================================================
+     TOKEN SCREEN
+     ========================================================= --><section id="token-screen"><div class="token-box">
+
+    <div class="logo-text">ATT/DES</div>
+
+    <div class="token-subtitle">
+        لوحة إدارة ModsLib
+    </div>
+
+    <div class="warning">
+        يا مدير الإمبراطورية، أولًا أعطني مفتاح GitHub...
+        وبعدها اترك لي مهمة العبث بـ mods.json.
+    </div>
+
+    <div class="field">
+        <label for="api-token">GitHub API Token</label>
+        <input
+            id="api-token"
+            type="password"
+            autocomplete="off"
+            placeholder="github_pat_..."
+        >
+    </div>
+
+    <button class="btn btn-primary" id="save-token">
+        دخول لوحة التحكم
+    </button>
+
+    <div class="small-note">
+        يتم حفظ التوكن محليًا في هذا المتصفح فقط.
+    </div>
+
+</div>
+
+</section><!-- =========================================================
+     DASHBOARD
+     ========================================================= --><section id="dashboard"><header class="header">
+
+    <div class="header-inner">
+
+        <div class="brand">
+            ATT/DES — ModsLib
         </div>
 
-        <div class="form-group">
-            <label>رابط المود الأصلي:</label>
-            <div class="input-row">
-                <input type="text" id="newModUrl" placeholder="https://www.mediafire.com/file/...">
-                <button class="btn-gray" onclick="pasteUrl()">📋 لصق</button>
+        <button class="logout-btn" id="logout">
+            حذف التوكن
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <section class="hero">
+
+        <h1 id="greeting">
+            أهلًا يا إمبراطور الفوضى.
+        </h1>
+
+        <p>
+            هنا تستطيع نشر المودات وتعديلها وحذفها.
+            حاول فقط ألا تحذف نصف الموقع بالغلط.
+        </p>
+
+    </section>
+
+
+    <!-- =================================================
+         ADD / EDIT FORM
+         ================================================= -->
+
+    <section class="form-card">
+
+        <div class="form-title" id="form-title">
+            نشر مود جديد
+        </div>
+
+        <div class="id-row">
+
+            <div class="field">
+
+                <label for="mod-id">
+                    ID
+                </label>
+
+                <input
+                    id="mod-id"
+                    type="number"
+                    min="1"
+                    placeholder="ID"
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>
+                    أعلى ID + 1
+                </label>
+
+                <input
+                    id="next-id"
+                    class="auto-id"
+                    type="text"
+                    readonly
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="title">
+                العنوان
+            </label>
+
+            <input
+                id="title"
+                type="text"
+                placeholder="اسم المود"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="description">
+                الوصف
+            </label>
+
+            <textarea
+                id="description"
+                placeholder="اكتب وصف المود هنا..."
+            ></textarea>
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="image-url">
+                رابط الصورة
+            </label>
+
+            <input
+                id="image-url"
+                type="url"
+                placeholder="https://..."
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="download-url">
+                رابط التحميل النهائي
+            </label>
+
+            <input
+                id="download-url"
+                type="url"
+                placeholder="https://..."
+            >
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="btn btn-save"
+                id="save-mod"
+            >
+                نشر المود
+            </button>
+
+            <button
+                class="btn btn-clear"
+                id="clear-form"
+            >
+                إلغاء / مسح
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         MODS LIST
+         ================================================= -->
+
+    <section class="list-card">
+
+        <div class="list-title">
+            المودات المنشورة
+        </div>
+
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="ابحث بالـ ID أو اسم المود..."
+        >
+
+        <div id="mod-list" class="mod-list">
+            <div class="empty">
+                جاري تحميل المودات...
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" id="optCheck" checked>
-                تفعيل Optimization (استبدال آخر حرف/رقم بـ 1)
-            </label>
-        </div>
+    </section>
 
-        <button class="btn-green" style="width: 100%; padding: 12px; font-size: 16px;" onclick="submitMod()">🚀 إرسال وتحديث GitHub</button>
-    </div>
+</main>
 
-    <!-- SECTION 2: EXPORT & PREVIEW JSON (Moved Before List) -->
-    <div class="card">
-        <h3>قسم 2: تصدير ونسخ البيانات</h3>
-        <div class="form-group">
-            <label>معاينة JSON الحالية:</label>
-            <textarea id="jsonPreview" readonly></textarea>
-        </div>
-        <div class="input-row">
-            <button class="btn-blue" style="flex:1;" onclick="copyJson(true)">🔒 نسخ مشفّر كاملاً</button>
-            <button class="btn-gray" style="flex:1;" onclick="copyJson(false)">🔓 نسخ الأصلي بدون تشفير</button>
-        </div>
-        <div style="margin-top: 10px; font-size: 12px; text-align: center;">
-            رابط الملف المفعل: <a href="https://modslib.attdes.online/mod.json" target="_blank" style="color: var(--accent);">modslib.attdes.online/mod.json</a>
-        </div>
-    </div>
+</section><div id="status"></div><script>
+(function () {
 
-    <!-- SECTION 3: LIST MODS WITH SEARCH -->
-    <div class="card">
-        <h3>قسم 3: إدارة المودات الحالية (<span id="modCount">0</span>)</h3>
-        
-        <!-- Search Field -->
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 بحث بواسطة الـ ID أو الرابط..." oninput="filterMods()">
-        </div>
+    "use strict";
 
-        <div id="modsContainer">جاري تحميل البيانات من GitHub...</div>
-    </div>
 
-    <button class="btn-red" style="margin-bottom: 20px;" onclick="resetApiToken()">🔑 تغيير GitHub API Token</button>
-</div>
+    /* =======================================================
+       CONFIG
+       ======================================================= */
 
-<script>
-    const CONFIG = {
-        owner: 'attackndestroy',
-        repo: 'modslib',
-        path: 'mod.json',
-        shareDomain: 'https://modslib.attdes.online?id='
+    const USERNAME = "attackndestroy";
+    const REPO = "ModsLib";
+    const FILE_PATH = "mods.json";
+    const BRANCH = "main";
+
+    const TOKEN_KEY = "attdes_github_api_token";
+
+
+    /* =======================================================
+       BASE64 KEYS
+       ======================================================= */
+
+    const KEY = {
+        type: btoa("type"),
+        id: btoa("id"),
+        title: btoa("title"),
+        description: btoa("description"),
+        image_url: btoa("image_url"),
+        download_url: btoa("download_url")
     };
 
-    let apiToken = localStorage.getItem('gh_token');
-    let rawData = {};
-    let currentSha = '';
 
-    window.addEventListener('DOMContentLoaded', () => {
-        checkToken();
-    });
+    /* =======================================================
+       ELEMENTS
+       ======================================================= */
 
-    function checkToken() {
-        if (!apiToken) {
-            apiToken = prompt('يرجى إدخال GitHub Personal Access Token (سيتم حفظه في المتصفح):');
-            if (apiToken) {
-                localStorage.setItem('gh_token', apiToken.trim());
-                location.reload();
-            }
-        } else {
-            fetchGithubData();
-        }
+    const tokenScreen = document.getElementById("token-screen");
+    const dashboard = document.getElementById("dashboard");
+
+    const tokenInput = document.getElementById("api-token");
+    const saveTokenBtn = document.getElementById("save-token");
+    const logoutBtn = document.getElementById("logout");
+
+    const modId = document.getElementById("mod-id");
+    const nextId = document.getElementById("next-id");
+    const titleInput = document.getElementById("title");
+    const descriptionInput = document.getElementById("description");
+    const imageInput = document.getElementById("image-url");
+    const downloadInput = document.getElementById("download-url");
+
+    const saveModBtn = document.getElementById("save-mod");
+    const clearFormBtn = document.getElementById("clear-form");
+
+    const formTitle = document.getElementById("form-title");
+
+    const searchInput = document.getElementById("search");
+    const modList = document.getElementById("mod-list");
+
+    const statusEl = document.getElementById("status");
+
+
+    /* =======================================================
+       STATE
+       ======================================================= */
+
+    let token = localStorage.getItem(TOKEN_KEY) || "";
+    let mods = [];
+    let fileSha = "";
+    let editingId = null;
+
+
+    /* =======================================================
+       STATUS
+       ======================================================= */
+
+    function showStatus(message, type) {
+
+        statusEl.innerHTML =
+            '<div class="status-box ' +
+            (type === "success"
+                ? "status-success"
+                : type === "error"
+                    ? "status-error"
+                    : "") +
+            '">' +
+            escapeHtml(message) +
+            "</div>";
+
+        setTimeout(function () {
+            statusEl.innerHTML = "";
+        }, 4000);
     }
 
-    function resetApiToken() {
-        localStorage.removeItem('gh_token');
-        alert('تم مسح الـ Token!');
-        location.reload();
+
+    /* =======================================================
+       ESCAPE
+       ======================================================= */
+
+    function escapeHtml(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    function safeBtoa(str) {
-        return btoa(unescape(encodeURIComponent(str)));
-    }
-    function safeAtob(str) {
-        try {
-            return decodeURIComponent(escape(atob(str.trim())));
-        } catch(e) {
-            return str;
-        }
-    }
 
-    async function fetchGithubData() {
-        try {
-            const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, {
-                headers: { 'Authorization': `token ${apiToken}` }
-            });
-            if (!res.ok) throw new Error('فشل جلب البيانات، تأكد من الـ Token.');
-            
-            const data = await res.json();
-            currentSha = data.sha;
-            
-            const decodedContent = safeAtob(data.content);
-            rawData = JSON.parse(decodedContent);
+    /* =======================================================
+       TOKEN SCREEN
+       ======================================================= */
 
-            renderDashboard();
-        } catch(e) {
-            alert(e.message);
-        }
+    function openDashboard() {
+
+        tokenScreen.style.display = "none";
+        dashboard.style.display = "block";
+
+        loadMods();
     }
 
-    function renderDashboard() {
-        const keys = Object.keys(rawData).map(k => parseInt(k)).filter(n => !isNaN(n));
-        const maxId = keys.length > 0 ? Math.max(...keys) + 1 : 1;
-        document.getElementById('newModId').value = maxId;
 
-        document.getElementById('jsonPreview').value = JSON.stringify(rawData, null, 2);
-        document.getElementById('modCount').textContent = Object.keys(rawData).length;
+    function openTokenScreen() {
 
-        filterMods(); // Render List based on current search
+        dashboard.style.display = "none";
+        tokenScreen.style.display = "flex";
+        tokenInput.value = "";
+        tokenInput.focus();
     }
 
-    function filterMods() {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const container = document.getElementById('modsContainer');
-        container.innerHTML = '';
 
-        let matches = 0;
+    saveTokenBtn.addEventListener("click", function () {
 
-        for (let id in rawData) {
-            const encryptedUrl = rawData[id];
-            const originalUrl = safeAtob(encryptedUrl);
+        const value = tokenInput.value.trim();
 
-            if (id.toLowerCase().includes(query) || originalUrl.toLowerCase().includes(query) || encryptedUrl.toLowerCase().includes(query)) {
-                matches++;
-                const modEl = document.createElement('div');
-                modEl.className = 'mod-item';
-                modEl.innerHTML = `
-                    <div class="mod-header">
-                        <span class="mod-id" onclick="copyShareUrl('${id}')" title="اضغط لنسخ رابط النشر">ID: ${id} 📋</span>
-                        <div>
-                            <button class="btn-blue" onclick="editMod('${id}', '${originalUrl}')">✏️</button>
-                            <button class="btn-red" onclick="deleteMod('${id}')">🗑️</button>
-                        </div>
-                    </div>
-                    <div class="mod-details">
-                        <div><b>الرابط الأصلي:</b> <span style="color:#81d4fa">${originalUrl}</span></div>
-                        <div><b>المشفّر:</b> <span style="color:#a5d6a7">${encryptedUrl}</span></div>
-                    </div>
-                `;
-                container.appendChild(modEl);
-            }
-        }
-
-        if (matches === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#888; padding:10px;">لا توجد نتائج مطابقة للبحث.</div>';
-        }
-    }
-
-    function applyOptimization(url) {
-        if (!url) return '';
-        return url.trim().replace(/.$/, '1');
-    }
-
-    // Fixed Paste Logic
-    async function pasteUrl() {
-        const inputField = document.getElementById('newModUrl');
-        try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                const text = await navigator.clipboard.readText();
-                if (text) {
-                    inputField.value = text;
-                    return;
-                }
-            }
-            throw new Error();
-        } catch (err) {
-            // Manual Prompt Fallback
-            const manualText = prompt('ألصق الرابط هنا مباشرة:');
-            if (manualText) inputField.value = manualText.trim();
-        }
-    }
-
-    async function submitMod() {
-        const id = document.getElementById('newModId').value.trim();
-        let url = document.getElementById('newModUrl').value.trim();
-
-        if (!url) {
-            alert('يرجى وضع رابط المود أولاً!');
+        if (!value) {
+            showStatus("أدخل GitHub API Token أولًا.", "error");
             return;
         }
 
-        if (document.getElementById('optCheck').checked) {
-            url = applyOptimization(url);
+        token = value;
+
+        localStorage.setItem(TOKEN_KEY, token);
+
+        openDashboard();
+
+    });
+
+
+    logoutBtn.addEventListener("click", function () {
+
+        if (!confirm("حذف التوكن المحفوظ من هذا المتصفح؟")) {
+            return;
         }
 
-        const encrypted = safeBtoa(url);
-        rawData[id] = encrypted;
+        localStorage.removeItem(TOKEN_KEY);
 
-        await saveToGithub(`إضافة مود جديد ID: ${id}`);
-        
-        copyShareUrl(id);
-        document.getElementById('newModUrl').value = '';
+        token = "";
+
+        mods = [];
+
+        openTokenScreen();
+
+    });
+
+
+    /* =======================================================
+       GITHUB API
+       ======================================================= */
+
+    function githubHeaders() {
+
+        return {
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + token,
+            "X-GitHub-Api-Version": "2022-11-28"
+        };
     }
 
-    async function editMod(id, currentUrl) {
-        let newUrl = prompt(`تعديل رابط المود ID: ${id}`, currentUrl);
-        if (newUrl && newUrl !== currentUrl) {
-            if (document.getElementById('optCheck').checked) {
-                newUrl = applyOptimization(newUrl);
-            }
-            rawData[id] = safeBtoa(newUrl);
-            await saveToGithub(`تعديل المود ID: ${id}`);
+
+    function githubUrl() {
+
+        return (
+            "https://api.github.com/repos/" +
+            encodeURIComponent(USERNAME) +
+            "/" +
+            encodeURIComponent(REPO) +
+            "/contents/" +
+            FILE_PATH +
+            "?ref=" +
+            encodeURIComponent(BRANCH)
+        );
+    }
+
+
+    /* =======================================================
+       UTF-8 BASE64
+       ======================================================= */
+
+    function encodeUtf8Base64(text) {
+
+        const bytes = new TextEncoder().encode(text);
+
+        let binary = "";
+
+        const chunk = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunk) {
+
+            const part = bytes.subarray(
+                i,
+                Math.min(i + chunk, bytes.length)
+            );
+
+            binary += String.fromCharCode.apply(
+                null,
+                part
+            );
         }
+
+        return btoa(binary);
     }
 
-    async function deleteMod(id) {
-        if (confirm(`هل أنت تأكد من حذف المود ID: ${id}؟`)) {
-            delete rawData[id];
-            await saveToGithub(`حذف المود ID: ${id}`);
+
+    function decodeUtf8Base64(base64) {
+
+        const binary = atob(base64.replace(/\n/g, ""));
+
+        const bytes = new Uint8Array(binary.length);
+
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
         }
+
+        return new TextDecoder().decode(bytes);
     }
 
-    async function saveToGithub(commitMessage) {
-        const jsonString = JSON.stringify(rawData, null, 2);
-        const encodedContent = safeBtoa(jsonString);
+
+    /* =======================================================
+       LOAD MODS
+       ======================================================= */
+
+    async function loadMods() {
+
+        modList.innerHTML =
+            '<div class="empty">جاري تحميل mods.json...</div>';
 
         try {
-            const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${apiToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: commitMessage,
-                    content: encodedContent,
-                    sha: currentSha
-                })
-            });
 
-            if (!res.ok) throw new Error('حدث خطأ أثناء الرفع إلى GitHub!');
-            
-            const result = await res.json();
-            currentSha = result.content.sha;
-            alert('تم الحفظ والتحديث في GitHub بنجاح! ✅');
-            renderDashboard();
+            const response = await fetch(
+                githubUrl(),
+                {
+                    headers: githubHeaders(),
+                    cache: "no-store"
+                }
+            );
 
-        } catch(e) {
-            alert(e.message);
-        }
-    }
+            if (!response.ok) {
 
-    function copyShareUrl(id) {
-        const shareUrl = `${CONFIG.shareDomain}${id}`;
-        navigator.clipboard.writeText(shareUrl);
-        alert(`تم نسخ رابط النشر النهائي:\n${shareUrl}`);
-    }
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error(
+                        "التوكن غير صالح أو لا يملك صلاحية الوصول."
+                    );
+                }
 
-    function copyJson(isEncrypted) {
-        if (isEncrypted) {
-            navigator.clipboard.writeText(JSON.stringify(rawData, null, 2));
-            alert('تم نسخ كود JSON المشفّر!');
-        } else {
-            let decryptedData = {};
-            for (let k in rawData) {
-                decryptedData[k] = safeAtob(rawData[k]);
+                if (response.status === 404) {
+                    throw new Error(
+                        "لم يتم العثور على mods.json أو المستودع."
+                    );
+                }
+
+                throw new Error(
+                    "GitHub API HTTP " + response.status
+                );
             }
-            navigator.clipboard.writeText(JSON.stringify(decryptedData, null, 2));
-            alert('تم نسخ كود JSON الأصلي (غير مشفّر)!');
+
+            const result = await response.json();
+
+            fileSha = result.sha;
+
+            const decoded = decodeUtf8Base64(result.content);
+
+            const parsed = JSON.parse(decoded);
+
+            if (!Array.isArray(parsed)) {
+                throw new Error(
+                    "mods.json ليس Array صالحًا."
+                );
+            }
+
+            mods = parsed;
+
+            updateNextId();
+
+            renderMods();
+
+        } catch (error) {
+
+            console.error(error);
+
+            modList.innerHTML =
+                '<div class="empty">' +
+                escapeHtml(error.message) +
+                "</div>";
+
+            showStatus(
+                error.message,
+                "error"
+            );
         }
     }
-</script>
-</body>
+
+
+    /* =======================================================
+       GET NUMERIC ID
+       ======================================================= */
+
+    function getNumericId(record) {
+
+        const value = record[KEY.id];
+
+        const number = Number(value);
+
+        return Number.isFinite(number)
+            ? number
+            : 0;
+    }
+
+
+    /* =======================================================
+       NEXT ID
+       ======================================================= */
+
+    function updateNextId() {
+
+        let highest = 0;
+
+        for (const record of mods) {
+
+            const id = getNumericId(record);
+
+            if (id > highest) {
+                highest = id;
+            }
+        }
+
+        nextId.value = String(highest + 1);
+
+        if (!editingId) {
+            modId.value = String(highest + 1);
+        }
+    }
+
+
+    /* =======================================================
+       FIND TITLE RECORD
+       ======================================================= */
+
+    function findTitleRecord(id) {
+
+        return mods.find(function (record) {
+
+            return (
+                record[KEY.type] === "t" &&
+                String(record[KEY.id]) === String(id)
+            );
+
+        });
+    }
+
+
+    function findModRecord(id) {
+
+        return mods.find(function (record) {
+
+            return (
+                record[KEY.type] === "m" &&
+                String(record[KEY.id]) === String(id)
+            );
+
+        });
+    }
+
+
+    /* =======================================================
+       RENDER LIST
+       ======================================================= */
+
+    function renderMods() {
+
+        const query =
+            searchInput.value.trim().toLowerCase();
+
+        const titleRecords = mods.filter(function (record) {
+
+            return record[KEY.type] === "t";
+
+        });
+
+        const filtered = titleRecords.filter(function (record) {
+
+            const id = String(record[KEY.id] || "");
+            const title = String(record[KEY.title] || "");
+
+            return (
+                !query ||
+                id.toLowerCase().includes(query) ||
+                title.toLowerCase().includes(query)
+            );
+
+        });
+
+        filtered.sort(function (a, b) {
+
+            return (
+                Number(b[KEY.id]) -
+                Number(a[KEY.id])
+            );
+
+        });
+
+
+        if (!filtered.length) {
+
+            modList.innerHTML =
+                '<div class="empty">لا توجد نتائج.</div>';
+
+            return;
+        }
+
+
+        modList.innerHTML = filtered.map(function (record) {
+
+            const id = String(record[KEY.id]);
+
+            const title =
+                record[KEY.title] ||
+                "بدون عنوان";
+
+            return `
+                <div class="mod-item">
+
+                    <div class="mod-info">
+
+                        <span class="mod-id">
+                            ID: ${escapeHtml(id)}
+                        </span>
+
+                        <div class="mod-name">
+                            ${escapeHtml(title)}
+                        </div>
+
+                    </div>
+
+                    <div class="mod-actions">
+
+                        <button
+                            class="edit-btn"
+                            data-edit="${escapeHtml(id)}"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            data-delete="${escapeHtml(id)}"
+                        >
+                            حذف
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+    }
+
+
+    searchInput.addEventListener(
+        "input",
+        renderMods
+    );
+
+
+    /* =======================================================
+       EDIT
+       ======================================================= */
+
+    function editMod(id) {
+
+        const titleRecord = findTitleRecord(id);
+        const modRecord = findModRecord(id);
+
+        if (!titleRecord) {
+
+            showStatus(
+                "لم يتم العثور على بيانات المود.",
+                "error"
+            );
+
+            return;
+        }
+
+        editingId = String(id);
+
+        modId.value = id;
+
+        titleInput.value =
+            titleRecord[KEY.title] || "";
+
+        descriptionInput.value =
+            titleRecord[KEY.description] || "";
+
+        imageInput.value =
+            titleRecord[KEY.image_url] || "";
+
+        downloadInput.value =
+            modRecord
+                ? (modRecord[KEY.download_url] || "")
+                : "";
+
+        formTitle.textContent =
+            "تعديل المود #" + id;
+
+        saveModBtn.textContent =
+            "حفظ التعديلات";
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+
+    /* =======================================================
+       DELETE
+       ======================================================= */
+
+    async function deleteMod(id) {
+
+        const titleRecord = findTitleRecord(id);
+
+        const title =
+            titleRecord &&
+            titleRecord[KEY.title]
+                ? titleRecord[KEY.title]
+                : "هذا المود";
+
+
+        if (
+            !confirm(
+                'هل أنت متأكد من حذف "' +
+                title +
+                '"؟\n\nسيتم حذف بيانات التفاصيل ورابط التحميل.'
+            )
+        ) {
+            return;
+        }
+
+
+        const oldMods = mods.slice();
+
+        mods = mods.filter(function (record) {
+
+            return String(record[KEY.id]) !== String(id);
+
+        });
+
+
+        try {
+
+            await saveModsToGitHub(
+                "Delete mod #" + id
+            );
+
+            showStatus(
+                "تم حذف المود بنجاح.",
+                "success"
+            );
+
+            resetForm();
+
+        } catch (error) {
+
+            mods = oldMods;
+
+            console.error(error);
+
+            showStatus(
+                error.message,
+                "error"
+            );
+
+            renderMods();
+        }
+    }
+
+
+    /* =======================================================
+       LIST ACTIONS
+       ======================================================= */
+
+    modList.addEventListener(
+        "click",
+        function (event) {
+
+            const editButton =
+                event.target.closest("[data-edit]");
+
+            const deleteButton =
+                event.target.closest("[data-delete]");
+
+
+            if (editButton) {
+
+                editMod(
+                    editButton.dataset.edit
+                );
+
+                return;
+            }
+
+
+            if (deleteButton) {
+
+                deleteMod(
+                    deleteButton.dataset.delete
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =======================================================
+       CREATE RECORDS
+       ======================================================= */
+
+    function createTitleRecord(
+        id,
+        title,
+        description,
+        image
+    ) {
+
+        const record = {};
+
+        record[KEY.type] = "t";
+        record[KEY.id] = String(id);
+        record[KEY.title] = title;
+        record[KEY.description] = description;
+        record[KEY.image_url] = image;
+
+        return record;
+    }
+
+
+    function createModRecord(
+        id,
+        downloadUrl
+    ) {
+
+        const record = {};
+
+        record[KEY.type] = "m";
+        record[KEY.id] = String(id);
+        record[KEY.download_url] = downloadUrl;
+
+        return record;
+    }
+
+
+    /* =======================================================
+       SAVE MOD
+       ======================================================= */
+
+    saveModBtn.addEventListener(
+        "click",
+        async function () {
+
+            const id =
+                modId.value.trim();
+
+            const title =
+                titleInput.value.trim();
+
+            const description =
+                descriptionInput.value.trim();
+
+            const image =
+                imageInput.value.trim();
+
+            const downloadUrl =
+                downloadInput.value.trim();
+
+
+            if (!id) {
+
+                showStatus(
+                    "أدخل ID.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (!title) {
+
+                showStatus(
+                    "أدخل عنوان المود.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (!downloadUrl) {
+
+                showStatus(
+                    "أدخل رابط التحميل النهائي.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const numericId = Number(id);
+
+            if (
+                !Number.isInteger(numericId) ||
+                numericId < 1
+            ) {
+
+                showStatus(
+                    "الـ ID يجب أن يكون رقمًا صحيحًا موجبًا.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const duplicateTitle =
+                findTitleRecord(id);
+
+            const duplicateMod =
+                findModRecord(id);
+
+
+            /* ===============================================
+               EDIT
+               =============================================== */
+
+            if (editingId !== null) {
+
+                const oldId =
+                    String(editingId);
+
+
+                /*
+                 * إذا غيّر المستخدم ID أثناء التعديل،
+                 * نحذف السجلات القديمة وننشئ الجديدة.
+                 */
+
+                mods = mods.filter(function (record) {
+
+                    return String(record[KEY.id]) !== oldId;
+
+                });
+
+
+                mods.push(
+                    createTitleRecord(
+                        id,
+                        title,
+                        description,
+                        image
+                    )
+                );
+
+                mods.push(
+                    createModRecord(
+                        id,
+                        downloadUrl
+                    )
+                );
+
+
+                try {
+
+                    await saveModsToGitHub(
+                        "Edit mod #" + id
+                    );
+
+                    showStatus(
+                        "تم حفظ التعديلات بنجاح.",
+                        "success"
+                    );
+
+                    resetForm();
+
+                } catch (error) {
+
+                    await loadMods();
+
+                    showStatus(
+                        error.message,
+                        "error"
+                    );
+                }
+
+                return;
+            }
+
+
+            /* ===============================================
+               NEW MOD
+               =============================================== */
+
+            if (duplicateTitle || duplicateMod) {
+
+                showStatus(
+                    "هذا الـ ID مستخدم بالفعل. اختر ID آخر أو استخدم التعديل.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            mods.push(
+                createTitleRecord(
+                    id,
+                    title,
+                    description,
+                    image
+                )
+            );
+
+            mods.push(
+                createModRecord(
+                    id,
+                    downloadUrl
+                )
+            );
+
+
+            try {
+
+                await saveModsToGitHub(
+                    "Publish mod #" + id
+                );
+
+                showStatus(
+                    "تم نشر المود بنجاح.",
+                    "success"
+                );
+
+                resetForm();
+
+            } catch (error) {
+
+                await loadMods();
+
+                showStatus(
+                    error.message,
+                    "error"
+                );
+            }
+
+        }
+    );
+
+
+    /* =======================================================
+       SAVE TO GITHUB
+       ======================================================= */
+
+    async function saveModsToGitHub(message) {
+
+        /*
+         * ترتيب جميل:
+         * كل مود له سجل t ثم سجل m.
+         */
+
+        const cleanMods = mods.map(
+            function (record) {
+                return record;
+            }
+        );
+
+
+        const json = JSON.stringify(
+            cleanMods,
+            null,
+            2
+        );
+
+
+        const encoded =
+            encodeUtf8Base64(json);
+
+
+        const response = await fetch(
+            githubUrl(),
+            {
+                method: "PUT",
+
+                headers: {
+                    ...githubHeaders(),
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message,
+                    content: encoded,
+                    sha: fileSha,
+                    branch: BRANCH
+                })
+            }
+        );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message ||
+                "فشل تحديث mods.json."
+            );
+        }
+
+
+        fileSha =
+            result.content.sha;
+
+
+        renderMods();
+
+        updateNextId();
+    }
+
+
+    /* =======================================================
+       RESET FORM
+       ======================================================= */
+
+    function resetForm() {
+
+        editingId = null;
+
+        titleInput.value = "";
+        descriptionInput.value = "";
+        imageInput.value = "";
+        downloadInput.value = "";
+
+        formTitle.textContent =
+            "نشر مود جديد";
+
+        saveModBtn.textContent =
+            "نشر المود";
+
+        updateNextId();
+    }
+
+
+    clearFormBtn.addEventListener(
+        "click",
+        resetForm
+    );
+
+
+    /* =======================================================
+       INIT
+       ======================================================= */
+
+    if (token) {
+
+        openDashboard();
+
+    } else {
+
+        tokenScreen.style.display = "flex";
+        dashboard.style.display = "none";
+
+        tokenInput.focus();
+    }
+
+
+})();
+</script></body>
 </html>

@@ -3,212 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولّد كود Edge-TTS مع Metadata ورفع الصوت</title>
+    <title>مولد أوامر Edge-TTS</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e2e;
-            color: #cdd6f4;
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
             padding: 20px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             width: 100%;
-            max-width: 700px;
-            background: #181825;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
         h2 {
-            text-align: center;
-            color: #89b4fa;
             margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #818cf8;
+        }
+        .form-group {
+            margin-bottom: 16px;
         }
         label {
             display: block;
-            margin-top: 15px;
-            font-weight: bold;
-            color: #a6adc8;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
         }
-        input, textarea {
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #45475a;
-            background: #313244;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 14px;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
         }
         textarea {
-            height: 100px;
             resize: vertical;
-        }
-        button {
-            width: 100%;
-            background-color: #89b4fa;
-            color: #11111b;
-            border: none;
-            padding: 12px;
-            margin-top: 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover {
-            background-color: #b4befe;
+            min-height: 100px;
         }
         .output-box {
+            margin-top: 24px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
             position: relative;
-            margin-top: 20px;
         }
         pre {
-            background: #11111b;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #45475a;
-            overflow-x: auto;
-            color: #a6e3a1;
-            font-size: 13px;
-            direction: ltr;
-            text-align: left;
             white-space: pre-wrap;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            margin-bottom: 12px;
         }
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: auto;
-            padding: 6px 14px;
-            font-size: 12px;
-            margin-top: 0;
-            background: #45475a;
-            color: #fff;
-            border-radius: 4px;
-            transition: all 0.2s ease;
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
         }
-        .copy-btn:hover {
-            background: #585b70;
+        .btn:hover {
+            background-color: var(--primary-hover);
         }
-        .copy-btn.copied {
-            background: #a6e3a1;
-            color: #11111b;
+        .btn-success {
+            background-color: #10b981 !important;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🔊 مولّد كود Edge-TTS (مضخم الصوت x3)</h2>
-    
-    <label for="text">📝 النص المراد تحويله لصوت:</label>
-    <textarea id="text" placeholder="ضع النص هنا..."></textarea>
+    <div class="container">
+        <h2>مولد أوامر Edge-TTS</h2>
+        
+        <div class="form-group">
+            <label for="textInput">النص المراد تحويله:</label>
+            <textarea id="textInput" placeholder="اكتب النص هنا..." oninput="generateCommand()">مرحباً بك في أداة توليد الصوت.</textarea>
+        </div>
 
-    <label for="filename">📄 اسم الملف (بدون .mp3):</label>
-    <input type="text" id="filename" placeholder="مثال: Alert2">
+        <div class="form-group">
+            <label for="fileNameInput">اسم الملف (بدون صيغة):</label>
+            <input type="text" id="fileNameInput" value="my_audio" oninput="generateCommand()">
+        </div>
 
-    <label for="track">🔢 رقم المسار (Track Number):</label>
-    <input type="number" id="track" value="1" min="1">
+        <div class="form-group">
+            <label for="voiceSelect">اختر المؤدي الصوتي:</label>
+            <select id="voiceSelect" onchange="generateCommand()">
+                <option value="ar-SA-HamedNeural">السعودي - حamed (Hamed)</option>
+                <option value="ar-SA-ZariyahNeural">السعودية - زارية (Zariyah)</option>
+                <option value="ar-EG-SalmaNeural">المصري - سلمى (Salma)</option>
+                <option value="ar-EG-ShakirNeural">المصري - شاكر (Shakir)</option>
+                <option value="ar-AE-FatimaNeural">الإماراتي - فاطمة (Fatima)</option>
+                <option value="ar-JO-SanaNeural">الأردني - سناء (Sana)</option>
+            </select>
+        </div>
 
-    <button onclick="generateCode()">⚡ إنشاء الأوامر</button>
-
-    <div class="output-box">
-        <button id="copyBtn" class="copy-btn" onclick="copyCode()">📋 نسخ الأوامر</button>
-        <pre id="output">سيظهر الكود الناتج هنا...</pre>
+        <div class="output-box">
+            <label>الأمر الناتج:</label>
+            <pre id="commandOutput"></pre>
+            <button class="btn" id="copyBtn" onclick="copyCommand()">نسخ الأمر تلقائياً</button>
+        </div>
     </div>
-</div>
 
-<script>
-function generateCode() {
-    const rawText = document.getElementById('text').value.trim();
-    const rawFilename = document.getElementById('filename').value.trim() || 'audio_output';
-    const track = document.getElementById('track').value || '1';
+    <script>
+        function generateCommand() {
+            const text = document.getElementById('textInput').value.trim() || "اكتب النص هنا";
+            const fileName = document.getElementById('fileNameInput').value.trim() || "audio";
+            const voice = document.getElementById('voiceSelect').value;
+            
+            // تنظيف النص من علامات التنصيص المزدوجة لكي لا تفسد الأمر في التيرمنال
+            const safeText = text.replace(/"/g, '\\"');
 
-    const cleanText = rawText.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const cleanFilename = rawFilename.replace(/"/g, '').replace(/'/g, '');
+            const command = `edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "/sdcard/ATTDES/Audio/${fileName}.mp3"`;
+            
+            document.getElementById('commandOutput').textContent = command;
+        }
 
-    const scriptContent = `import os
-import subprocess
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, COMM, APIC, TCON, TDRC, TRCK
+        function copyCommand() {
+            const commandText = document.getElementById('commandOutput').textContent;
+            navigator.clipboard.writeText(commandText).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = "تم النسخ بنجاح! ✅";
+                btn.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    btn.textContent = "نسخ الأمر تلقائياً";
+                    btn.classList.remove('btn-success');
+                }, 2000);
+            });
+        }
 
-TEXT = """${cleanText}"""
-FILENAME = "${cleanFilename}"
-TRACK_NUM = "${track}"
-
-VOICE = "ar-SA-HamedNeural"
-TARGET_DIR = "/sdcard/Attack N Destroy/Audio"
-COVER_PATH = "/sdcard/Attack N Destroy/cover.jpg"
-
-os.makedirs(TARGET_DIR, exist_ok=True)
-output_path = os.path.join(TARGET_DIR, f"{FILENAME}.mp3")
-
-print(f"⏳ جاري إنشاء الصوت بمستوى مضاعف x3: {FILENAME}.mp3 ...")
-
-cmd = ["edge-tts", "--voice", VOICE, "--volume=+300%", "--text", TEXT, "--write-media", output_path]
-result = subprocess.run(cmd, capture_output=True, text=True)
-
-if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
-    print("❌ فشل إنشاء الصوت! تأكد من تثبيت edge-tts واتصال الإنترنت.")
-    if result.stderr:
-        print("خطأ النظام:", result.stderr)
-else:
-    print("🏷️ جاري إضافة الـ Metadata والصورة...")
-    try:
-        try:
-            audio = ID3(output_path)
-        except Exception:
-            audio = ID3()
-
-        audio.add(TIT2(encoding=3, text=FILENAME))
-        audio.add(TPE1(encoding=3, text="Attack N Destroy"))
-        audio.add(TALB(encoding=3, text="ModsLib"))
-        audio.add(COMM(encoding=3, lang="eng", desc="Comment", text="Copyright © 2026 Attack N Destroy — ModsLib. All rights reserved."))
-        audio.add(TCON(encoding=3, text="tts"))
-        audio.add(TDRC(encoding=3, text="2026"))
-        audio.add(TRCK(encoding=3, text=TRACK_NUM))
-
-        if os.path.exists(COVER_PATH):
-            with open(COVER_PATH, "rb") as albumart:
-                audio.add(APIC(
-                    encoding=3,
-                    mime="image/jpeg",
-                    type=3,
-                    desc="Cover",
-                    data=albumart.read()
-                ))
-
-        audio.save(output_path)
-        print(f"✅ تم حفظ الملف بنجاح في: {output_path}")
-    except Exception as e:
-        print(f"⚠️ تم إنشاء الصوت ولكن حدث خطأ في الـ Metadata: {e}")
-`;
-
-    const fullCommand = `cat << 'EOF' > run.py\n${scriptContent}\nEOF\npython run.py`;
-
-    document.getElementById('output').textContent = fullCommand;
-}
-
-function copyCode() {
-    const codeText = document.getElementById('output').textContent;
-    const btn = document.getElementById('copyBtn');
-
-    navigator.clipboard.writeText(codeText).then(() => {
-        btn.textContent = '✓ تم النسخ!';
-        btn.classList.add('copied');
-
-        setTimeout(() => {
-            btn.textContent = '📋 نسخ الأوامر';
-            btn.classList.remove('copied');
-        }, 2000);
-    });
-}
-</script>
+        // توليد الأمر لأول مرة عند فتح الصفحة
+        generateCommand();
+    </script>
 
 </body>
 </html>

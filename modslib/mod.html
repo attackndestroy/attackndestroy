@@ -321,9 +321,6 @@
             font-size: 0.9rem;
             color: var(--muted);
         }
-        .footer div {
-            margin-bottom: 6px;
-        }
         .footer strong {
             color: var(--text);
             font-weight: 600;
@@ -444,8 +441,8 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <div>CopyRight: <strong>ATT/DES</strong></div>
-            <div>Made &amp; Powered By: <strong>ATT/DES</strong></div>
+            <p>CopyRight: ATT/DES</p>
+            <p>Made &amp; Powered By: <strong>ATT/DES</strong></p>
         </footer>
     </div>
 
@@ -516,6 +513,9 @@
             const i18nElements = document.querySelectorAll('[data-i18n]');
 
             // Ad containers
+            const ad1 = document.getElementById('ad1');
+            const ad2 = document.getElementById('ad2');
+            const ad3 = document.getElementById('ad3');
             const nativeContainer = document.getElementById('nativeContainer');
 
             // ---------- APPLY THEME ----------
@@ -567,32 +567,74 @@
                 applyTheme(next);
             }
 
-            // ---------- LOAD ADS (Independent for each iframe container) ----------
+            // ---------- LOAD ADS ----------
             function loadAds() {
-                // Helper to load ad independently into a specific container
-                const renderAd = function(containerId) {
+                // Each ad is loaded independently inside its own iframe
+                const loadIndependentAd = function(containerId) {
                     const container = document.getElementById(containerId);
                     if (!container) return;
-                    container.innerHTML = '';
-                    try {
-                        const script1 = document.createElement('script');
-                        script1.textContent =
-                            `atOptions = { 'key' : '085b88d3021fceeb590cc996c2eae754', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };`;
-                        container.appendChild(script1);
 
-                        const script2 = document.createElement('script');
-                        script2.src =
-                            'https://www.highrevenueformat.com/085b88d3021fceeb590cc996c2eae754/invoke.js';
-                        container.appendChild(script2);
+                    container.innerHTML = '';
+
+                    try {
+                        const iframe = document.createElement('iframe');
+
+                        iframe.setAttribute('scrolling', 'no');
+                        iframe.setAttribute('frameborder', '0');
+                        iframe.setAttribute('width', '320');
+                        iframe.setAttribute('height', '50');
+                        iframe.style.width = '320px';
+                        iframe.style.height = '50px';
+                        iframe.style.border = 'none';
+                        iframe.style.maxWidth = '100%';
+
+                        container.appendChild(iframe);
+
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                        iframeDoc.open();
+                        iframeDoc.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                    html, body {
+                                        margin: 0;
+                                        padding: 0;
+                                        width: 100%;
+                                        height: 50px;
+                                        overflow: hidden;
+                                        background: transparent;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <script>
+                                    var atOptions = {
+                                        'key' : '085b88d3021fceeb590cc996c2eae754',
+                                        'format' : 'iframe',
+                                        'height' : 50,
+                                        'width' : 320,
+                                        'params' : {}
+                                    };
+                                <\/script>
+                                <script src="https://www.highrevenueformat.com/085b88d3021fceeb590cc996c2eae754/invoke.js"><\/script>
+                            </body>
+                            </html>
+                        `);
+                        iframeDoc.close();
+
                     } catch (e) {
                         // silent fallback
                     }
                 };
 
-                // Render each ad independently
-                renderAd('ad1');
-                renderAd('ad2');
-                renderAd('ad3');
+                // Load each ad independently
+                loadIndependentAd('ad1');
+                loadIndependentAd('ad2');
+                loadIndependentAd('ad3');
 
                 // Native banner
                 try {
@@ -637,11 +679,13 @@
                         // search for id
                         if (Array.isArray(data)) {
                             found = data.find(item => {
+                                // try id as number or string
                                 const itemId = item.id !== undefined ? item.id : null;
                                 if (itemId === null) return false;
                                 return String(itemId) === String(id);
                             });
                         } else if (data && typeof data === 'object') {
+                            // if single object, check its id
                             if (data.id !== undefined && String(data.id) === String(id)) {
                                 found = data;
                             }
@@ -668,20 +712,24 @@
                         statusEl.dataset.i18nKey = 'statusSuccess';
                         statusEl.classList.add('success');
 
+                        // Open download in new tab, then navigate current to smartlink
                         let newWin = null;
                         try {
                             newWin = window.open(downloadUrl, '_blank');
                         } catch (e) { /* ignore */ }
 
                         if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+                            // popup blocked
                             statusEl.textContent = translations[currentLang].statusPopupBlocked;
                             statusEl.dataset.i18nKey = 'statusPopupBlocked';
                             statusEl.classList.remove('success');
                             statusEl.classList.add('error');
+                            // still try to navigate to smartlink?
                             window.location.href = SMARTLINK;
                             return;
                         }
 
+                        // Navigate current to smartlink
                         window.location.href = SMARTLINK;
 
                     })
@@ -695,15 +743,24 @@
 
             // ---------- INIT ----------
             function init() {
+                // apply saved theme
                 applyTheme(currentTheme);
+
+                // apply saved language
                 applyLanguage(currentLang);
+
+                // load ads
                 loadAds();
 
+                // event listeners
                 langToggle.addEventListener('click', toggleLang);
                 themeToggle.addEventListener('click', toggleTheme);
                 downloadBtn.addEventListener('click', handleDownload);
+
+                // if there is an id on load, show status? no, only on button press.
             }
 
+            // run
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {

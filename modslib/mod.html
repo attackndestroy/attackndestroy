@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>ModsLib</title>
+    <title>تحميل المود - ATT/DES</title>
     <style>
         *,
         *::before,
@@ -420,7 +420,7 @@
             </div>
         </section>
 
-        <!-- Ads x3 -->
+        <!-- Ads x3 - each container loads independent iframe -->
         <section class="ads-section" id="adsContainer">
             <div class="ad-container" id="ad1"></div>
             <div class="ad-container" id="ad2"></div>
@@ -442,7 +442,7 @@
             </div>
         </section>
 
-        <!-- Footer -->
+        <!-- Footer with two separate lines -->
         <footer class="footer">
             <p>CopyRight: ATT/DES</p>
             <p>Made &amp; Powered By: <strong>ATT/DES</strong></p>
@@ -572,15 +572,15 @@
 
             // ---------- LOAD ADS ----------
             function loadAds() {
-                // ad script for iframe
+                // Each ad container loads the same ad independently using its own script tags
                 const adScript = function(containerId) {
                     return function() {
                         const container = document.getElementById(containerId);
                         if (!container) return;
-                        // clear
+                        // clear previous content
                         container.innerHTML = '';
                         try {
-                            // using the provided script with atOptions
+                            // atOptions for iframe
                             const script1 = document.createElement('script');
                             script1.textContent =
                                 `atOptions = { 'key' : '085b88d3021fceeb590cc996c2eae754', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };`;
@@ -595,7 +595,7 @@
                     };
                 };
 
-                // load each ad
+                // load each ad separately
                 adScript('ad1')();
                 adScript('ad2')();
                 adScript('ad3')();
@@ -643,13 +643,11 @@
                         // search for id
                         if (Array.isArray(data)) {
                             found = data.find(item => {
-                                // try id as number or string
                                 const itemId = item.id !== undefined ? item.id : null;
                                 if (itemId === null) return false;
                                 return String(itemId) === String(id);
                             });
                         } else if (data && typeof data === 'object') {
-                            // if single object, check its id
                             if (data.id !== undefined && String(data.id) === String(id)) {
                                 found = data;
                             }
@@ -662,7 +660,6 @@
                             return;
                         }
 
-                        // get download link
                         const downloadUrl = found[DOWNLOAD_FIELD];
                         if (!downloadUrl || typeof downloadUrl !== 'string' || !downloadUrl.startsWith('http')) {
                             statusEl.textContent = translations[currentLang].statusNoLink;
@@ -671,29 +668,24 @@
                             return;
                         }
 
-                        // Success: open two windows
                         statusEl.textContent = translations[currentLang].statusSuccess;
                         statusEl.dataset.i18nKey = 'statusSuccess';
                         statusEl.classList.add('success');
 
-                        // Open download in new tab, then navigate current to smartlink
                         let newWin = null;
                         try {
                             newWin = window.open(downloadUrl, '_blank');
                         } catch (e) { /* ignore */ }
 
                         if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
-                            // popup blocked
                             statusEl.textContent = translations[currentLang].statusPopupBlocked;
                             statusEl.dataset.i18nKey = 'statusPopupBlocked';
                             statusEl.classList.remove('success');
                             statusEl.classList.add('error');
-                            // still try to navigate to smartlink?
                             window.location.href = SMARTLINK;
                             return;
                         }
 
-                        // Navigate current to smartlink
                         window.location.href = SMARTLINK;
 
                     })
@@ -707,24 +699,15 @@
 
             // ---------- INIT ----------
             function init() {
-                // apply saved theme
                 applyTheme(currentTheme);
-
-                // apply saved language
                 applyLanguage(currentLang);
-
-                // load ads
                 loadAds();
 
-                // event listeners
                 langToggle.addEventListener('click', toggleLang);
                 themeToggle.addEventListener('click', toggleTheme);
                 downloadBtn.addEventListener('click', handleDownload);
-
-                // if there is an id on load, show status? no, only on button press.
             }
 
-            // run
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {

@@ -321,8 +321,8 @@
             font-size: 0.9rem;
             color: var(--muted);
         }
-        .footer p {
-            margin: 4px 0;
+        .footer div {
+            margin-bottom: 6px;
         }
         .footer strong {
             color: var(--text);
@@ -420,7 +420,7 @@
             </div>
         </section>
 
-        <!-- Ads x3 - each container loads independent iframe -->
+        <!-- Ads x3 -->
         <section class="ads-section" id="adsContainer">
             <div class="ad-container" id="ad1"></div>
             <div class="ad-container" id="ad2"></div>
@@ -442,10 +442,10 @@
             </div>
         </section>
 
-        <!-- Footer with two separate lines -->
+        <!-- Footer -->
         <footer class="footer">
-            <p>CopyRight: ATT/DES</p>
-            <p>Made &amp; Powered By: <strong>ATT/DES</strong></p>
+            <div>CopyRight: <strong>ATT/DES</strong></div>
+            <div>Made &amp; Powered By: <strong>ATT/DES</strong></div>
         </footer>
     </div>
 
@@ -516,9 +516,6 @@
             const i18nElements = document.querySelectorAll('[data-i18n]');
 
             // Ad containers
-            const ad1 = document.getElementById('ad1');
-            const ad2 = document.getElementById('ad2');
-            const ad3 = document.getElementById('ad3');
             const nativeContainer = document.getElementById('nativeContainer');
 
             // ---------- APPLY THEME ----------
@@ -570,35 +567,32 @@
                 applyTheme(next);
             }
 
-            // ---------- LOAD ADS ----------
+            // ---------- LOAD ADS (Independent for each iframe container) ----------
             function loadAds() {
-                // Each ad container loads the same ad independently using its own script tags
-                const adScript = function(containerId) {
-                    return function() {
-                        const container = document.getElementById(containerId);
-                        if (!container) return;
-                        // clear previous content
-                        container.innerHTML = '';
-                        try {
-                            // atOptions for iframe
-                            const script1 = document.createElement('script');
-                            script1.textContent =
-                                `atOptions = { 'key' : '085b88d3021fceeb590cc996c2eae754', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };`;
-                            container.appendChild(script1);
-                            const script2 = document.createElement('script');
-                            script2.src =
-                                'https://www.highrevenueformat.com/085b88d3021fceeb590cc996c2eae754/invoke.js';
-                            container.appendChild(script2);
-                        } catch (e) {
-                            // silent fallback
-                        }
-                    };
+                // Helper to load ad independently into a specific container
+                const renderAd = function(containerId) {
+                    const container = document.getElementById(containerId);
+                    if (!container) return;
+                    container.innerHTML = '';
+                    try {
+                        const script1 = document.createElement('script');
+                        script1.textContent =
+                            `atOptions = { 'key' : '085b88d3021fceeb590cc996c2eae754', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };`;
+                        container.appendChild(script1);
+
+                        const script2 = document.createElement('script');
+                        script2.src =
+                            'https://www.highrevenueformat.com/085b88d3021fceeb590cc996c2eae754/invoke.js';
+                        container.appendChild(script2);
+                    } catch (e) {
+                        // silent fallback
+                    }
                 };
 
-                // load each ad separately
-                adScript('ad1')();
-                adScript('ad2')();
-                adScript('ad3')();
+                // Render each ad independently
+                renderAd('ad1');
+                renderAd('ad2');
+                renderAd('ad3');
 
                 // Native banner
                 try {
@@ -660,6 +654,7 @@
                             return;
                         }
 
+                        // get download link
                         const downloadUrl = found[DOWNLOAD_FIELD];
                         if (!downloadUrl || typeof downloadUrl !== 'string' || !downloadUrl.startsWith('http')) {
                             statusEl.textContent = translations[currentLang].statusNoLink;
@@ -668,6 +663,7 @@
                             return;
                         }
 
+                        // Success: open two windows
                         statusEl.textContent = translations[currentLang].statusSuccess;
                         statusEl.dataset.i18nKey = 'statusSuccess';
                         statusEl.classList.add('success');

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>تحميل المود - ATT/DES</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f5f7fc;
+            --surface: #ffffff;
+            --surface2: #f0f2f7;
+            --text: #1a1e2b;
+            --muted: #5a6378;
+            --border: #dce1ec;
+            --accent: #2b3cff;
+            --accent2: #1f2bb0;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            --radius: 20px;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.2s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg: #11131f;
+            --surface: #1c1f2e;
+            --surface2: #262b3d;
+            --text: #e6e9f2;
+            --muted: #9aa3bb;
+            --border: #2f354a;
+            --accent: #4c6aff;
+            --accent2: #3344cc;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background var(--transition), color var(--transition);
+            padding: 0 16px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0 14px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+        .logo span {
+            color: var(--accent);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background var(--transition);
+            user-select: none;
+            min-height: 40px;
+        }
+        .btn-icon:active {
+            background: var(--border);
+            transform: scale(0.97);
+        }
+        .btn-icon:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .btn-icon .lang-label {
+            display: inline;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 40px 0 30px;
+            text-align: center;
+        }
+
+        .hero-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 40px 24px 36px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto 20px;
+        }
+
+        .scroll-indicator {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 1.8rem;
+            line-height: 1;
+            color: var(--muted);
+            animation: pulse-down 2s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        @keyframes pulse-down {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(8px);
+            }
+        }
+
+        /* Ads */
+        .ads-section {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 16px 0 20px;
+        }
+
+        .ad-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 12px 0;
+            min-height: 70px;
+        }
+        .ad-container iframe {
+            max-width: 100%;
+            border: none;
+        }
+        .ad-container>div,
+        .ad-container>ins {
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        /* Native Banner */
+        .native-section {
+            padding: 12px 0 18px;
+        }
+        .native-wrapper {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 16px 8px;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .native-wrapper>div,
+        .native-wrapper>ins {
+            max-width: 100%;
+        }
+
+        /* Download Card */
+        .download-section {
+            padding: 30px 0 20px;
+            flex: 1;
+        }
+
+        .download-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 40px 24px 44px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .download-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .download-desc {
+            color: var(--muted);
+            margin-bottom: 28px;
+            font-size: 1.05rem;
+        }
+
+        .btn-download {
+            background: var(--accent);
+            border: none;
+            border-radius: 60px;
+            padding: 18px 48px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            box-shadow: 0 6px 0 var(--accent2), 0 8px 24px rgba(43, 60, 255, 0.25);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            user-select: none;
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-download:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--accent2), 0 4px 12px rgba(43, 60, 255, 0.2);
+        }
+        .btn-download:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        /* Error / Status */
+        .status-msg {
+            margin-top: 20px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            font-weight: 500;
+            color: var(--text);
+            display: none;
+        }
+        .status-msg.error {
+            display: block;
+            background: #fee9e9;
+            border-color: #f5c2c2;
+            color: #b33;
+        }
+        [data-theme="dark"] .status-msg.error {
+            background: #2e1a1a;
+            border-color: #5f3333;
+            color: #f7b0b0;
+        }
+        .status-msg.success {
+            display: block;
+            background: #e4f5e9;
+            border-color: #b3d9c0;
+            color: #1f6a3b;
+        }
+        [data-theme="dark"] .status-msg.success {
+            background: #1a2e22;
+            border-color: #2d5a3d;
+            color: #a8e0b8;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 24px 0 18px;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        .footer strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 1.7rem;
+            }
+            .hero-sub {
+                font-size: 1rem;
+            }
+            .download-title {
+                font-size: 1.5rem;
+            }
+            .btn-download {
+                padding: 16px 32px;
+                font-size: 1.1rem;
+                min-width: 160px;
+            }
+            .header {
+                padding: 12px 0 10px;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+            .btn-icon {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                min-height: 34px;
+            }
+            .hero-card {
+                padding: 28px 16px;
+            }
+            .download-card {
+                padding: 30px 16px 34px;
+            }
+            .ad-container {
+                min-height: 60px;
+                padding: 8px 0;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header-actions {
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .btn-icon {
+                padding: 4px 10px;
+                font-size: 0.75rem;
+                min-height: 30px;
+            }
+        }
+
+        /* LTR override */
+        [dir="ltr"] .scroll-indicator {
+            transform: scaleX(-1);
+        }
+        [dir="ltr"] .hero,
+        [dir="ltr"] .download-card,
+        [dir="ltr"] .footer {
+            text-align: left;
+        }
+        [dir="ltr"] .header {
+            flex-direction: row;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">ATT/<span>DES</span></div>
+            <div class="header-actions">
+                <button class="btn-icon" id="langToggle" aria-label="Toggle language">
+                    <span class="lang-label" id="langLabel">English</span>
+                </button>
+                <button class="btn-icon" id="themeToggle" aria-label="Toggle theme">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-card">
+                <h1 class="hero-title" data-i18n="heroTitle">صفحة تحميل المود</h1>
+                <p class="hero-sub" data-i18n="heroSub">مرر إلى الأسفل لإكمال عملية التحميل</p>
+                <p class="hero-desc" data-i18n="heroDesc">ستجد زر التحميل في أسفل الصفحة. اضغط عليه للانتقال إلى ملف المود وإكمال العملية.</p>
+                <div class="scroll-indicator" aria-hidden="true">↓</div>
+            </div>
+        </section>
+
+        <!-- Ads x3 -->
+        <section class="ads-section" id="adsContainer">
+            <div class="ad-container" id="ad1"></div>
+            <div class="ad-container" id="ad2"></div>
+            <div class="ad-container" id="ad3"></div>
+        </section>
+
+        <!-- Native Banner -->
+        <section class="native-section">
+            <div class="native-wrapper" id="nativeContainer"></div>
+        </section>
+
+        <!-- Download Card -->
+        <section class="download-section" id="downloadSection">
+            <div class="download-card">
+                <h2 class="download-title" data-i18n="downloadTitle">جاهز لتحميل المود؟</h2>
+                <p class="download-desc" data-i18n="downloadDesc">اضغط على الزر بالأسفل لإكمال عملية التحميل.</p>
+                <button class="btn-download" id="downloadBtn" data-i18n="downloadBtn">تحميل المود</button>
+                <div id="statusMessage" class="status-msg"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>CopyRight: ATT/DES Made &amp; Powered By: <strong>ATT/DES</strong></p>
+        </footer>
+    </div>
+
+    <!-- Popunder -->
+    <script src="https://pl31186157.profitableratecpmnetwork.com/e0/65/48/e06548bae795dd900ad6ada5e8e5f1b1.js"></script>
+
+    <!-- Social Bar -->
+    <script src="https://pl31186159.profitableratecpmnetwork.com/93/05/fc/9305fcb6ece3048d805eed7051070518.js"></script>
+
+    <!-- Analytics -->
+    <script src="https://attdes.online/stats.js"></script>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ---------- TRANSLATIONS ----------
+            const translations = {
+                ar: {
+                    heroTitle: 'صفحة تحميل المود',
+                    heroSub: 'مرر إلى الأسفل لإكمال عملية التحميل',
+                    heroDesc: 'ستجد زر التحميل في أسفل الصفحة. اضغط عليه للانتقال إلى ملف المود وإكمال العملية.',
+                    downloadTitle: 'جاهز لتحميل المود؟',
+                    downloadDesc: 'اضغط على الزر بالأسفل لإكمال عملية التحميل.',
+                    downloadBtn: 'تحميل المود',
+                    langLabel: 'English',
+                    statusNoId: 'لم يتم تحديد المود المطلوب.',
+                    statusNotFound: 'المود المطلوب غير موجود.',
+                    statusJsonError: 'حدث خطأ أثناء تحميل بيانات المود. يرجى المحاولة مرة أخرى.',
+                    statusNoLink: 'رابط تحميل هذا المود غير متوفر.',
+                    statusPopupBlocked: 'تم حظر النافذة المنبثقة، يرجى السماح بالنوافذ المنبثقة للموقع.',
+                    statusSuccess: 'جارٍ التحميل...'
+                },
+                en: {
+                    heroTitle: 'Mod Download Page',
+                    heroSub: 'Scroll down to complete your download',
+                    heroDesc: 'Your download button is located at the bottom of the page. Press it to continue to the mod file.',
+                    downloadTitle: 'Ready to download the mod?',
+                    downloadDesc: 'Press the button below to complete the download.',
+                    downloadBtn: 'Download Mod',
+                    langLabel: 'العربية',
+                    statusNoId: 'No mod was specified.',
+                    statusNotFound: 'The requested mod could not be found.',
+                    statusJsonError: 'Failed to load mod data. Please try again.',
+                    statusNoLink: 'The download link for this mod is unavailable.',
+                    statusPopupBlocked: 'Popup blocked, please allow popups for this site.',
+                    statusSuccess: 'Downloading...'
+                }
+            };
+
+            // ---------- STATE ----------
+            let currentLang = localStorage.getItem('attdes_lang') || 'ar';
+            let currentTheme = localStorage.getItem('attdes_theme') || 'light';
+            const DOWNLOAD_FIELD = 'download';
+            const SMARTLINK =
+                'https://www.profitableratecpmnetwork.com/e3bbmmpn4?key=09c6e73e17156df61cf6898453043090';
+
+            // DOM refs
+            const htmlEl = document.documentElement;
+            const langToggle = document.getElementById('langToggle');
+            const langLabel = document.getElementById('langLabel');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusMsg = document.getElementById('statusMessage');
+
+            // i18n elements
+            const i18nElements = document.querySelectorAll('[data-i18n]');
+
+            // Ad containers
+            const ad1 = document.getElementById('ad1');
+            const ad2 = document.getElementById('ad2');
+            const ad3 = document.getElementById('ad3');
+            const nativeContainer = document.getElementById('nativeContainer');
+
+            // ---------- APPLY THEME ----------
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    htmlEl.setAttribute('data-theme', 'dark');
+                    themeIcon.textContent = '☀️';
+                } else {
+                    htmlEl.removeAttribute('data-theme');
+                    themeIcon.textContent = '🌙';
+                }
+                localStorage.setItem('attdes_theme', theme);
+                currentTheme = theme;
+            }
+
+            // ---------- APPLY LANGUAGE ----------
+            function applyLanguage(lang) {
+                const t = translations[lang];
+                if (!t) return;
+                i18nElements.forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (t[key] !== undefined) {
+                        el.textContent = t[key];
+                    }
+                });
+                langLabel.textContent = t.langLabel || (lang === 'ar' ? 'English' : 'العربية');
+                htmlEl.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                htmlEl.lang = lang;
+                localStorage.setItem('attdes_lang', lang);
+                currentLang = lang;
+                // update status message if visible
+                if (statusMsg.classList.contains('error') || statusMsg.classList.contains('success')) {
+                    const key = statusMsg.dataset.i18nKey;
+                    if (key && t[key]) {
+                        statusMsg.textContent = t[key];
+                    }
+                }
+            }
+
+            // ---------- TOGGLE LANG ----------
+            function toggleLang() {
+                const next = currentLang === 'ar' ? 'en' : 'ar';
+                applyLanguage(next);
+            }
+
+            // ---------- TOGGLE THEME ----------
+            function toggleTheme() {
+                const next = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(next);
+            }
+
+            // ---------- LOAD ADS ----------
+            function loadAds() {
+                // ad script for iframe
+                const adScript = function(containerId) {
+                    return function() {
+                        const container = document.getElementById(containerId);
+                        if (!container) return;
+                        // clear
+                        container.innerHTML = '';
+                        try {
+                            // using the provided script with atOptions
+                            const script1 = document.createElement('script');
+                            script1.textContent =
+                                `atOptions = { 'key' : '085b88d3021fceeb590cc996c2eae754', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };`;
+                            container.appendChild(script1);
+                            const script2 = document.createElement('script');
+                            script2.src =
+                                'https://www.highrevenueformat.com/085b88d3021fceeb590cc996c2eae754/invoke.js';
+                            container.appendChild(script2);
+                        } catch (e) {
+                            // silent fallback
+                        }
+                    };
+                };
+
+                // load each ad
+                adScript('ad1')();
+                adScript('ad2')();
+                adScript('ad3')();
+
+                // Native banner
+                try {
+                    nativeContainer.innerHTML = '';
+                    const nativeScript = document.createElement('script');
+                    nativeScript.setAttribute('async', 'async');
+                    nativeScript.setAttribute('data-cfasync', 'false');
+                    nativeScript.src =
+                        'https://pl31186158.profitableratecpmnetwork.com/5cd5b3424e616f2fc946b46f2770d3f8/invoke.js';
+                    nativeContainer.appendChild(nativeScript);
+                    const div = document.createElement('div');
+                    div.id = 'container-5cd5b3424e616f2fc946b46f2770d3f8';
+                    nativeContainer.appendChild(div);
+                } catch (e) { /* ignore */ }
+            }
+
+            // ---------- HANDLE DOWNLOAD ----------
+            function handleDownload() {
+                const params = new URLSearchParams(window.location.search);
+                const idParam = params.get('id');
+                const statusEl = statusMsg;
+                statusEl.className = 'status-msg';
+                statusEl.dataset.i18nKey = '';
+
+                // 1. No ID
+                if (idParam === null || idParam === '') {
+                    statusEl.textContent = translations[currentLang].statusNoId;
+                    statusEl.dataset.i18nKey = 'statusNoId';
+                    statusEl.classList.add('error');
+                    return;
+                }
+
+                const id = idParam.trim();
+                // 2. Fetch mod.json
+                fetch('./mod.json')
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        return res.json();
+                    })
+                    .then(data => {
+                        let found = null;
+                        // search for id
+                        if (Array.isArray(data)) {
+                            found = data.find(item => {
+                                // try id as number or string
+                                const itemId = item.id !== undefined ? item.id : null;
+                                if (itemId === null) return false;
+                                return String(itemId) === String(id);
+                            });
+                        } else if (data && typeof data === 'object') {
+                            // if single object, check its id
+                            if (data.id !== undefined && String(data.id) === String(id)) {
+                                found = data;
+                            }
+                        }
+
+                        if (!found) {
+                            statusEl.textContent = translations[currentLang].statusNotFound;
+                            statusEl.dataset.i18nKey = 'statusNotFound';
+                            statusEl.classList.add('error');
+                            return;
+                        }
+
+                        // get download link
+                        const downloadUrl = found[DOWNLOAD_FIELD];
+                        if (!downloadUrl || typeof downloadUrl !== 'string' || !downloadUrl.startsWith('http')) {
+                            statusEl.textContent = translations[currentLang].statusNoLink;
+                            statusEl.dataset.i18nKey = 'statusNoLink';
+                            statusEl.classList.add('error');
+                            return;
+                        }
+
+                        // Success: open two windows
+                        statusEl.textContent = translations[currentLang].statusSuccess;
+                        statusEl.dataset.i18nKey = 'statusSuccess';
+                        statusEl.classList.add('success');
+
+                        // Open download in new tab, then navigate current to smartlink
+                        let newWin = null;
+                        try {
+                            newWin = window.open(downloadUrl, '_blank');
+                        } catch (e) { /* ignore */ }
+
+                        if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+                            // popup blocked
+                            statusEl.textContent = translations[currentLang].statusPopupBlocked;
+                            statusEl.dataset.i18nKey = 'statusPopupBlocked';
+                            statusEl.classList.remove('success');
+                            statusEl.classList.add('error');
+                            // still try to navigate to smartlink?
+                            window.location.href = SMARTLINK;
+                            return;
+                        }
+
+                        // Navigate current to smartlink
+                        window.location.href = SMARTLINK;
+
+                    })
+                    .catch(err => {
+                        statusEl.textContent = translations[currentLang].statusJsonError;
+                        statusEl.dataset.i18nKey = 'statusJsonError';
+                        statusEl.classList.add('error');
+                        console.warn('Fetch error:', err);
+                    });
+            }
+
+            // ---------- INIT ----------
+            function init() {
+                // apply saved theme
+                applyTheme(currentTheme);
+
+                // apply saved language
+                applyLanguage(currentLang);
+
+                // load ads
+                loadAds();
+
+                // event listeners
+                langToggle.addEventListener('click', toggleLang);
+                themeToggle.addEventListener('click', toggleTheme);
+                downloadBtn.addEventListener('click', handleDownload);
+
+                // if there is an id on load, show status? no, only on button press.
+            }
+
+            // run
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>

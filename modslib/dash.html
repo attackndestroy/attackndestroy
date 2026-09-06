@@ -1,584 +1,1639 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="ltr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ModsLib — GitHub JSON Dashboard</title>
-<style>
-:root{
-  --bg:#090b10;--panel:#10141c;--panel2:#0c1017;--border:#202733;
-  --text:#eef2f7;--muted:#8d98a8;--accent:#6ea8fe;--accent2:#4f8df7;
-  --success:#37d67a;--danger:#ff5c72;--warning:#f5bd4f;--shadow:0 18px 50px rgba(0,0,0,.28);
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:radial-gradient(circle at 10% 0%,#121a29 0,transparent 30%),var(--bg);
-  color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-.app{width:min(1180px,calc(100% - 28px));margin:auto;padding:28px 0 50px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:13px}
-.logo{width:42px;height:42px;border:1px solid #303949;border-radius:12px;display:grid;place-items:center;background:#151b25;font-weight:800}
-h1{font-size:22px;margin:0}.subtitle{color:var(--muted);font-size:13px;margin-top:3px}
-.actions{display:flex;gap:9px;flex-wrap:wrap}
-.btn{
-  border:1px solid var(--border);background:#151a23;color:var(--text);border-radius:10px;
-  padding:10px 14px;font-weight:650;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:8px
-}
-.btn:hover{transform:translateY(-1px);border-color:#354052;background:#1a202b}
-.btn.primary{background:var(--accent2);border-color:var(--accent2);color:white}
-.btn.primary:hover{background:#6099fa}
-.btn.danger{color:#ff8998}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.stat,.card{
-  background:linear-gradient(180deg,rgba(20,25,34,.96),rgba(14,18,25,.96));
-  border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow)
-}
-.stat{padding:17px}.stat-label{font-size:12px;color:var(--muted);margin-bottom:8px}.stat-value{font-size:20px;font-weight:750;word-break:break-word}
-.status{display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--warning);box-shadow:0 0 12px currentColor}.dot.ok{background:var(--success)}.dot.bad{background:var(--danger)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.card{padding:19px}.card.full{grid-column:1/-1}
-.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
-.card h2{font-size:16px;margin:0}.card p{margin:5px 0 0;color:var(--muted);font-size:12px}
-.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
-label{display:block;font-size:12px;color:#b9c2ce;margin-bottom:7px;font-weight:650}
-input,textarea{
-  width:100%;border:1px solid #27303d;background:var(--panel2);color:var(--text);
-  border-radius:10px;outline:none;transition:.18s
-}
-input{height:43px;padding:0 12px}textarea{padding:13px;resize:vertical;line-height:1.55}
-input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(110,168,254,.10)}
-.row{display:grid;grid-template-columns:150px 1fr;gap:10px}
-.form-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
-.editor{min-height:370px;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:13px;tab-size:2}
-.json-content{min-height:250px}
-.auth-grid{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:end}
-.message{display:none;margin-top:11px;padding:10px 12px;border-radius:9px;font-size:12px;border:1px solid}
-.message.show{display:block}.message.success{color:#8df0b5;background:rgba(55,214,122,.07);border-color:rgba(55,214,122,.25)}
-.message.error{color:#ff9aa8;background:rgba(255,92,114,.07);border-color:rgba(255,92,114,.25)}
-.message.info{color:#9fc3ff;background:rgba(110,168,254,.07);border-color:rgba(110,168,254,.25)}
-.token-note{font-size:11px;color:var(--muted);margin-top:9px}
-.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;flex-direction:column;gap:9px;max-width:min(380px,calc(100% - 36px))}
-.toast{padding:12px 14px;background:#151b25;border:1px solid #2b3544;border-radius:11px;box-shadow:0 15px 35px rgba(0,0,0,.4);font-size:13px;animation:in .2s ease}
-.toast.success{border-color:rgba(55,214,122,.35)}.toast.error{border-color:rgba(255,92,114,.4)}
-@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.loading{position:fixed;inset:0;background:rgba(5,7,10,.52);backdrop-filter:blur(3px);display:none;place-items:center;z-index:30}
-.loading.show{display:grid}.loader-box{background:#121720;border:1px solid #2b3441;border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:12px;font-size:13px}
-.spinner{width:17px;height:17px;border:2px solid #3b4655;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.hidden{display:none!important}
-@media(max-width:800px){
-  .stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}
-  .topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions .btn{flex:1}
-}
-@media(max-width:520px){
-  .app{width:min(100% - 18px,1180px);padding-top:17px}.stats{grid-template-columns:1fr 1fr}.stat{padding:13px}
-  .stat-value{font-size:17px}.row{grid-template-columns:1fr}.auth-grid{grid-template-columns:1fr 1fr}.auth-grid input{grid-column:1/-1}
-  .form-actions .btn{width:100%}.card{padding:15px}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Manager Dashboard</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg-primary: #0b0e14;
+            --bg-secondary: #131a24;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --border-glass: rgba(255, 255, 255, 0.07);
+            --text-primary: #f0f4fa;
+            --text-secondary: #a0b4cc;
+            --text-muted: #6a7f99;
+            --accent: #6c8cff;
+            --accent-glow: rgba(108, 140, 255, 0.25);
+            --accent-hover: #5a7ae6;
+            --success: #3ddc84;
+            --success-glow: rgba(61, 220, 132, 0.20);
+            --danger: #ff6b6b;
+            --danger-glow: rgba(255, 107, 107, 0.20);
+            --warning: #fbbf24;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-image: radial-gradient(ellipse at 20% 30%, rgba(108, 140, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(61, 220, 132, 0.04) 0%, transparent 50%);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* ===== APP CONTAINER ===== */
+        .app {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius);
+            padding: 18px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-brand .icon {
+            font-size: 26px;
+            line-height: 1;
+        }
+        .header-brand h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+        }
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .status-badge .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .status-badge .dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+        }
+        .status-badge .dot.token-required {
+            background: var(--warning);
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+        }
+        .status-badge .dot.error {
+            background: var(--danger);
+            box-shadow: 0 0 12px var(--danger-glow);
+        }
+        .status-badge .dot.loading {
+            background: var(--accent);
+            animation: pulse-dot 1s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.75);
+            }
+        }
+        .btn-refresh {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            padding: 7px 18px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: var(--font);
+        }
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .btn-refresh:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(calc(100% + 30px));
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast .toast-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .toast .toast-msg {
+            flex: 1;
+            word-break: break-word;
+        }
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+        .toast.info {
+            border-left: 4px solid var(--accent);
+        }
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.10);
+        }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title .badge {
+            font-size: 0.65rem;
+            font-weight: 500;
+            background: rgba(108, 140, 255, 0.18);
+            color: var(--accent);
+            padding: 2px 12px;
+            border-radius: 50px;
+            letter-spacing: 0.3px;
+        }
+        .card-sub {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 160px;
+            margin-bottom: 0;
+        }
+        .form-row .form-group:last-child {
+            flex: 0 0 auto;
+        }
+        input,
+        .input-like {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        input::placeholder {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .input-with-toggle {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-with-toggle input {
+            padding-right: 48px;
+        }
+        .input-with-toggle .toggle-btn {
+            position: absolute;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .input-with-toggle .toggle-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px var(--accent-glow);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+        }
+        .btn-success {
+            background: var(--success);
+            color: #0b0e14;
+            box-shadow: 0 4px 16px var(--success-glow);
+        }
+        .btn-success:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+        .btn-success:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+        }
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 107, 107, 0.20);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 0.25);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .btn-sm {
+            padding: 5px 14px;
+            font-size: 0.75rem;
+            border-radius: 8px;
+        }
+        .btn-copy {
+            background: rgba(108, 140, 255, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(108, 140, 255, 0.15);
+        }
+        .btn-copy:hover {
+            background: rgba(108, 140, 255, 0.22);
+        }
+        .btn-edit {
+            background: rgba(251, 191, 36, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(251, 191, 36, 0.15);
+        }
+        .btn-edit:hover {
+            background: rgba(251, 191, 36, 0.22);
+        }
+
+        /* ===== TOKEN SECTION ===== */
+        .token-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .token-actions .btn {
+            font-size: 0.75rem;
+            padding: 6px 16px;
+        }
+        .token-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== DOWNLOAD LIST ===== */
+        .list-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .list-controls .search-box {
+            flex: 1;
+            min-width: 160px;
+            position: relative;
+        }
+        .list-controls .search-box input {
+            padding-left: 36px;
+        }
+        .list-controls .search-box .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .list-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .download-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: var(--transition);
+        }
+        .download-item:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.10);
+        }
+        .download-item .info {
+            flex: 1;
+            min-width: 160px;
+        }
+        .download-item .info .id {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .download-item .info .url {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            margin-top: 2px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.75rem;
+        }
+        .download-item .info .url a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .download-item .info .url a:hover {
+            text-decoration: underline;
+        }
+        .download-item .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .download-item .actions .btn {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px 10px;
+            color: var(--text-muted);
+        }
+        .empty-state .emoji {
+            font-size: 2.4rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* ===== JSON VIEWER ===== */
+        .json-viewer {
+            position: relative;
+        }
+        .json-viewer pre {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            overflow-x: auto;
+            font-size: 0.75rem;
+            font-family: 'Monaco', 'Menlo', 'Cascadia Code', monospace;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass);
+            max-height: 320px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .json-viewer .json-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== LOADING OVERLAY ===== */
+        .loading-overlay {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-overlay .spinner {
+            width: 22px;
+            height: 22px;
+            border: 2.5px solid var(--border-glass);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .inline-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .inline-loading .spinner-sm {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-glass);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                padding: 14px 18px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .header-brand h1 {
+                font-size: 1rem;
+            }
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .card {
+                padding: 16px 18px;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .form-row .form-group {
+                min-width: unset;
+                width: 100%;
+            }
+            .form-row .form-group:last-child {
+                flex: 1;
+            }
+            .download-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .download-item .actions {
+                justify-content: flex-start;
+            }
+            .list-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .list-controls .search-box {
+                min-width: unset;
+            }
+            .toast-container {
+                top: 12px;
+                right: 12px;
+                max-width: calc(100% - 24px);
+            }
+            .toast {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+            .json-viewer pre {
+                font-size: 0.65rem;
+                padding: 12px 14px;
+                max-height: 220px;
+            }
+            .token-actions {
+                flex-wrap: wrap;
+            }
+        }
+        @media (max-width: 480px) {
+            .header-brand .icon {
+                font-size: 20px;
+            }
+            .header-brand h1 {
+                font-size: 0.9rem;
+            }
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+            .card-title {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ===== UTILITY ===== */
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Highlight search match */
+        .highlight {
+            background: rgba(251, 191, 36, 0.25);
+            border-radius: 3px;
+            padding: 0 2px;
+        }
+
+        /* error box inline */
+        .error-box {
+            background: rgba(255, 107, 107, 0.08);
+            border: 1px solid rgba(255, 107, 107, 0.15);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        .error-box.show {
+            display: block;
+        }
+        .error-box .error-icon {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">{ }</div>
-      <div><h1>ModsLib Dashboard</h1><div class="subtitle">GitHub JSON management panel</div></div>
-    </div>
-    <div class="actions">
-      <button class="btn" id="refreshBtn">↻ Refresh</button>
-    </div>
-  </header>
 
-  <section class="stats">
-    <div class="stat"><div class="stat-label">Total Items</div><div class="stat-value" id="totalItems">—</div></div>
-    <div class="stat"><div class="stat-label">Highest ID</div><div class="stat-value" id="highestId">—</div></div>
-    <div class="stat"><div class="stat-label">File</div><div class="stat-value" style="font-size:14px">/modslib/mod.json</div></div>
-    <div class="stat"><div class="stat-label">Status</div><div class="stat-value status"><span class="dot" id="statusDot"></span><span id="statusText">Not connected</span></div></div>
-  </section>
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
 
-  <main class="grid">
-    <section class="card full">
-      <div class="card-head">
-        <div><h2>GitHub Authentication</h2><p>Your token is stored only in this browser's localStorage.</p></div>
-      </div>
-      <div class="auth-grid">
-        <div>
-          <label for="token">GitHub Token</label>
-          <input id="token" type="password" autocomplete="off" placeholder="Paste your GitHub token">
+    <!-- ===== APP ===== -->
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div class="header-brand">
+                <span class="icon">⚙️</span>
+                <h1>JSON Manager</h1>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge" id="statusBadge">
+                    <span class="dot token-required" id="statusDot"></span>
+                    <span id="statusText">Token Required</span>
+                </div>
+                <button class="btn-refresh" id="refreshBtn" title="Refresh from GitHub">
+                    <span>⟳</span> Refresh
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== TOKEN MANAGEMENT ===== -->
+        <section class="card" id="tokenCard">
+            <div class="card-title">
+                🔑 Token Management
+                <span class="badge">localStorage</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:3; min-width:200px;">
+                    <label for="tokenInput">GitHub Token</label>
+                    <div class="input-with-toggle">
+                        <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                        <button class="toggle-btn" id="toggleTokenBtn" type="button" title="Show / Hide">👁️</button>
+                    </div>
+                </div>
+                <div class="form-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <div class="token-actions">
+                        <button class="btn btn-primary" id="saveTokenBtn">Save Token</button>
+                        <button class="btn btn-danger btn-sm" id="clearTokenBtn">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="token-hint">
+                <span>🔒</span>
+                Your GitHub token is stored locally in this browser.
+                <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);" id="tokenStatus">Not saved</span>
+            </div>
+        </section>
+
+        <!-- ===== ADD NEW DOWNLOAD ===== -->
+        <section class="card" id="addCard">
+            <div class="card-title">
+                ➕ Add New Download
+                <span class="badge">auto ID</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:0 0 100px;">
+                    <label for="newId">ID</label>
+                    <input type="text" id="newId" disabled placeholder="—">
+                </div>
+                <div class="form-group" style="flex:3; min-width:200px;">
+                    <label for="newUrl">Download URL</label>
+                    <input type="url" id="newUrl" placeholder="https://example.com/file">
+                </div>
+                <div class="form-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-success" id="addBtn">Add</button>
+                </div>
+            </div>
+            <div id="addError" class="error-box"></div>
+        </section>
+
+        <!-- ===== EDIT DOWNLOAD ===== -->
+        <section class="card" id="editCard">
+            <div class="card-title">
+                ✏️ Edit Download
+                <span class="badge">by ID</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:0 0 120px;">
+                    <label for="editId">ID</label>
+                    <input type="number" id="editId" placeholder="24" min="1">
+                </div>
+                <div class="form-group" style="flex:3; min-width:200px;">
+                    <label for="editUrl">New Download URL</label>
+                    <input type="url" id="editUrl" placeholder="https://example.com/new-file">
+                </div>
+                <div class="form-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" id="editBtn">Save Changes</button>
+                </div>
+            </div>
+            <div id="editError" class="error-box"></div>
+        </section>
+
+        <!-- ===== DOWNLOADS LIST ===== -->
+        <section class="card" id="listCard">
+            <div class="card-title">
+                📦 Downloads
+                <span class="badge" id="countBadge">0</span>
+            </div>
+            <div class="list-controls">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search by ID or URL...">
+                </div>
+                <span class="list-count" id="listCount">Showing 0 items</span>
+            </div>
+            <div id="loadingList" class="loading-overlay">
+                <div class="spinner"></div>
+                Loading...
+            </div>
+            <div id="downloadList"></div>
+        </section>
+
+        <!-- ===== JSON VIEWER ===== -->
+        <section class="card" id="jsonCard">
+            <div class="card-title">
+                📄 JSON
+                <span class="badge">raw</span>
+            </div>
+            <div class="json-viewer">
+                <pre id="jsonPreview">// No data loaded yet</pre>
+                <div class="json-actions">
+                    <button class="btn btn-copy btn-sm" id="copyJsonBtn">📋 Copy JSON</button>
+                    <button class="btn btn-outline btn-sm" id="expandJsonBtn">↕ Expand</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <div style="text-align:center;padding:12px 0 6px;font-size:0.7rem;color:var(--text-muted);border-top:1px solid var(--border-glass);margin-top:8px;">
+            attackndestroy / attackndestroy / modslib / mod.json &nbsp;·&nbsp; Dashboard v1.0
         </div>
-        <button class="btn primary" id="saveTokenBtn">Save Token</button>
-        <button class="btn danger" id="clearTokenBtn">Clear Token</button>
-      </div>
-      <div class="token-note">The token is never hard-coded, never displayed in full, and is not written to the console.</div>
-      <div class="message" id="authMsg"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-head"><div><h2>Add Download</h2><p>Creates a new ID using highest ID + 1.</p></div></div>
-      <div class="field">
-        <label for="addDownload">Download</label>
-        <input id="addDownload" type="text" placeholder="Any string is allowed">
-      </div>
-      <div class="form-actions"><button class="btn primary" id="sendBtn">Send</button></div>
-      <div class="message" id="addMsg"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-head"><div><h2>Edit Download</h2><p>Load an existing item by numeric ID.</p></div></div>
-      <div class="row">
-        <div class="field"><label for="editId">ID</label><input id="editId" type="number" step="1" min="0" placeholder="35"></div>
-        <div class="field"><label for="editDownload">Download</label><input id="editDownload" type="text" placeholder="Download value"></div>
-      </div>
-      <div class="form-actions">
-        <button class="btn" id="loadItemBtn">Load</button>
-        <button class="btn primary" id="updateBtn">Update</button>
-      </div>
-      <div class="message" id="editMsg"></div>
-    </section>
-
-    <section class="card full">
-      <div class="card-head">
-        <div><h2>JSON Content</h2><p>Current JSON loaded from GitHub.</p></div>
-        <button class="btn" id="copyJsonBtn">Copy JSON</button>
-      </div>
-      <textarea id="jsonContent" class="json-content" readonly spellcheck="false"></textarea>
-      <div class="message" id="jsonMsg"></div>
-    </section>
-
-    <section class="card full">
-      <div class="card-head"><div><h2>Edit JSON</h2><p>Edit the complete file, validate it locally, then save it to GitHub.</p></div></div>
-      <textarea id="jsonEditor" class="editor" spellcheck="false" placeholder="[]"></textarea>
-      <div class="form-actions">
-        <button class="btn primary" id="saveJsonBtn">Save JSON</button>
-        <button class="btn" id="formatJsonBtn">Format JSON</button>
-      </div>
-      <div class="message" id="editorMsg"></div>
-    </section>
-  </main>
-</div>
-
-<div class="toast-wrap" id="toastWrap"></div>
-<div class="loading" id="loading"><div class="loader-box"><span class="spinner"></span><span id="loadingText">Working…</span></div></div>
-
-<script>
-(() => {
-  "use strict";
-
-  const OWNER = "attackndestroy";
-  const REPO = "attackndestroy";
-  const PATH = "modslib/mod.json";
-  const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
-  const TOKEN_KEY = "modslib_github_token";
-
-  let currentData = [];
-  let currentSha = null;
-
-  const $ = id => document.getElementById(id);
-
-  function getToken() {
-    return localStorage.getItem(TOKEN_KEY) || "";
-  }
-
-  function setLoading(on, text = "Working…") {
-    $("loadingText").textContent = text;
-    $("loading").classList.toggle("show", on);
-  }
-
-  function toast(text, type = "success") {
-    const el = document.createElement("div");
-    el.className = `toast ${type}`;
-    el.textContent = text;
-    $("toastWrap").appendChild(el);
-    setTimeout(() => el.remove(), 3400);
-  }
-
-  function message(id, text, type = "info") {
-    const el = $(id);
-    el.textContent = text;
-    el.className = `message show ${type}`;
-  }
-
-  function clearMessage(id) {
-    const el = $(id);
-    el.textContent = "";
-    el.className = "message";
-  }
-
-  function setStatus(ok, text) {
-    $("statusText").textContent = text;
-    $("statusDot").className = "dot " + (ok ? "ok" : "bad");
-  }
-
-  function headers() {
-    const token = getToken();
-    const h = {
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    };
-    if (token) h.Authorization = `Bearer ${token}`;
-    return h;
-  }
-
-  function decodeBase64Utf8(base64) {
-    const clean = base64.replace(/\s/g, "");
-    const binary = atob(clean);
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-
-  function encodeBase64Utf8(text) {
-    const bytes = new TextEncoder().encode(text);
-    let binary = "";
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-    }
-    return btoa(binary);
-  }
-
-  async function apiError(response) {
-    let detail = "";
-    try {
-      const body = await response.json();
-      detail = body.message || "";
-    } catch {}
-    const map = {
-      401: "GitHub token is missing or invalid.",
-      403: "GitHub rejected the request. Check token permissions or API limits.",
-      404: "Repository or mod.json was not found.",
-      409: "SHA conflict: the file changed elsewhere. Refresh and try again.",
-      422: "GitHub rejected the update. Check the file content and SHA."
-    };
-    return `${map[response.status] || `GitHub request failed (${response.status}).`}${detail ? ` ${detail}` : ""}`;
-  }
-
-  async function fetchLatest(showLoader = true) {
-    const token = getToken();
-    if (!token) {
-      setStatus(false, "Token required");
-      message("authMsg", "Enter and save a GitHub token before connecting.", "error");
-      throw new Error("Token required.");
-    }
-
-    if (showLoader) setLoading(true, "Fetching latest mod.json…");
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "GET",
-        headers: headers(),
-        cache: "no-store"
-      });
-
-      if (!response.ok) throw new Error(await apiError(response));
-
-      const result = await response.json();
-      if (!result.content || !result.sha) throw new Error("GitHub returned an incomplete file response.");
-
-      const text = decodeBase64Utf8(result.content);
-      const data = JSON.parse(text);
-
-      if (!Array.isArray(data)) throw new Error("mod.json must contain a JSON Array.");
-
-      currentData = data;
-      currentSha = result.sha;
-      renderData(text);
-      setStatus(true, "Connected");
-      clearMessage("authMsg");
-      return { data, text, sha: result.sha };
-    } catch (err) {
-      setStatus(false, "Error");
-      throw err;
-    } finally {
-      if (showLoader) setLoading(false);
-    }
-  }
-
-  function renderData(rawText) {
-    const pretty = JSON.stringify(currentData, null, 2);
-    $("jsonContent").value = pretty;
-    $("jsonEditor").value = pretty;
-
-    const ids = currentData
-      .map(x => Number(x && x.id))
-      .filter(Number.isFinite);
-
-    $("totalItems").textContent = currentData.length;
-    $("highestId").textContent = ids.length ? Math.max(...ids) : "0";
-  }
-
-  async function updateGitHub(data, messageText = "Update mod.json") {
-    if (!getToken()) throw new Error("Token required.");
-
-    const content = JSON.stringify(data, null, 2) + "\n";
-    const body = {
-      message: messageText,
-      content: encodeBase64Utf8(content),
-      sha: currentSha
-    };
-
-    const response = await fetch(API_URL, {
-      method: "PUT",
-      headers: { ...headers(), "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-
-    if (!response.ok) throw new Error(await apiError(response));
-
-    const result = await response.json();
-    if (!result.content || !result.content.sha) {
-      throw new Error("GitHub saved the file but returned no new SHA.");
-    }
-
-    currentSha = result.content.sha;
-    return result;
-  }
-
-  async function addDownload() {
-    clearMessage("addMsg");
-    const value = $("addDownload").value;
-
-    if (!value.trim()) {
-      message("addMsg", "Download cannot be empty.", "error");
-      return;
-    }
-
-    setLoading(true, "Getting latest JSON…");
-    try {
-      // Always fetch immediately before modifying, so the SHA is current.
-      const latest = await fetchLatest(false);
-      const ids = latest.data
-        .map(x => Number(x && x.id))
-        .filter(Number.isFinite);
-
-      const highest = ids.length ? Math.max(...ids) : 0;
-      const newId = highest + 1;
-
-      const next = [...latest.data, { id: newId, download: value }];
-      currentData = next;
-
-      setLoading(true, "Saving new download to GitHub…");
-      await updateGitHub(next, "Update mod.json");
-
-      // Reload after commit to make the UI authoritative.
-      await fetchLatest(false);
-
-      try {
-        await navigator.clipboard.writeText(String(newId));
-      } catch {
-        message("addMsg", `Added successfully — ID ${newId}. Clipboard permission was unavailable.`, "info");
-        $("addDownload").value = "";
-        return;
-      }
-
-      $("addDownload").value = "";
-      message("addMsg", `Added successfully — ID ${newId}`, "success");
-      toast(`Added successfully — ID ${newId}`, "success");
-    } catch (err) {
-      message("addMsg", err.message, "error");
-      toast(err.message, "error");
-      try { await fetchLatest(false); } catch {}
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function loadEditItem() {
-    clearMessage("editMsg");
-    const id = Number($("editId").value);
-
-    if (!Number.isInteger(id)) {
-      message("editMsg", "Enter a valid numeric ID.", "error");
-      return;
-    }
-
-    const item = currentData.find(x => Number(x.id) === id);
-    if (!item) {
-      message("editMsg", `ID ${id} was not found.`, "error");
-      return;
-    }
-
-    $("editDownload").value = typeof item.download === "string" ? item.download : String(item.download ?? "");
-    message("editMsg", `Loaded ID ${id}.`, "success");
-  }
-
-  async function updateDownload() {
-    clearMessage("editMsg");
-    const id = Number($("editId").value);
-
-    if (!Number.isInteger(id)) {
-      message("editMsg", "Enter a valid numeric ID.", "error");
-      return;
-    }
-
-    setLoading(true, "Getting latest JSON…");
-    try {
-      const latest = await fetchLatest(false);
-      const index = latest.data.findIndex(x => Number(x.id) === id);
-
-      if (index === -1) {
-        message("editMsg", `ID ${id} was not found in the latest GitHub version.`, "error");
-        return;
-      }
-
-      const next = latest.data.map((item, i) => {
-        if (i !== index) return item;
-        return { ...item, download: $("editDownload").value };
-      });
-
-      setLoading(true, "Saving update to GitHub…");
-      await updateGitHub(next, "Update mod.json");
-      await fetchLatest(false);
-
-      message("editMsg", `Updated successfully — ID ${id}`, "success");
-      toast(`Updated successfully — ID ${id}`, "success");
-    } catch (err) {
-      message("editMsg", err.message, "error");
-      toast(err.message, "error");
-      try { await fetchLatest(false); } catch {}
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function copyJson() {
-    clearMessage("jsonMsg");
-    try {
-      await navigator.clipboard.writeText($("jsonContent").value);
-      message("jsonMsg", "JSON copied successfully", "success");
-      toast("JSON copied successfully", "success");
-    } catch {
-      message("jsonMsg", "Clipboard access failed. Check browser permissions.", "error");
-      toast("Clipboard access failed.", "error");
-    }
-  }
-
-  function formatEditor() {
-    clearMessage("editorMsg");
-    try {
-      const parsed = JSON.parse($("jsonEditor").value);
-      $("jsonEditor").value = JSON.stringify(parsed, null, 2);
-      message("editorMsg", "JSON formatted successfully.", "success");
-    } catch (err) {
-      message("editorMsg", `Invalid JSON: ${err.message}`, "error");
-    }
-  }
-
-  async function saveFullJson() {
-    clearMessage("editorMsg");
-
-    let parsed;
-    try {
-      parsed = JSON.parse($("jsonEditor").value);
-    } catch (err) {
-      message("editorMsg", `Invalid JSON — nothing was sent to GitHub. ${err.message}`, "error");
-      toast("Invalid JSON. Nothing was saved.", "error");
-      return;
-    }
-
-    if (!Array.isArray(parsed)) {
-      message("editorMsg", "Invalid JSON — the root value must be an Array.", "error");
-      return;
-    }
-
-    setLoading(true, "Getting latest SHA…");
-    try {
-      // Always get the latest SHA immediately before the write.
-      await fetchLatest(false);
-
-      setLoading(true, "Saving complete JSON to GitHub…");
-      await updateGitHub(parsed, "Update mod.json");
-
-      await fetchLatest(false);
-
-      message("editorMsg", "JSON saved successfully and reloaded from GitHub.", "success");
-      toast("JSON saved successfully", "success");
-    } catch (err) {
-      message("editorMsg", err.message, "error");
-      toast(err.message, "error");
-      try { await fetchLatest(false); } catch {}
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  $("saveTokenBtn").addEventListener("click", async () => {
-    const token = $("token").value.trim();
-    if (!token) {
-      message("authMsg", "Enter a GitHub token first.", "error");
-      return;
-    }
-
-    localStorage.setItem(TOKEN_KEY, token);
-    $("token").value = "";
-    message("authMsg", "Token saved locally. Testing GitHub connection…", "info");
-
-    try {
-      await fetchLatest(true);
-      message("authMsg", "Token saved and GitHub connection verified.", "success");
-      toast("GitHub connected successfully", "success");
-    } catch (err) {
-      message("authMsg", `Token saved, but connection failed: ${err.message}`, "error");
-      toast("GitHub connection failed.", "error");
-    }
-  });
-
-  $("clearTokenBtn").addEventListener("click", () => {
-    localStorage.removeItem(TOKEN_KEY);
-    $("token").value = "";
-    currentData = [];
-    currentSha = null;
-    $("jsonContent").value = "";
-    $("jsonEditor").value = "";
-    $("totalItems").textContent = "—";
-    $("highestId").textContent = "—";
-    setStatus(false, "Not connected");
-    message("authMsg", "Token cleared from localStorage.", "success");
-    toast("Token cleared", "success");
-  });
-
-  $("refreshBtn").addEventListener("click", async () => {
-    try {
-      await fetchLatest(true);
-      toast("Latest JSON loaded", "success");
-    } catch (err) {
-      toast(err.message, "error");
-      message("authMsg", err.message, "error");
-    }
-  });
-
-  $("sendBtn").addEventListener("click", addDownload);
-  $("loadItemBtn").addEventListener("click", loadEditItem);
-  $("updateBtn").addEventListener("click", updateDownload);
-  $("copyJsonBtn").addEventListener("click", copyJson);
-  $("formatJsonBtn").addEventListener("click", formatEditor);
-  $("saveJsonBtn").addEventListener("click", saveFullJson);
-
-  $("editId").addEventListener("keydown", e => {
-    if (e.key === "Enter") loadEditItem();
-  });
-
-  $("addDownload").addEventListener("keydown", e => {
-    if (e.key === "Enter") addDownload();
-  });
-
-  // Do not auto-use a token in the UI. The token itself remains in localStorage.
-  // On opening, attempt to load only if a token already exists.
-  window.addEventListener("DOMContentLoaded", async () => {
-    if (getToken()) {
-      try {
-        await fetchLatest(true);
-      } catch (err) {
-        message("authMsg", err.message, "error");
-      }
-    } else {
-      setStatus(false, "Token required");
-    }
-  });
-})();
-</script>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // =============================================================
+            //  CONFIG
+            // =============================================================
+            const OWNER = 'attackndestroy';
+            const REPO = 'attackndestroy';
+            const PATH = 'modslib/mod.json';
+            const API_BASE = 'https://api.github.com';
+
+            // =============================================================
+            //  DOM REFS
+            // =============================================================
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const tokenInput = $('#tokenInput');
+            const toggleTokenBtn = $('#toggleTokenBtn');
+            const saveTokenBtn = $('#saveTokenBtn');
+            const clearTokenBtn = $('#clearTokenBtn');
+            const tokenStatus = $('#tokenStatus');
+
+            const statusDot = $('#statusDot');
+            const statusText = $('#statusText');
+
+            const refreshBtn = $('#refreshBtn');
+
+            const newId = $('#newId');
+            const newUrl = $('#newUrl');
+            const addBtn = $('#addBtn');
+            const addError = $('#addError');
+
+            const editId = $('#editId');
+            const editUrl = $('#editUrl');
+            const editBtn = $('#editBtn');
+            const editError = $('#editError');
+
+            const searchInput = $('#searchInput');
+            const downloadList = $('#downloadList');
+            const loadingList = $('#loadingList');
+            const countBadge = $('#countBadge');
+            const listCount = $('#listCount');
+
+            const jsonPreview = $('#jsonPreview');
+            const copyJsonBtn = $('#copyJsonBtn');
+            const expandJsonBtn = $('#expandJsonBtn');
+
+            const toastContainer = $('#toastContainer');
+
+            // =============================================================
+            //  STATE
+            // =============================================================
+            let data = []; // parsed JSON array
+            let currentSha = null; // SHA of the file on GitHub
+            let isSaving = false;
+            let isFetching = false;
+            let jsonExpanded = false;
+
+            // =============================================================
+            //  TOAST SYSTEM
+            // =============================================================
+            function showToast(message, type = 'info', duration = 4000) {
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                    <span class="toast-msg">${message}</span>
+                `;
+                toastContainer.appendChild(toast);
+                // trigger show
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+                // auto remove
+                const timer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 400);
+                }, duration);
+                // click to dismiss early
+                toast.addEventListener('click', () => {
+                    clearTimeout(timer);
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 400);
+                });
+            }
+
+            // =============================================================
+            //  STATUS INDICATOR
+            // =============================================================
+            function setStatus(state, text) {
+                const dot = statusDot;
+                dot.className = 'dot';
+                if (state === 'connected') {
+                    dot.classList.add('connected');
+                    statusText.textContent = text || 'Connected';
+                } else if (state === 'token-required') {
+                    dot.classList.add('token-required');
+                    statusText.textContent = text || 'Token Required';
+                } else if (state === 'error') {
+                    dot.classList.add('error');
+                    statusText.textContent = text || 'Error';
+                } else if (state === 'loading') {
+                    dot.classList.add('loading');
+                    statusText.textContent = text || 'Loading...';
+                } else {
+                    dot.classList.add('token-required');
+                    statusText.textContent = text || 'Unknown';
+                }
+            }
+
+            // =============================================================
+            //  TOKEN MANAGEMENT
+            // =============================================================
+            function loadTokenFromStorage() {
+                const stored = localStorage.getItem('gh_token');
+                if (stored) {
+                    tokenInput.value = stored;
+                    tokenStatus.textContent = '✅ Saved';
+                    tokenStatus.style.color = 'var(--success)';
+                    return stored;
+                }
+                tokenStatus.textContent = 'Not saved';
+                tokenStatus.style.color = 'var(--text-muted)';
+                return null;
+            }
+
+            function saveTokenToStorage(token) {
+                if (token && token.trim().length > 0) {
+                    localStorage.setItem('gh_token', token.trim());
+                    tokenStatus.textContent = '✅ Saved';
+                    tokenStatus.style.color = 'var(--success)';
+                    return true;
+                }
+                return false;
+            }
+
+            function clearTokenFromStorage() {
+                localStorage.removeItem('gh_token');
+                tokenInput.value = '';
+                tokenStatus.textContent = 'Not saved';
+                tokenStatus.style.color = 'var(--text-muted)';
+                setStatus('token-required', 'Token Required');
+                return true;
+            }
+
+            function getToken() {
+                return tokenInput.value.trim() || null;
+            }
+
+            // Toggle token visibility
+            let tokenVisible = false;
+            toggleTokenBtn.addEventListener('click', () => {
+                tokenVisible = !tokenVisible;
+                tokenInput.type = tokenVisible ? 'text' : 'password';
+                toggleTokenBtn.textContent = tokenVisible ? '🙈' : '👁️';
+            });
+
+            saveTokenBtn.addEventListener('click', () => {
+                const token = getToken();
+                if (!token) {
+                    showToast('Please enter a GitHub token.', 'warning');
+                    return;
+                }
+                if (saveTokenToStorage(token)) {
+                    showToast('Token saved successfully.', 'success');
+                    setStatus('loading', 'Checking...');
+                    fetchData(true);
+                }
+            });
+
+            clearTokenBtn.addEventListener('click', () => {
+                clearTokenFromStorage();
+                showToast('Token cleared.', 'info');
+                data = [];
+                currentSha = null;
+                renderList();
+                renderJSON();
+                updateIdField();
+                setStatus('token-required', 'Token Required');
+            });
+
+            // Auto-load token on page load
+            const initialToken = loadTokenFromStorage();
+            if (initialToken) {
+                setStatus('loading', 'Initializing...');
+                fetchData(true);
+            } else {
+                setStatus('token-required', 'Token Required');
+            }
+
+            // =============================================================
+            //  GITHUB API HELPERS
+            // =============================================================
+            function getHeaders(token) {
+                return {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json',
+                };
+            }
+
+            function utf8ToBase64(str) {
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(str);
+                let binary = '';
+                for (let i = 0; i < bytes.length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            }
+
+            function base64ToUtf8(base64) {
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return new TextDecoder('utf-8').decode(bytes);
+            }
+
+            async function fetchGitHubFile(token) {
+                const url = `${API_BASE}/repos/${OWNER}/${REPO}/contents/${PATH}`;
+                const resp = await fetch(url, {
+                    headers: getHeaders(token)
+                });
+                if (!resp.ok) {
+                    let msg = `GitHub API error (${resp.status})`;
+                    try {
+                        const err = await resp.json();
+                        if (err.message) msg = err.message;
+                    } catch (_) { /* ignore */ }
+                    throw new Error(msg);
+                }
+                const json = await resp.json();
+                if (!json.content) throw new Error('No content field in response.');
+                const decoded = base64ToUtf8(json.content);
+                const parsed = JSON.parse(decoded);
+                if (!Array.isArray(parsed)) throw new Error('JSON is not an array.');
+                return {
+                    data: parsed,
+                    sha: json.sha,
+                };
+            }
+
+            async function updateGitHubFile(token, content, sha) {
+                const url = `${API_BASE}/repos/${OWNER}/${REPO}/contents/${PATH}`;
+                const payload = {
+                    message: 'Update mod.json via dashboard',
+                    content: utf8ToBase64(content),
+                    sha: sha,
+                };
+                const resp = await fetch(url, {
+                    method: 'PUT',
+                    headers: getHeaders(token),
+                    body: JSON.stringify(payload),
+                });
+                if (!resp.ok) {
+                    let msg = `GitHub API error (${resp.status})`;
+                    try {
+                        const err = await resp.json();
+                        if (err.message) msg = err.message;
+                    } catch (_) { /* ignore */ }
+                    throw new Error(msg);
+                }
+                const result = await resp.json();
+                return result.content.sha;
+            }
+
+            // =============================================================
+            //  FETCH DATA
+            // =============================================================
+            async function fetchData(silentFail = false) {
+                const token = getToken();
+                if (!token) {
+                    setStatus('token-required', 'Token Required');
+                    if (!silentFail) showToast('Please enter a GitHub token.', 'warning');
+                    return false;
+                }
+                if (isFetching) return false;
+                isFetching = true;
+                setStatus('loading', 'Fetching...');
+                refreshBtn.disabled = true;
+
+                try {
+                    const result = await fetchGitHubFile(token);
+                    data = result.data;
+                    currentSha = result.sha;
+                    setStatus('connected', 'Connected');
+                    renderList();
+                    renderJSON();
+                    updateIdField();
+                    showToast('Data loaded successfully.', 'success', 2500);
+                    return true;
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    setStatus('error', 'Error');
+                    data = [];
+                    currentSha = null;
+                    renderList();
+                    renderJSON();
+                    updateIdField();
+                    if (!silentFail) {
+                        showToast('Failed to load data: ' + err.message, 'error');
+                    }
+                    return false;
+                } finally {
+                    isFetching = false;
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            // =============================================================
+            //  SAVE DATA TO GITHUB
+            // =============================================================
+            async function saveDataToGitHub(newData, message = 'Update mod.json') {
+                const token = getToken();
+                if (!token) {
+                    showToast('Token is required.', 'warning');
+                    return false;
+                }
+                if (!Array.isArray(newData) || newData.length === 0) {
+                    showToast('Data must be a non-empty array.', 'error');
+                    return false;
+                }
+                if (!currentSha) {
+                    showToast('No SHA available. Please refresh first.', 'error');
+                    return false;
+                }
+                if (isSaving) return false;
+                isSaving = true;
+                setStatus('loading', 'Saving...');
+                refreshBtn.disabled = true;
+
+                try {
+                    const content = JSON.stringify(newData, null, 2);
+                    const newSha = await updateGitHubFile(token, content, currentSha);
+                    currentSha = newSha;
+                    data = newData;
+                    setStatus('connected', 'Connected');
+                    renderList();
+                    renderJSON();
+                    updateIdField();
+                    showToast('Saved successfully to GitHub.', 'success', 3000);
+                    return true;
+                } catch (err) {
+                    console.error('Save error:', err);
+                    // Check for SHA conflict (409)
+                    if (err.message.includes('409') || err.message.includes('sha')) {
+                        showToast('SHA conflict — the file changed on GitHub. Refreshing...', 'warning');
+                        const refreshed = await fetchData(true);
+                        if (refreshed) {
+                            // retry save with fresh data
+                            showToast('Retrying save with fresh data...', 'info');
+                            return await saveDataToGitHub(newData, message);
+                        } else {
+                            showToast('Could not refresh. Please try again.', 'error');
+                            return false;
+                        }
+                    }
+                    setStatus('error', 'Error');
+                    showToast('Save failed: ' + err.message, 'error');
+                    return false;
+                } finally {
+                    isSaving = false;
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            // =============================================================
+            //  COMPUTE MAX ID
+            // =============================================================
+            function getMaxId(arr) {
+                if (!arr || arr.length === 0) return 0;
+                let max = 0;
+                for (const item of arr) {
+                    if (typeof item.id === 'number' && item.id > max) max = item.id;
+                }
+                return max;
+            }
+
+            function getNextId(arr) {
+                return getMaxId(arr) + 1;
+            }
+
+            function updateIdField() {
+                const nextId = getNextId(data);
+                newId.value = nextId > 0 ? String(nextId) : '1';
+            }
+
+            // =============================================================
+            //  RENDER LIST
+            // =============================================================
+            function renderList(filter = '') {
+                if (!data || data.length === 0) {
+                    downloadList.innerHTML = `
+                        <div class="empty-state">
+                            <span class="emoji">📭</span>
+                            No downloads found.
+                            ${data ? 'Add one using the form above.' : ' Load data first.'}
+                        </div>
+                    `;
+                    countBadge.textContent = '0';
+                    listCount.textContent = 'Showing 0 items';
+                    return;
+                }
+
+                // Sort by ID descending (newest first)
+                const sorted = [...data].sort((a, b) => (b.id || 0) - (a.id || 0));
+
+                let filtered = sorted;
+                if (filter.trim()) {
+                    const q = filter.trim().toLowerCase();
+                    filtered = sorted.filter(item => {
+                        const idMatch = String(item.id).includes(q);
+                        const urlMatch = (item.download || '').toLowerCase().includes(q);
+                        return idMatch || urlMatch;
+                    });
+                }
+
+                if (filtered.length === 0) {
+                    downloadList.innerHTML = `
+                        <div class="empty-state">
+                            <span class="emoji">🔎</span>
+                            No results for "${filter.trim()}".
+                        </div>
+                    `;
+                    countBadge.textContent = String(data.length);
+                    listCount.textContent = `Showing 0 of ${data.length} items`;
+                    return;
+                }
+
+                let html = '';
+                for (const item of filtered) {
+                    const id = item.id ?? '?';
+                    const url = item.download || '';
+                    const displayUrl = url.length > 80 ? url.slice(0, 80) + '…' : url;
+                    html += `
+                        <div class="download-item" data-id="${id}">
+                            <div class="info">
+                                <div class="id">#${id}</div>
+                                <div class="url">
+                                    <a href="${url}" target="_blank" rel="noopener noreferrer">${displayUrl || '(empty)'}</a>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-edit btn-sm edit-item-btn" data-id="${id}" data-url="${url}">✏️ Edit</button>
+                                <button class="btn btn-copy btn-sm copy-url-btn" data-url="${url}">📋 Copy URL</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                downloadList.innerHTML = html;
+                countBadge.textContent = String(data.length);
+                listCount.textContent = `Showing ${filtered.length} of ${data.length} items`;
+
+                // Attach events
+                downloadList.querySelectorAll('.edit-item-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = btn.dataset.id;
+                        const url = btn.dataset.url;
+                        editId.value = id;
+                        editUrl.value = url;
+                        editId.focus();
+                        showToast(`Loaded ID ${id} for editing.`, 'info', 2000);
+                    });
+                });
+
+                downloadList.querySelectorAll('.copy-url-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const url = btn.dataset.url;
+                        if (url) {
+                            navigator.clipboard.writeText(url).then(() => {
+                                showToast('URL copied to clipboard.', 'success', 2000);
+                            }).catch(() => {
+                                // fallback
+                                const ta = document.createElement('textarea');
+                                ta.value = url;
+                                document.body.appendChild(ta);
+                                ta.select();
+                                document.execCommand('copy');
+                                ta.remove();
+                                showToast('URL copied to clipboard.', 'success', 2000);
+                            });
+                        } else {
+                            showToast('No URL to copy.', 'warning');
+                        }
+                    });
+                });
+            }
+
+            // =============================================================
+            //  RENDER JSON
+            // =============================================================
+            function renderJSON() {
+                if (!data || data.length === 0) {
+                    jsonPreview.textContent = '// No data loaded';
+                    return;
+                }
+                const str = JSON.stringify(data, null, 2);
+                jsonPreview.textContent = str;
+            }
+
+            // =============================================================
+            //  ADD ITEM
+            // =============================================================
+            async function handleAdd() {
+                const url = newUrl.value.trim();
+                if (!url) {
+                    addError.textContent = '⚠️ Please enter a download URL.';
+                    addError.classList.add('show');
+                    return;
+                }
+                addError.classList.remove('show');
+
+                // Validate URL format
+                try {
+                    new URL(url);
+                } catch (_) {
+                    addError.textContent = '⚠️ Please enter a valid URL (e.g. https://example.com/file)';
+                    addError.classList.add('show');
+                    return;
+                }
+
+                const nextId = getNextId(data);
+                const newItem = {
+                    id: nextId,
+                    download: url,
+                };
+
+                const newData = [...data, newItem];
+                const success = await saveDataToGitHub(newData, `Add download ID ${nextId}`);
+                if (success) {
+                    newUrl.value = '';
+                    newUrl.focus();
+                    updateIdField();
+                    // Copy ID to clipboard
+                    try {
+                        await navigator.clipboard.writeText(String(nextId));
+                        showToast(`Added successfully — ID ${nextId} copied`, 'success', 3500);
+                    } catch (_) {
+                        // fallback
+                        const ta = document.createElement('textarea');
+                        ta.value = String(nextId);
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                        showToast(`Added successfully — ID ${nextId} copied`, 'success', 3500);
+                    }
+                }
+            }
+
+            // =============================================================
+            //  EDIT ITEM
+            // =============================================================
+            async function handleEdit() {
+                const idStr = editId.value.trim();
+                if (!idStr) {
+                    editError.textContent = '⚠️ Please enter an ID.';
+                    editError.classList.add('show');
+                    return;
+                }
+                const id = Number(idStr);
+                if (isNaN(id) || id < 1) {
+                    editError.textContent = '⚠️ Please enter a valid positive ID.';
+                    editError.classList.add('show');
+                    return;
+                }
+                const url = editUrl.value.trim();
+                if (!url) {
+                    editError.textContent = '⚠️ Please enter a download URL.';
+                    editError.classList.add('show');
+                    return;
+                }
+                try {
+                    new URL(url);
+                } catch (_) {
+                    editError.textContent = '⚠️ Please enter a valid URL.';
+                    editError.classList.add('show');
+                    return;
+                }
+                editError.classList.remove('show');
+
+                // Find item
+                const index = data.findIndex(item => item.id === id);
+                if (index === -1) {
+                    editError.textContent = `⚠️ ID ${id} not found.`;
+                    editError.classList.add('show');
+                    return;
+                }
+
+                const updatedData = [...data];
+                updatedData[index] = {
+                    ...updatedData[index],
+                    download: url,
+                };
+
+                const success = await saveDataToGitHub(updatedData, `Edit download ID ${id}`);
+                if (success) {
+                    editId.value = '';
+                    editUrl.value = '';
+                    showToast(`ID ${id} updated successfully.`, 'success', 3000);
+                }
+            }
+
+            // =============================================================
+            //  COPY JSON
+            // =============================================================
+            function copyJSON() {
+                if (!data || data.length === 0) {
+                    showToast('No data to copy.', 'warning');
+                    return;
+                }
+                const str = JSON.stringify(data, null, 2);
+                navigator.clipboard.writeText(str).then(() => {
+                    showToast('JSON copied successfully.', 'success', 2500);
+                }).catch(() => {
+                    // fallback
+                    const ta = document.createElement('textarea');
+                    ta.value = str;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    ta.remove();
+                    showToast('JSON copied successfully.', 'success', 2500);
+                });
+            }
+
+            // =============================================================
+            //  EVENT BINDINGS
+            // =============================================================
+
+            // Add
+            addBtn.addEventListener('click', handleAdd);
+            newUrl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addBtn.click();
+                }
+            });
+
+            // Edit
+            editBtn.addEventListener('click', handleEdit);
+            editUrl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    editBtn.click();
+                }
+            });
+
+            // Search
+            searchInput.addEventListener('input', () => {
+                renderList(searchInput.value);
+            });
+
+            // Refresh
+            refreshBtn.addEventListener('click', () => {
+                const token = getToken();
+                if (!token) {
+                    showToast('Please enter a GitHub token first.', 'warning');
+                    return;
+                }
+                fetchData(false);
+            });
+
+            // Copy JSON
+            copyJsonBtn.addEventListener('click', copyJSON);
+
+            // Expand JSON
+            expandJsonBtn.addEventListener('click', () => {
+                jsonExpanded = !jsonExpanded;
+                const pre = jsonPreview;
+                if (jsonExpanded) {
+                    pre.style.maxHeight = 'none';
+                    expandJsonBtn.textContent = '↕ Collapse';
+                } else {
+                    pre.style.maxHeight = '320px';
+                    expandJsonBtn.textContent = '↕ Expand';
+                }
+            });
+
+            // =============================================================
+            //  AUTO-LOAD on token save
+            // =============================================================
+            // Already handled above via saveTokenBtn
+
+            // =============================================================
+            //  INIT
+            // =============================================================
+            // If token was loaded, we already called fetchData.
+            // Otherwise, show empty state.
+            if (!initialToken) {
+                renderList();
+                renderJSON();
+                updateIdField();
+            }
+
+            // Additional: when clicking on a download item's edit, we scroll to edit section
+            // Already handled in renderList event binding.
+
+            console.log('🚀 JSON Dashboard ready.');
+            console.log(`📁 ${OWNER}/${REPO}/${PATH}`);
+
+            // Expose some helpers for debugging
+            window.__debug = {
+                data: () => data,
+                sha: () => currentSha,
+                refresh: fetchData,
+                save: saveDataToGitHub,
+            };
+
+        })();
+    </script>
+
 </body>
 </html>

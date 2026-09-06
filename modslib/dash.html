@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModsLib — GitHub JSON Dashboard</title>
+<style>
+:root{
+  --bg:#090b10;--panel:#10141c;--panel2:#0c1017;--border:#202733;
+  --text:#eef2f7;--muted:#8d98a8;--accent:#6ea8fe;--accent2:#4f8df7;
+  --success:#37d67a;--danger:#ff5c72;--warning:#f5bd4f;--shadow:0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:radial-gradient(circle at 10% 0%,#121a29 0,transparent 30%),var(--bg);
+  color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:min(1180px,calc(100% - 28px));margin:auto;padding:28px 0 50px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:42px;height:42px;border:1px solid #303949;border-radius:12px;display:grid;place-items:center;background:#151b25;font-weight:800}
+h1{font-size:22px;margin:0}.subtitle{color:var(--muted);font-size:13px;margin-top:3px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--border);background:#151a23;color:var(--text);border-radius:10px;
+  padding:10px 14px;font-weight:650;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:8px
+}
+.btn:hover{transform:translateY(-1px);border-color:#354052;background:#1a202b}
+.btn.primary{background:var(--accent2);border-color:var(--accent2);color:white}
+.btn.primary:hover{background:#6099fa}
+.btn.danger{color:#ff8998}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat,.card{
+  background:linear-gradient(180deg,rgba(20,25,34,.96),rgba(14,18,25,.96));
+  border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow)
+}
+.stat{padding:17px}.stat-label{font-size:12px;color:var(--muted);margin-bottom:8px}.stat-value{font-size:20px;font-weight:750;word-break:break-word}
+.status{display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--warning);box-shadow:0 0 12px currentColor}.dot.ok{background:var(--success)}.dot.bad{background:var(--danger)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{padding:19px}.card.full{grid-column:1/-1}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0}.card p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:12px;color:#b9c2ce;margin-bottom:7px;font-weight:650}
+input,textarea{
+  width:100%;border:1px solid #27303d;background:var(--panel2);color:var(--text);
+  border-radius:10px;outline:none;transition:.18s
+}
+input{height:43px;padding:0 12px}textarea{padding:13px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(110,168,254,.10)}
+.row{display:grid;grid-template-columns:150px 1fr;gap:10px}
+.form-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+.editor{min-height:370px;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:13px;tab-size:2}
+.json-content{min-height:250px}
+.auth-grid{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:end}
+.message{display:none;margin-top:11px;padding:10px 12px;border-radius:9px;font-size:12px;border:1px solid}
+.message.show{display:block}.message.success{color:#8df0b5;background:rgba(55,214,122,.07);border-color:rgba(55,214,122,.25)}
+.message.error{color:#ff9aa8;background:rgba(255,92,114,.07);border-color:rgba(255,92,114,.25)}
+.message.info{color:#9fc3ff;background:rgba(110,168,254,.07);border-color:rgba(110,168,254,.25)}
+.token-note{font-size:11px;color:var(--muted);margin-top:9px}
+.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;flex-direction:column;gap:9px;max-width:min(380px,calc(100% - 36px))}
+.toast{padding:12px 14px;background:#151b25;border:1px solid #2b3544;border-radius:11px;box-shadow:0 15px 35px rgba(0,0,0,.4);font-size:13px;animation:in .2s ease}
+.toast.success{border-color:rgba(55,214,122,.35)}.toast.error{border-color:rgba(255,92,114,.4)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.loading{position:fixed;inset:0;background:rgba(5,7,10,.52);backdrop-filter:blur(3px);display:none;place-items:center;z-index:30}
+.loading.show{display:grid}.loader-box{background:#121720;border:1px solid #2b3441;border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:12px;font-size:13px}
+.spinner{width:17px;height:17px;border:2px solid #3b4655;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+@media(max-width:800px){
+  .stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}
+  .topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions .btn{flex:1}
+}
+@media(max-width:520px){
+  .app{width:min(100% - 18px,1180px);padding-top:17px}.stats{grid-template-columns:1fr 1fr}.stat{padding:13px}
+  .stat-value{font-size:17px}.row{grid-template-columns:1fr}.auth-grid{grid-template-columns:1fr 1fr}.auth-grid input{grid-column:1/-1}
+  .form-actions .btn{width:100%}.card{padding:15px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">{ }</div>
+      <div><h1>ModsLib Dashboard</h1><div class="subtitle">GitHub JSON management panel</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="refreshBtn">↻ Refresh</button>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><div class="stat-label">Total Items</div><div class="stat-value" id="totalItems">—</div></div>
+    <div class="stat"><div class="stat-label">Highest ID</div><div class="stat-value" id="highestId">—</div></div>
+    <div class="stat"><div class="stat-label">File</div><div class="stat-value" style="font-size:14px">/modslib/mod.json</div></div>
+    <div class="stat"><div class="stat-label">Status</div><div class="stat-value status"><span class="dot" id="statusDot"></span><span id="statusText">Not connected</span></div></div>
+  </section>
+
+  <main class="grid">
+    <section class="card full">
+      <div class="card-head">
+        <div><h2>GitHub Authentication</h2><p>Your token is stored only in this browser's localStorage.</p></div>
+      </div>
+      <div class="auth-grid">
+        <div>
+          <label for="token">GitHub Token</label>
+          <input id="token" type="password" autocomplete="off" placeholder="Paste your GitHub token">
+        </div>
+        <button class="btn primary" id="saveTokenBtn">Save Token</button>
+        <button class="btn danger" id="clearTokenBtn">Clear Token</button>
+      </div>
+      <div class="token-note">The token is never hard-coded, never displayed in full, and is not written to the console.</div>
+      <div class="message" id="authMsg"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div><h2>Add Download</h2><p>Creates a new ID using highest ID + 1.</p></div></div>
+      <div class="field">
+        <label for="addDownload">Download</label>
+        <input id="addDownload" type="text" placeholder="Any string is allowed">
+      </div>
+      <div class="form-actions"><button class="btn primary" id="sendBtn">Send</button></div>
+      <div class="message" id="addMsg"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div><h2>Edit Download</h2><p>Load an existing item by numeric ID.</p></div></div>
+      <div class="row">
+        <div class="field"><label for="editId">ID</label><input id="editId" type="number" step="1" min="0" placeholder="35"></div>
+        <div class="field"><label for="editDownload">Download</label><input id="editDownload" type="text" placeholder="Download value"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="loadItemBtn">Load</button>
+        <button class="btn primary" id="updateBtn">Update</button>
+      </div>
+      <div class="message" id="editMsg"></div>
+    </section>
+
+    <section class="card full">
+      <div class="card-head">
+        <div><h2>JSON Content</h2><p>Current JSON loaded from GitHub.</p></div>
+        <button class="btn" id="copyJsonBtn">Copy JSON</button>
+      </div>
+      <textarea id="jsonContent" class="json-content" readonly spellcheck="false"></textarea>
+      <div class="message" id="jsonMsg"></div>
+    </section>
+
+    <section class="card full">
+      <div class="card-head"><div><h2>Edit JSON</h2><p>Edit the complete file, validate it locally, then save it to GitHub.</p></div></div>
+      <textarea id="jsonEditor" class="editor" spellcheck="false" placeholder="[]"></textarea>
+      <div class="form-actions">
+        <button class="btn primary" id="saveJsonBtn">Save JSON</button>
+        <button class="btn" id="formatJsonBtn">Format JSON</button>
+      </div>
+      <div class="message" id="editorMsg"></div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="loading" id="loading"><div class="loader-box"><span class="spinner"></span><span id="loadingText">Working…</span></div></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const OWNER = "attackndestroy";
+  const REPO = "attackndestroy";
+  const PATH = "modslib/mod.json";
+  const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
+  const TOKEN_KEY = "modslib_github_token";
+
+  let currentData = [];
+  let currentSha = null;
+
+  const $ = id => document.getElementById(id);
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  }
+
+  function setLoading(on, text = "Working…") {
+    $("loadingText").textContent = text;
+    $("loading").classList.toggle("show", on);
+  }
+
+  function toast(text, type = "success") {
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
+    el.textContent = text;
+    $("toastWrap").appendChild(el);
+    setTimeout(() => el.remove(), 3400);
+  }
+
+  function message(id, text, type = "info") {
+    const el = $(id);
+    el.textContent = text;
+    el.className = `message show ${type}`;
+  }
+
+  function clearMessage(id) {
+    const el = $(id);
+    el.textContent = "";
+    el.className = "message";
+  }
+
+  function setStatus(ok, text) {
+    $("statusText").textContent = text;
+    $("statusDot").className = "dot " + (ok ? "ok" : "bad");
+  }
+
+  function headers() {
+    const token = getToken();
+    const h = {
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }
+
+  function decodeBase64Utf8(base64) {
+    const clean = base64.replace(/\s/g, "");
+    const binary = atob(clean);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  function encodeBase64Utf8(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  async function apiError(response) {
+    let detail = "";
+    try {
+      const body = await response.json();
+      detail = body.message || "";
+    } catch {}
+    const map = {
+      401: "GitHub token is missing or invalid.",
+      403: "GitHub rejected the request. Check token permissions or API limits.",
+      404: "Repository or mod.json was not found.",
+      409: "SHA conflict: the file changed elsewhere. Refresh and try again.",
+      422: "GitHub rejected the update. Check the file content and SHA."
+    };
+    return `${map[response.status] || `GitHub request failed (${response.status}).`}${detail ? ` ${detail}` : ""}`;
+  }
+
+  async function fetchLatest(showLoader = true) {
+    const token = getToken();
+    if (!token) {
+      setStatus(false, "Token required");
+      message("authMsg", "Enter and save a GitHub token before connecting.", "error");
+      throw new Error("Token required.");
+    }
+
+    if (showLoader) setLoading(true, "Fetching latest mod.json…");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "GET",
+        headers: headers(),
+        cache: "no-store"
+      });
+
+      if (!response.ok) throw new Error(await apiError(response));
+
+      const result = await response.json();
+      if (!result.content || !result.sha) throw new Error("GitHub returned an incomplete file response.");
+
+      const text = decodeBase64Utf8(result.content);
+      const data = JSON.parse(text);
+
+      if (!Array.isArray(data)) throw new Error("mod.json must contain a JSON Array.");
+
+      currentData = data;
+      currentSha = result.sha;
+      renderData(text);
+      setStatus(true, "Connected");
+      clearMessage("authMsg");
+      return { data, text, sha: result.sha };
+    } catch (err) {
+      setStatus(false, "Error");
+      throw err;
+    } finally {
+      if (showLoader) setLoading(false);
+    }
+  }
+
+  function renderData(rawText) {
+    const pretty = JSON.stringify(currentData, null, 2);
+    $("jsonContent").value = pretty;
+    $("jsonEditor").value = pretty;
+
+    const ids = currentData
+      .map(x => Number(x && x.id))
+      .filter(Number.isFinite);
+
+    $("totalItems").textContent = currentData.length;
+    $("highestId").textContent = ids.length ? Math.max(...ids) : "0";
+  }
+
+  async function updateGitHub(data, messageText = "Update mod.json") {
+    if (!getToken()) throw new Error("Token required.");
+
+    const content = JSON.stringify(data, null, 2) + "\n";
+    const body = {
+      message: messageText,
+      content: encodeBase64Utf8(content),
+      sha: currentSha
+    };
+
+    const response = await fetch(API_URL, {
+      method: "PUT",
+      headers: { ...headers(), "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) throw new Error(await apiError(response));
+
+    const result = await response.json();
+    if (!result.content || !result.content.sha) {
+      throw new Error("GitHub saved the file but returned no new SHA.");
+    }
+
+    currentSha = result.content.sha;
+    return result;
+  }
+
+  async function addDownload() {
+    clearMessage("addMsg");
+    const value = $("addDownload").value;
+
+    if (!value.trim()) {
+      message("addMsg", "Download cannot be empty.", "error");
+      return;
+    }
+
+    setLoading(true, "Getting latest JSON…");
+    try {
+      // Always fetch immediately before modifying, so the SHA is current.
+      const latest = await fetchLatest(false);
+      const ids = latest.data
+        .map(x => Number(x && x.id))
+        .filter(Number.isFinite);
+
+      const highest = ids.length ? Math.max(...ids) : 0;
+      const newId = highest + 1;
+
+      const next = [...latest.data, { id: newId, download: value }];
+      currentData = next;
+
+      setLoading(true, "Saving new download to GitHub…");
+      await updateGitHub(next, "Update mod.json");
+
+      // Reload after commit to make the UI authoritative.
+      await fetchLatest(false);
+
+      try {
+        await navigator.clipboard.writeText(String(newId));
+      } catch {
+        message("addMsg", `Added successfully — ID ${newId}. Clipboard permission was unavailable.`, "info");
+        $("addDownload").value = "";
+        return;
+      }
+
+      $("addDownload").value = "";
+      message("addMsg", `Added successfully — ID ${newId}`, "success");
+      toast(`Added successfully — ID ${newId}`, "success");
+    } catch (err) {
+      message("addMsg", err.message, "error");
+      toast(err.message, "error");
+      try { await fetchLatest(false); } catch {}
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function loadEditItem() {
+    clearMessage("editMsg");
+    const id = Number($("editId").value);
+
+    if (!Number.isInteger(id)) {
+      message("editMsg", "Enter a valid numeric ID.", "error");
+      return;
+    }
+
+    const item = currentData.find(x => Number(x.id) === id);
+    if (!item) {
+      message("editMsg", `ID ${id} was not found.`, "error");
+      return;
+    }
+
+    $("editDownload").value = typeof item.download === "string" ? item.download : String(item.download ?? "");
+    message("editMsg", `Loaded ID ${id}.`, "success");
+  }
+
+  async function updateDownload() {
+    clearMessage("editMsg");
+    const id = Number($("editId").value);
+
+    if (!Number.isInteger(id)) {
+      message("editMsg", "Enter a valid numeric ID.", "error");
+      return;
+    }
+
+    setLoading(true, "Getting latest JSON…");
+    try {
+      const latest = await fetchLatest(false);
+      const index = latest.data.findIndex(x => Number(x.id) === id);
+
+      if (index === -1) {
+        message("editMsg", `ID ${id} was not found in the latest GitHub version.`, "error");
+        return;
+      }
+
+      const next = latest.data.map((item, i) => {
+        if (i !== index) return item;
+        return { ...item, download: $("editDownload").value };
+      });
+
+      setLoading(true, "Saving update to GitHub…");
+      await updateGitHub(next, "Update mod.json");
+      await fetchLatest(false);
+
+      message("editMsg", `Updated successfully — ID ${id}`, "success");
+      toast(`Updated successfully — ID ${id}`, "success");
+    } catch (err) {
+      message("editMsg", err.message, "error");
+      toast(err.message, "error");
+      try { await fetchLatest(false); } catch {}
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copyJson() {
+    clearMessage("jsonMsg");
+    try {
+      await navigator.clipboard.writeText($("jsonContent").value);
+      message("jsonMsg", "JSON copied successfully", "success");
+      toast("JSON copied successfully", "success");
+    } catch {
+      message("jsonMsg", "Clipboard access failed. Check browser permissions.", "error");
+      toast("Clipboard access failed.", "error");
+    }
+  }
+
+  function formatEditor() {
+    clearMessage("editorMsg");
+    try {
+      const parsed = JSON.parse($("jsonEditor").value);
+      $("jsonEditor").value = JSON.stringify(parsed, null, 2);
+      message("editorMsg", "JSON formatted successfully.", "success");
+    } catch (err) {
+      message("editorMsg", `Invalid JSON: ${err.message}`, "error");
+    }
+  }
+
+  async function saveFullJson() {
+    clearMessage("editorMsg");
+
+    let parsed;
+    try {
+      parsed = JSON.parse($("jsonEditor").value);
+    } catch (err) {
+      message("editorMsg", `Invalid JSON — nothing was sent to GitHub. ${err.message}`, "error");
+      toast("Invalid JSON. Nothing was saved.", "error");
+      return;
+    }
+
+    if (!Array.isArray(parsed)) {
+      message("editorMsg", "Invalid JSON — the root value must be an Array.", "error");
+      return;
+    }
+
+    setLoading(true, "Getting latest SHA…");
+    try {
+      // Always get the latest SHA immediately before the write.
+      await fetchLatest(false);
+
+      setLoading(true, "Saving complete JSON to GitHub…");
+      await updateGitHub(parsed, "Update mod.json");
+
+      await fetchLatest(false);
+
+      message("editorMsg", "JSON saved successfully and reloaded from GitHub.", "success");
+      toast("JSON saved successfully", "success");
+    } catch (err) {
+      message("editorMsg", err.message, "error");
+      toast(err.message, "error");
+      try { await fetchLatest(false); } catch {}
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  $("saveTokenBtn").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    if (!token) {
+      message("authMsg", "Enter a GitHub token first.", "error");
+      return;
+    }
+
+    localStorage.setItem(TOKEN_KEY, token);
+    $("token").value = "";
+    message("authMsg", "Token saved locally. Testing GitHub connection…", "info");
+
+    try {
+      await fetchLatest(true);
+      message("authMsg", "Token saved and GitHub connection verified.", "success");
+      toast("GitHub connected successfully", "success");
+    } catch (err) {
+      message("authMsg", `Token saved, but connection failed: ${err.message}`, "error");
+      toast("GitHub connection failed.", "error");
+    }
+  });
+
+  $("clearTokenBtn").addEventListener("click", () => {
+    localStorage.removeItem(TOKEN_KEY);
+    $("token").value = "";
+    currentData = [];
+    currentSha = null;
+    $("jsonContent").value = "";
+    $("jsonEditor").value = "";
+    $("totalItems").textContent = "—";
+    $("highestId").textContent = "—";
+    setStatus(false, "Not connected");
+    message("authMsg", "Token cleared from localStorage.", "success");
+    toast("Token cleared", "success");
+  });
+
+  $("refreshBtn").addEventListener("click", async () => {
+    try {
+      await fetchLatest(true);
+      toast("Latest JSON loaded", "success");
+    } catch (err) {
+      toast(err.message, "error");
+      message("authMsg", err.message, "error");
+    }
+  });
+
+  $("sendBtn").addEventListener("click", addDownload);
+  $("loadItemBtn").addEventListener("click", loadEditItem);
+  $("updateBtn").addEventListener("click", updateDownload);
+  $("copyJsonBtn").addEventListener("click", copyJson);
+  $("formatJsonBtn").addEventListener("click", formatEditor);
+  $("saveJsonBtn").addEventListener("click", saveFullJson);
+
+  $("editId").addEventListener("keydown", e => {
+    if (e.key === "Enter") loadEditItem();
+  });
+
+  $("addDownload").addEventListener("keydown", e => {
+    if (e.key === "Enter") addDownload();
+  });
+
+  // Do not auto-use a token in the UI. The token itself remains in localStorage.
+  // On opening, attempt to load only if a token already exists.
+  window.addEventListener("DOMContentLoaded", async () => {
+    if (getToken()) {
+      try {
+        await fetchLatest(true);
+      } catch (err) {
+        message("authMsg", err.message, "error");
+      }
+    } else {
+      setStatus(false, "Token required");
+    }
+  });
+})();
+</script>
+</body>
+</html>

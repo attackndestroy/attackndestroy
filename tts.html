@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولد أوامر Edge-TTS - 72 Seasons</title>
+    <title>مولد أوامر Edge-TTS</title>
     <style>
         :root {
             --primary: #ffee00;
@@ -119,34 +119,36 @@
 </head>
 <body>
 <div class="container">
-<h2>72 SEASONS // TTS GENERATOR</h2>
+<h2>TTS COMMAND GENERATOR</h2>
 <div class="form-group">
     <label for="textInput">النص المراد تحويله:</label>
     <textarea id="textInput" placeholder="اكتب النص هنا..." oninput="generateCommand()"></textarea>
 </div>
 <div class="form-group">
     <label for="fileNameInput">اسم الملف:</label>
-    <input type="text" id="fileNameInput" placeholder="مثال: who_made_who" oninput="generateCommand()">
-    <div class="info">سيتم تحويل "_" إلى مسافة في اسم الـ Single داخل الـMetadata.</div>
+    <input type="text" id="fileNameInput" placeholder="مثال: audio_file" oninput="generateCommand()">
+    <div class="info">سيتم تحويل "_" إلى مسافة في اسم العنوان داخل البيانات الوصفية (Metadata).</div>
+</div>
+<div class="form-group">
+    <label for="langSelect">اللغة (Language):</label>
+    <select id="langSelect" onchange="updateVoices(); generateCommand();">
+        <option value="ar" selected>العربية (ARB)</option>
+        <option value="en">الإنجليزية (ENG)</option>
+    </select>
 </div>
 <div class="form-group">
     <label for="voiceSelect">المؤدي الصوتي:</label>
     <select id="voiceSelect" onchange="generateCommand()">
-        <option value="ar-SA-HamedNeural">السعودي - Hamed</option>
-        <option value="ar-SA-ZariyahNeural">السعودية - Zariyah</option>
-        <option value="ar-EG-SalmaNeural">المصري - Salma</option>
-        <option value="ar-EG-ShakirNeural">المصري - Shakir</option>
-        <option value="ar-AE-FatimaNeural">الإماراتي - Fatima</option>
-        <option value="ar-JO-SanaNeural">الأردني - Sana</option>
+        <!-- سيتم تعبئتها ديناميكياً -->
     </select>
 </div>
 <div class="form-group">
     <label for="albumSelect">Album:</label>
     <select id="albumSelect" onchange="generateCommand()">
-        <option value="Cj Legend">Cj Legend</option>
-        <option value="ModsLib">ModsLib</option>
-        <option value="BlockFoundry">BlockFoundry</option>
-        <option value="72 Seasons" selected>72 Seasons</option>
+        <option value="Album One">Album One</option>
+        <option value="Album Two">Album Two</option>
+        <option value="Album Three">Album Three</option>
+        <option value="Main Album" selected>Main Album</option>
     </select>
 </div>
 <div class="form-group">
@@ -164,6 +166,25 @@
 </div>
 </div>
 <script>
+    const voicesData = {
+        ar: [
+            { value: "ar-SA-HamedNeural", label: "السعودي - Hamed" },
+            { value: "ar-SA-ZariyahNeural", label: "السعودية - Zariyah" },
+            { value: "ar-EG-SalmaNeural", label: "المصري - Salma" },
+            { value: "ar-EG-ShakirNeural", label: "المصري - Shakir" },
+            { value: "ar-AE-FatimaNeural", label: "الإماراتي - Fatima" },
+            { value: "ar-JO-SanaNeural", label: "الأردني - Sana" }
+        ],
+        en: [
+            { value: "en-US-AriaNeural", label: "أمريكي - Aria" },
+            { value: "en-US-GuyNeural", label: "أمريكي - Guy" },
+            { value: "en-US-JennyNeural", label: "أمريكي - Jenny" },
+            { value: "en-GB-RyanNeural", label: "بريطاني - Ryan" },
+            { value: "en-GB-SoniaNeural", label: "بريطاني - Sonia" },
+            { value: "en-AU-NatashaNeural", label: "أسترالي - Natasha" }
+        ]
+    };
+
     const yearSelect = document.getElementById("yearSelect");
     const currentYear = 2026;
     for (let year = currentYear; year <= 2050; year++) {
@@ -172,6 +193,20 @@
         if (year === currentYear) option.selected = true;
         yearSelect.appendChild(option);
     }
+
+    function updateVoices() {
+        const lang = document.getElementById("langSelect").value;
+        const voiceSelect = document.getElementById("voiceSelect");
+        voiceSelect.innerHTML = "";
+        
+        voicesData[lang].forEach(v => {
+            const option = document.createElement("option");
+            option.value = v.value;
+            option.textContent = v.label;
+            voiceSelect.appendChild(option);
+        });
+    }
+
     function generateCommand() {
         const text = document.getElementById("textInput").value.trim();
         const fileName = document.getElementById("fileNameInput").value.trim();
@@ -180,20 +215,25 @@
         const year = document.getElementById("yearSelect").value;
         const track = document.getElementById("trackInput").value.trim();
         const output = document.getElementById("commandOutput");
+        
         if (!text || !fileName) { output.textContent = "اكتب النص واسم الملف لتوليد الأمر..."; return; }
+        
         const safeText = text.replace(/"/g, '\\"');
         const cleanFileName = fileName.replace(/\.mp3$/i, "").replace(/[\/\\:*?"<>|]/g, "");
         const single = cleanFileName.replace(/_/g, " ").trim();
-        const tempFile = `/sdcard/ATTDES/Audio/${cleanFileName}_temp.mp3`;
-        const finalFile = `/sdcard/ATTDES/Audio/${cleanFileName}.mp3`;
-        const coverFile = `/storage/ATTDES/cover.jpg`;
+        const tempFile = `/sdcard/Download/Audio/${cleanFileName}_temp.mp3`;
+        const finalFile = `/sdcard/Download/Audio/${cleanFileName}.mp3`;
+        const coverFile = `/storage/Download/cover.jpg`;
+        
         let command = `edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "${tempFile}"`;
-        command += ` && ffmpeg -y -i "${tempFile}" -i "${coverFile}" -map 0:a:0 -map 1:v:0 -c:a copy -c:v mjpeg -metadata "artist=Attack N' Destroy" -metadata "album=${album}" -metadata "title=${single}" -metadata "date=${year}" -metadata "genre=Vocals"`;
+        command += ` && ffmpeg -y -i "${tempFile}" -i "${coverFile}" -map 0:a:0 -map 1:v:0 -c:a copy -c:v mjpeg -metadata "artist=Artist" -metadata "album=${album}" -metadata "title=${single}" -metadata "date=${year}" -metadata "genre=Vocals"`;
         if (track) command += ` -metadata "track=${track}"`;
         command += ` -id3v2_version 3 "${finalFile}"`;
         command += ` && rm "${tempFile}"`;
+        
         output.textContent = command;
     }
+
     function copyCommand() {
         const commandText = document.getElementById("commandOutput").textContent;
         if (!commandText || commandText === "اكتب النص واسم الملف لتوليد الأمر...") return;
@@ -203,6 +243,8 @@
             setTimeout(() => { btn.textContent = "نسخ الأمر تلقائياً"; btn.classList.remove("btn-success"); }, 2000);
         });
     }
+
+    updateVoices();
     generateCommand();
 </script>
 </body>

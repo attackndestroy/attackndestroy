@@ -145,10 +145,9 @@
 <div class="form-group">
     <label for="albumSelect">Album:</label>
     <select id="albumSelect" onchange="generateCommand()">
-        <option value="Album One">Album One</option>
-        <option value="Album Two">Album Two</option>
-        <option value="Album Three">Album Three</option>
-        <option value="Main Album" selected>Main Album</option>
+        <option value="ModsLib">ModsLib</option>
+        <option value="Cj Legend">Cj Legend</option>
+        <option value="BlockFoundry" selected>BlockFoundry</option>
     </select>
 </div>
 <div class="form-group">
@@ -221,11 +220,13 @@
         const safeText = text.replace(/"/g, '\\"');
         const cleanFileName = fileName.replace(/\.mp3$/i, "").replace(/[\/\\:*?"<>|]/g, "");
         const single = cleanFileName.replace(/_/g, " ").trim();
-        const tempFile = `/sdcard/Download/Audio/${cleanFileName}_temp.mp3`;
-        const finalFile = `/sdcard/Download/Audio/${cleanFileName}.mp3`;
-        const coverFile = `/storage/Download/cover.jpg`;
         
-        let command = `edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "${tempFile}"`;
+        const audioDir = `/sdcard/Download/Audio`;
+        const tempFile = `${audioDir}/${cleanFileName}_temp.mp3`;
+        const finalFile = `${audioDir}/${cleanFileName}.mp3`;
+        const coverFile = `/sdcard/Download/cover.jpg`;
+        
+        let command = `mkdir -p "${audioDir}" && edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "${tempFile}"`;
         command += ` && ffmpeg -y -i "${tempFile}" -i "${coverFile}" -map 0:a:0 -map 1:v:0 -c:a copy -c:v mjpeg -metadata "artist=Artist" -metadata "album=${album}" -metadata "title=${single}" -metadata "date=${year}" -metadata "genre=Vocals"`;
         if (track) command += ` -metadata "track=${track}"`;
         command += ` -id3v2_version 3 "${finalFile}"`;

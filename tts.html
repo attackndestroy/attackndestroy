@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولد أوامر Edge-TTS</title>
+    <title>مولد أوامر Edge-TTS - 72 Seasons</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            --primary: #ffee00;
+            --primary-hover: #d4c800;
+            --bg: #000000;
+            --card-bg: #0d0d0d;
+            --text: #ffffff;
+            --text-muted: #a3a3a3;
+            --border: #2b2b00;
         }
         * {
             box-sizing: border-box;
@@ -28,151 +28,182 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a00 0%, #000 60%);
         }
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            border: 1px solid #333300;
+            border-radius: 4px;
             padding: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 25px rgba(255, 238, 0, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.8);
         }
         h2 {
             margin-bottom: 20px;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             text-align: center;
-            color: #818cf8;
+            color: var(--primary);
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px #333;
         }
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.9rem;
-            color: var(--text-muted);
+            color: var(--primary);
         }
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
+            background: #000;
+            border: 1px solid #4a4a00;
+            border-radius: 2px;
+            color: #fff;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(255, 238, 0, 0.4);
         }
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        textarea { resize: vertical; min-height: 120px; }
         .output-box {
             margin-top: 24px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            background: #000;
+            border: 1px dashed var(--primary);
+            border-radius: 4px;
             padding: 16px;
             position: relative;
         }
         pre {
             white-space: pre-wrap;
-            word-break: break-all;
+            word-break: break-word;
+            overflow-wrap: anywhere;
             font-family: monospace;
-            font-size: 0.9rem;
-            color: #38bdf8;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--primary);
             margin-bottom: 12px;
+            direction: ltr;
+            text-align: left;
         }
         .btn {
             background-color: var(--primary);
-            color: white;
+            color: #000;
             border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
+            border-radius: 2px;
+            padding: 14px 20px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 900;
             cursor: pointer;
             width: 100%;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .btn:hover {
-            background-color: var(--primary-hover);
+            background-color: #fff;
+            color: #000;
+            box-shadow: 0 0 15px rgba(255,238,0,0.6);
         }
-        .btn-success {
-            background-color: #10b981 !important;
-        }
+        .btn-success { background-color: #fff !important; color: #000 !important; }
+        .info { margin-top: 8px; color: var(--text-muted); font-size: 0.8rem; }
+        select option { background: #000; color: #ffee00; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>مولد أوامر Edge-TTS</h2>
-        
-        <div class="form-group">
-            <label for="textInput">النص المراد تحويله:</label>
-            <textarea id="textInput" placeholder="اكتب النص هنا..." oninput="generateCommand()">مرحباً بك في أداة توليد الصوت.</textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="fileNameInput">اسم الملف (بدون صيغة):</label>
-            <input type="text" id="fileNameInput" value="my_audio" oninput="generateCommand()">
-        </div>
-
-        <div class="form-group">
-            <label for="voiceSelect">اختر المؤدي الصوتي:</label>
-            <select id="voiceSelect" onchange="generateCommand()">
-                <option value="ar-SA-HamedNeural">السعودي - حamed (Hamed)</option>
-                <option value="ar-SA-ZariyahNeural">السعودية - زارية (Zariyah)</option>
-                <option value="ar-EG-SalmaNeural">المصري - سلمى (Salma)</option>
-                <option value="ar-EG-ShakirNeural">المصري - شاكر (Shakir)</option>
-                <option value="ar-AE-FatimaNeural">الإماراتي - فاطمة (Fatima)</option>
-                <option value="ar-JO-SanaNeural">الأردني - سناء (Sana)</option>
-            </select>
-        </div>
-
-        <div class="output-box">
-            <label>الأمر الناتج:</label>
-            <pre id="commandOutput"></pre>
-            <button class="btn" id="copyBtn" onclick="copyCommand()">نسخ الأمر تلقائياً</button>
-        </div>
-    </div>
-
-    <script>
-        function generateCommand() {
-            const text = document.getElementById('textInput').value.trim() || "اكتب النص هنا";
-            const fileName = document.getElementById('fileNameInput').value.trim() || "audio";
-            const voice = document.getElementById('voiceSelect').value;
-            
-            // تنظيف النص من علامات التنصيص المزدوجة لكي لا تفسد الأمر في التيرمنال
-            const safeText = text.replace(/"/g, '\\"');
-
-            const command = `edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "/sdcard/ATTDES/Audio/${fileName}.mp3"`;
-            
-            document.getElementById('commandOutput').textContent = command;
-        }
-
-        function copyCommand() {
-            const commandText = document.getElementById('commandOutput').textContent;
-            navigator.clipboard.writeText(commandText).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.textContent = "تم النسخ بنجاح! ✅";
-                btn.classList.add('btn-success');
-                
-                setTimeout(() => {
-                    btn.textContent = "نسخ الأمر تلقائياً";
-                    btn.classList.remove('btn-success');
-                }, 2000);
-            });
-        }
-
-        // توليد الأمر لأول مرة عند فتح الصفحة
-        generateCommand();
-    </script>
-
+<div class="container">
+<h2>72 SEASONS // TTS GENERATOR</h2>
+<div class="form-group">
+    <label for="textInput">النص المراد تحويله:</label>
+    <textarea id="textInput" placeholder="اكتب النص هنا..." oninput="generateCommand()"></textarea>
+</div>
+<div class="form-group">
+    <label for="fileNameInput">اسم الملف:</label>
+    <input type="text" id="fileNameInput" placeholder="مثال: who_made_who" oninput="generateCommand()">
+    <div class="info">سيتم تحويل "_" إلى مسافة في اسم الـ Single داخل الـMetadata.</div>
+</div>
+<div class="form-group">
+    <label for="voiceSelect">المؤدي الصوتي:</label>
+    <select id="voiceSelect" onchange="generateCommand()">
+        <option value="ar-SA-HamedNeural">السعودي - Hamed</option>
+        <option value="ar-SA-ZariyahNeural">السعودية - Zariyah</option>
+        <option value="ar-EG-SalmaNeural">المصري - Salma</option>
+        <option value="ar-EG-ShakirNeural">المصري - Shakir</option>
+        <option value="ar-AE-FatimaNeural">الإماراتي - Fatima</option>
+        <option value="ar-JO-SanaNeural">الأردني - Sana</option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="albumSelect">Album:</label>
+    <select id="albumSelect" onchange="generateCommand()">
+        <option value="Cj Legend">Cj Legend</option>
+        <option value="ModsLib">ModsLib</option>
+        <option value="BlockFoundry">BlockFoundry</option>
+        <option value="72 Seasons" selected>72 Seasons</option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="yearSelect">Year:</label>
+    <select id="yearSelect" onchange="generateCommand()"></select>
+</div>
+<div class="form-group">
+    <label for="trackInput">Track:</label>
+    <input type="number" id="trackInput" min="1" placeholder="رقم المسار" oninput="generateCommand()">
+</div>
+<div class="output-box">
+    <label>الأمر الناتج:</label>
+    <pre id="commandOutput"></pre>
+    <button class="btn" id="copyBtn" onclick="copyCommand()">نسخ الأمر تلقائياً</button>
+</div>
+</div>
+<script>
+    const yearSelect = document.getElementById("yearSelect");
+    const currentYear = 2026;
+    for (let year = currentYear; year <= 2050; year++) {
+        const option = document.createElement("option");
+        option.value = year; option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+    function generateCommand() {
+        const text = document.getElementById("textInput").value.trim();
+        const fileName = document.getElementById("fileNameInput").value.trim();
+        const voice = document.getElementById("voiceSelect").value;
+        const album = document.getElementById("albumSelect").value;
+        const year = document.getElementById("yearSelect").value;
+        const track = document.getElementById("trackInput").value.trim();
+        const output = document.getElementById("commandOutput");
+        if (!text || !fileName) { output.textContent = "اكتب النص واسم الملف لتوليد الأمر..."; return; }
+        const safeText = text.replace(/"/g, '\\"');
+        const cleanFileName = fileName.replace(/\.mp3$/i, "").replace(/[\/\\:*?"<>|]/g, "");
+        const single = cleanFileName.replace(/_/g, " ").trim();
+        const tempFile = `/sdcard/ATTDES/Audio/${cleanFileName}_temp.mp3`;
+        const finalFile = `/sdcard/ATTDES/Audio/${cleanFileName}.mp3`;
+        const coverFile = `/storage/ATTDES/cover.jpg`;
+        let command = `edge-tts --voice "${voice}" --volume="+300%" --text "${safeText}" --write-media "${tempFile}"`;
+        command += ` && ffmpeg -y -i "${tempFile}" -i "${coverFile}" -map 0:a:0 -map 1:v:0 -c:a copy -c:v mjpeg -metadata "artist=Attack N' Destroy" -metadata "album=${album}" -metadata "title=${single}" -metadata "date=${year}" -metadata "genre=Vocals"`;
+        if (track) command += ` -metadata "track=${track}"`;
+        command += ` -id3v2_version 3 "${finalFile}"`;
+        command += ` && rm "${tempFile}"`;
+        output.textContent = command;
+    }
+    function copyCommand() {
+        const commandText = document.getElementById("commandOutput").textContent;
+        if (!commandText || commandText === "اكتب النص واسم الملف لتوليد الأمر...") return;
+        navigator.clipboard.writeText(commandText).then(() => {
+            const btn = document.getElementById("copyBtn");
+            btn.textContent = "تم النسخ بنجاح! ✅"; btn.classList.add("btn-success");
+            setTimeout(() => { btn.textContent = "نسخ الأمر تلقائياً"; btn.classList.remove("btn-success"); }, 2000);
+        });
+    }
+    generateCommand();
+</script>
 </body>
 </html>
